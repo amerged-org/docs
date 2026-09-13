@@ -12,6 +12,7 @@ The ohmyho.st website and platform use only technical cookies and similar storag
 | --- | --- | --- |
 | omh_referral | Remember the entry link’s r value and whether to show the beta login link; no unique visitor identifier | Up to 30 days; first-party, Secure, HttpOnly, SameSite=Lax |
 | omh_cookie_notice | Remember that you dismissed the technical-cookie notice | Up to 180 days; first-party website preference, no unique visitor identifier |
+| __Host-omh-session | Keep the authenticated account portal session, protect form actions and renew WorkOS access server-side | Up to seven days; encrypted and authenticated, host-only, Secure, HttpOnly, SameSite=Lax; cleared on logout or invalidation |
 | __Host-omh-login | Protect the browser login handoff using state and PKCE | Up to ten minutes; Secure, HttpOnly, SameSite=Lax; cleared after the handoff |
 | __Host-ohmyhost_dev_access | Authorise access to a private customer Dev environment after a single-use link is redeemed | Up to twelve hours; host-only, Secure, HttpOnly, SameSite=Lax |
 | Authentication and security cookies used by the selected login service | Maintain the requested login and protect authentication | The login service's session/security expiry; only when that service is used |

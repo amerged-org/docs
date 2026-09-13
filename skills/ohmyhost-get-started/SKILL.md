@@ -22,7 +22,7 @@ ohmyhost whoami --json
 
 Show the returned sign-in link and wait for the customer's completion. MCP uses this local CLI login.
 
-If identity contains an organization, use the customer's selection without creating another. If it contains none, take the signup source from the invitation URL's single `r` parameter. Ask for the organization name, then use `organization_create` with `name`, `signup_source` and one saved `idempotency_key`.
+An eligible first browser signup already creates **My workspace**, records the referral once, grants the configured one-time bonus and enables Beta Paid features. Reuse it: if identity contains an organization, use the customer's selection without creating another. If it contains none, take the signup source from the invitation URL's single `r` parameter. Ask for the organization name, then use `organization_create` with `name`, `signup_source` and one saved `idempotency_key`.
 
 ```sh
 ohmyhost organization create --name "$ORGANIZATION_NAME" --source "$SIGNUP_SOURCE" --idempotency-key "$ORGANIZATION_REQUEST_KEY" --json
@@ -30,7 +30,7 @@ ohmyhost login --json
 ohmyhost whoami --json
 ```
 
-The second login selects the new organization. Confirm it with `identity_get` before creating a project. Reuse the original creation arguments and key after an interrupted response. Organization creation requires interactive login; an API key cannot perform it.
+The backend coalesces initial workspace creation from the portal and a session without an organization; replay may return the initial workspace’s existing name. The second login selects the new organization. Confirm it with `identity_get` before creating a project. Reuse the original creation arguments and key after an interrupted response. Organization creation requires interactive login; an API key cannot perform it.
 
 If the invitation is missing or rejected, return the next action and https://ohmyho.st/ for beta access. Do not invent an invitation or create a project without an authorized organization.
 

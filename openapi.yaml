@@ -1,8 +1,8 @@
 openapi: 3.1.2
 info:
-  title: ohmyhost API
+  title: ohmyho.st API
   version: 0.0.0
-  description: Canonical public REST contract for the ohmyhost control plane.
+  description: Public REST API for ohmyho.st hosting, projects, domains, email, credits and exports.
 jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
 servers:
   - url: https://app.ohmyho.st
@@ -12,6 +12,88 @@ servers:
 security:
   - BearerAuth: []
 paths:
+  /v1/me/profile:
+    get:
+      operationId: getAccountProfile
+      summary: Read the current interactive user profile and signup attribution
+      responses:
+        "200":
+          description: Authenticated account data.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AccountProfile" }
+        "400":
+          $ref: "#/components/responses/Problem"
+        "401":
+          $ref: "#/components/responses/Problem"
+        "403":
+          $ref: "#/components/responses/Problem"
+        "404":
+          $ref: "#/components/responses/Problem"
+        "429":
+          $ref: "#/components/responses/Problem"
+        "503":
+          $ref: "#/components/responses/Problem"
+  /v1/me/signup-source:
+    put:
+      operationId: recordSignupSource
+      summary: Record the authenticated user signup source once
+      description: Interactive session required; the first accepted source is immutable, repeat requests return it unchanged and no credits or Paid rights are granted by this endpoint.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [source]
+              properties:
+                source: { type: [string, "null"], minLength: 1, maxLength: 64 }
+      responses:
+        "200":
+          description: Authenticated account data.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AccountProfile" }
+        "400":
+          $ref: "#/components/responses/Problem"
+        "401":
+          $ref: "#/components/responses/Problem"
+        "403":
+          $ref: "#/components/responses/Problem"
+        "404":
+          $ref: "#/components/responses/Problem"
+        "429":
+          $ref: "#/components/responses/Problem"
+        "503":
+          $ref: "#/components/responses/Problem"
+  /v1/organizations/{organization_id}/account:
+    get:
+      operationId: getOrganizationAccount
+      summary: Read effective plan and monthly versus one-time credit balance
+      parameters:
+        - name: organization_id
+          in: path
+          required: true
+          schema: { $ref: "#/components/schemas/Ulid" }
+      responses:
+        "200":
+          description: Authenticated account data.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrganizationAccount" }
+        "400":
+          $ref: "#/components/responses/Problem"
+        "401":
+          $ref: "#/components/responses/Problem"
+        "403":
+          $ref: "#/components/responses/Problem"
+        "404":
+          $ref: "#/components/responses/Problem"
+        "429":
+          $ref: "#/components/responses/Problem"
+        "503":
+          $ref: "#/components/responses/Problem"
   /v1/contact-requests:
     post:
       operationId: submitContactRequest
@@ -3691,6 +3773,71 @@ components:
           type: string
           minLength: 1
           maxLength: 128
+    AccountProfile:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          user_id,
+          name,
+          email,
+          email_verified,
+          organizations,
+          organization_ids,
+          signup_source,
+          attributed_at,
+          initial_workspace_id,
+        ]
+      properties:
+        user_id: { type: string, pattern: "^user_[A-Za-z0-9_]{1,123}$" }
+        name: { type: string, maxLength: 256 }
+        email: { type: string, format: email, maxLength: 254 }
+        email_verified: { type: boolean }
+        organizations:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [id, workos_id, name]
+            properties:
+              id: { $ref: "#/components/schemas/Ulid" }
+              workos_id: { type: string }
+              name: { type: string }
+        organization_ids: { type: array, items: { $ref: "#/components/schemas/Ulid" } }
+        signup_source: { type: [string, "null"], maxLength: 64 }
+        attributed_at: { type: [string, "null"], format: date-time }
+        initial_workspace_id: { type: [string, "null"], pattern: "^[0-9A-HJKMNP-TV-Z]{26}$" }
+    OrganizationAccount:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          organization_id,
+          name,
+          workos_organization_id,
+          plan,
+          plan_source,
+          paid_until,
+          available_micros,
+          monthly_micros,
+          one_time_micros,
+          reserved_micros,
+          next_expiry,
+          as_of,
+        ]
+      properties:
+        organization_id: { $ref: "#/components/schemas/Ulid" }
+        name: { type: string }
+        workos_organization_id: { type: string }
+        plan: { type: string, enum: [free, paid] }
+        plan_source: { type: string, enum: [free, stripe, beta, manual] }
+        paid_until: { type: [string, "null"], format: date-time }
+        available_micros: { $ref: "#/components/schemas/CreditMicros" }
+        monthly_micros: { $ref: "#/components/schemas/CreditMicros" }
+        one_time_micros: { $ref: "#/components/schemas/CreditMicros" }
+        reserved_micros: { $ref: "#/components/schemas/CreditMicros" }
+        next_expiry: { type: [string, "null"], format: date-time }
+        as_of: { type: string, format: date-time }
     CurrentIdentity:
       type: object
       description: Minimal customer-visible identity and organization scope for authenticated agent clients.

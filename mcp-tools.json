@@ -459,6 +459,27 @@
       }
     },
     {
+      "name": "organization_account_get",
+      "description": "Owner-only: read the effective Free/Paid plan, its Stripe/Beta/manual source, available monthly and non-expiring one-time credits, reservations and next expiry. Beta/manual Paid features do not imply a Stripe subscription or extra monthly Paid allowance. This read grants no access or credits.",
+      "inputSchema": {
+        "type": "object",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "organization_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "required": ["organization_id"]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
       "name": "organization_credits_get",
       "description": "Read the owner's shared organization credit pool, seven-day grace_started_at/grace_expires_at and published rate_cards. Existing services/domains are not immediately shut down at zero credit; an explicit project stop budget is separate. One credit is 1000000 microcredits. Each rate states credit_micros for units_per_charge; publication alone does not enable billing. active_meters identifies billed sources; provider outages and platform overrun are not customer debt. Works at zero credit.",
       "inputSchema": {
@@ -1248,7 +1269,7 @@
     },
     {
       "name": "mail_domain_set",
-      "description": "Configure the canonical transactional-mail sender domain. Requires a confirmed current Paid plan; paid_plan_required means the Owner must use billing_checkout_create with offer paid first. Top-ups and signup credits do not enable Paid. Reading existing configuration remains available.",
+      "description": "Configure the canonical transactional-mail sender domain. Requires effective Paid access. Read organization_account_get first: Stripe, Beta and manual grants all qualify; credit balance alone is not feature access. Only suggest a Paid Checkout when the account is Free and the owner wants to purchase. Reading existing configuration remains available.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",

@@ -2,6 +2,8 @@
 title: "Purchases and invoices"
 ---
 
+The [account portal](https://app.ohmyho.st/billing) shows Free/Paid, the source of Paid access, monthly expiring credits and remaining one-time credits. Reservations remain available through the API/CLI/MCP. Beta and manual grants provide Paid features without a Stripe subscription or extra monthly Paid allowance. Signup/referral and top-up credits never expire; the existing Free monthly base allowance is separate.
+
 An organization Owner can request checkout for a Paid subscription or a one-time credit top-up where billing is enabled. A top-up adds credits; it does not extend a subscription. Every successful purchase has an invoice.
 
 Your agent opens billing_checkout_create only for an authorized purchase, then reads billing_checkout_get and the organization balance to confirm its result. Returning from the checkout browser page alone is not payment confirmation. billing_portal_create opens invoices, payment methods and subscription management.
