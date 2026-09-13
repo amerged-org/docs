@@ -1,53 +1,91 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "name": "ohmyho.st",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#71717A",
+    "light": "#18181B",
+    "dark": "#F0F1F2"
   },
   "favicon": "/favicon.svg",
-  "navigation": {
-    "pages": [
-      {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
-        ]
-      }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
   "logo": {
     "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "dark": "/logo/dark.svg",
+    "href": "https://ohmyho.st/"
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Start",
+            "pages": [
+              "index",
+              "quickstart",
+              "cli",
+              "agents/mcp",
+              "mcp-tools",
+              "skills",
+              "login-tokens",
+              "sdk"
+            ]
+          },
+          {
+            "group": "Deploy",
+            "pages": [
+              "github",
+              "frameworks/nextjs",
+              "frameworks/vite",
+              "frameworks/tanstack",
+              "application-auth",
+              "secrets",
+              "environments",
+              "migrations"
+            ]
+          },
+          {
+            "group": "Operate",
+            "pages": [
+              "database",
+              "domains",
+              "email",
+              "status",
+              "troubleshooting",
+              "usage",
+              "budgets",
+              "billing",
+              "backups"
+            ]
+          },
+          {
+            "group": "Agent reference",
+            "pages": [
+              "project-context",
+              "feedback",
+              "limits",
+              "changelog"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API reference",
+        "openapi": "openapi.json"
+      }
+    ]
   },
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "Back to website",
+        "href": "https://ohmyho.st/"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "label": "Get beta access",
+      "href": "https://ohmyho.st/"
     }
   },
   "contextual": {
@@ -56,17 +94,13 @@
       "view",
       "chatgpt",
       "claude",
-      "perplexity",
-      "mcp",
       "cursor",
       "vscode"
     ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "github": "https://github.com/amerged/docs"
     }
   }
 }

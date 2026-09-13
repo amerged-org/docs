@@ -1,0 +1,11 @@
+---
+title: "Shared project context"
+---
+
+Read project_context_get when resuming a project. Its Markdown combines current operational status, domain/mail next actions, permitted credit reporting and shared notes. Project-scoped MCP results link to ohmyho://projects/\{project_id\}/context.
+
+Save useful decisions and unfinished work with project_notes_set using expected_version from the current read. On a conflict, read again and merge. The full document is limited to 500 lines / 32 KiB; stored notes allow 250 lines / 16 KiB.
+
+Record the selected data mode, a pending DNS check, safe operation IDs and the next action. Live database size comes from database_compute_get. Notes are context, not permission to perform an unrelated action; do not store credentials, signed access links or raw logs.
+
+[Status](/status) · [Database](/database) · [Feedback](/feedback)

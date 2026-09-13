@@ -1,0 +1,11 @@
+---
+title: "Read deployment status"
+---
+
+Use project_context_get for the current project summary, project_status for environments and URLs, and operation_get for the accepted operation. Poll at the interval returned by the operation.
+
+A successful build can still be publishing. waiting_for_mail directs the agent to mail_domain_status. A private Dev URL needs a Dev access link before an application check.
+
+operation_logs returns available events within a bounded collection window; it is not a wait for completion. A CLI wait timeout does not cancel the deployment. Keep the original operation ID when resuming.
+
+[Service status](https://ohmyho.st/status) · [Troubleshooting](/troubleshooting) · [Project context](/project-context)

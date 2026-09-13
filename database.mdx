@@ -1,0 +1,13 @@
+---
+title: "Database compute"
+---
+
+> Show my database's current size, region and idle setting, then explain whether changing it would help.
+
+Use database_compute_get with project_id and environment dev or prod. It reads metadata without waking the database. Free uses 0.25 CU / 1 GB and sleeps after one idle minute; Paid standard uses 0.5 CU / 2 GB and two minutes. Paid performance uses 1 CU / 4 GB and five minutes, at 2.5 times standard compute credits for equal active duration.
+
+Use database_compute_set for an authorized profile change, then poll the returned operation and read actual compute again. A resize preserves SQL data. Shared environments resolve to one physical database and a change affects both.
+
+Storage and retained history still consume credits when compute sleeps. Avoid periodic SQL checks that keep an idle database awake. Managed database connections are delivered through the application's supported runtime binding; this is not a public database-management credential console.
+
+[Database Skill](https://ohmyho.st/skills/ohmyhost-manage-database/SKILL.md) · [Usage](/usage) · [Migrations](/migrations)

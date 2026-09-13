@@ -1,0 +1,34 @@
+---
+title: "Usage and database size"
+---
+
+Ask your agent: “Show this month's usage by project and my remaining credits.”
+
+```
+ohmyhost credits balance --organization "$ORGANIZATION_ID" --json
+ohmyhost credits usage --organization "$ORGANIZATION_ID" --month YYYY-MM --json
+```
+
+Credits are shared across your organization. Optional project budgets limit an individual project's spending. Reports show posted measurements; recent usage can take time to appear. Status and reporting remain available at zero credits.
+
+## Database profiles
+
+| Profile | Compute | Memory | Sleeps after idle |
+| --- | --- | --- | --- |
+| Free | 0.25 CU | 1 GB | 1 minute |
+| Paid standard | 0.5 CU | 2 GB | 2 minutes |
+| Paid performance | 1 CU | 4 GB | 5 minutes |
+
+Performance uses 2.5 times Paid-standard database compute credits for the same active duration. Its longer idle window can add active minutes. Storage and retained history are metered separately. An idle database sleeps automatically; its first query may take longer to respond.
+
+```
+ohmyhost database compute get --project "$PROJECT_ID" --environment prod --json
+```
+
+Ask your agent to select standard or performance and show the cost before changing it. With shared data, a resize affects both environments; isolated databases are sized and metered separately.
+
+## Billing
+
+Your agent can show invoices and open the billing portal. Each successful purchase has an invoice, including top-ups. A top-up adds credits; it does not extend a subscription. Automatic recharge is not currently available. Production purchases are not yet enabled; existing organizations can inspect their available balance.
+
+[Usage and budgets Skill](https://ohmyho.st/skills/ohmyhost-usage-and-budgets/SKILL.md) · [Database Skill](https://ohmyho.st/skills/ohmyhost-manage-database/SKILL.md)

@@ -1,0 +1,11 @@
+---
+title: "Dev and Prod"
+---
+
+Every project has Dev and Prod environments sharing an organization credit balance. The customer chooses isolated or shared data when creating the project.
+
+Isolated data gives each environment its own database and files, with separate consumption. Shared data uses one set and changes can affect both. The Skills recommend isolation for safer testing and explain the difference before creating resources.
+
+Dev requires a private single-use access link. After verifying the app, use promotion_plan and promotion_execute for the requested promotion. Promotion reuses the verified artifact and applies versioned migrations; it does not copy Dev records into isolated Prod.
+
+[Migration guide](/migrations) · [Database profiles](/database) · [Deployment Skill](https://ohmyho.st/skills/ohmyhost-deploy-github/SKILL.md)

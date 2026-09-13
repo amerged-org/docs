@@ -1,0 +1,13 @@
+---
+title: "Diagnose a deployment"
+---
+
+> Read the original operation and logs, explain the cause and take the supported next action.
+
+Start with project_context_get, project_status and operation_get. Use operation_logs for the available event prefix. Follow the actual phase and error: pending DNS requires a verification check, while a source build failure requires fixing the reported code or configuration.
+
+When reconciliation is explicitly required, use one confirmed operation_reconcile with the original operation ID and a saved request key. Pending reconciliation means poll that operation; exhausted recovery means report it rather than create a new deployment to bypass the limit.
+
+Use feedback_submit for a suspected bug, issue or feature request. Retain its acknowledgment ID and include only a minimal reproduction and safe operation/error identifiers.
+
+[Troubleshooting Skill](https://ohmyho.st/skills/ohmyhost-troubleshoot-deployment/SKILL.md) · [Feedback](/feedback) · [Status](/status)

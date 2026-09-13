@@ -1,0 +1,11 @@
+---
+title: "Login and deployment tokens"
+---
+
+Use ohmyhost login for the browser sign-in and whoami to read the selected organization. Your agent uses that local login through MCP.
+
+An invitation supplies the r value for first organization creation. Sign in again after creation to select the new organization. Existing users can return through /login without creating another organization.
+
+You can create a user-owned deployment token with a default 90-day lifetime and save it once to an owner-only, Git-ignored env file. Its full value cannot be retrieved later. Token listing returns metadata; revocation targets the selected token. Use an interactive-login process without OHMYHOST_TOKEN for organization creation or token management.
+
+[CLI token commands](/cli) · [Get-started Skill](https://ohmyho.st/skills/ohmyhost-get-started/SKILL.md) · [Application auth](/application-auth)

@@ -1,0 +1,11 @@
+---
+title: "Bring your application's auth"
+---
+
+Your ohmyho.st login gives your agent hosting access. Your application chooses its own users, sessions and authentication provider. A deliberately public application needs no login.
+
+Better Auth, customer-owned WorkOS and Auth0 are the supported integration targets. Compatibility and completed verification depend on the actual framework/runtime combination; ask the agent to inspect the current admission result and test your application's full login path. Existing hosted Next.js with customer-owned WorkOS has been verified; do not assume that proves every other combination.
+
+Keep an existing provider unless you choose to change it. Configure its exact callback/logout URLs, allowed origins and required server secrets. Test login, callback, a protected route, reload and logout. The provider may send its own verification email; this does not automatically require managed ohmyho.st mail.
+
+[Secrets](/secrets) · [Frameworks](/frameworks/nextjs) · [Portable-app Skill](https://ohmyho.st/skills/ohmyhost-build-portable-app/SKILL.md)

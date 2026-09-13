@@ -1,0 +1,13 @@
+---
+title: "Transactional email"
+---
+
+> Configure my chosen sender domain, show the required records and verify a real application send.
+
+Managed transactional mail requires Paid access and a configured sender domain. mail_domain_set starts setup; mail_domain_status reads current DNS/DKIM readiness and any next action. Present the exact records returned by the API and preserve existing mailbox MX.
+
+Cloudflare DNS authorization can automate supported records. Other DNS providers work with manual entry. During verification, follow next_check_after_seconds and ask the agent to check again after 60 minutes. Continue the original deployment operation instead of rebuilding.
+
+Sender verification and the provider account's sending availability are separate. A ready sender alone does not prove commercial delivery. Read the actual error if a send is unavailable and verify receipt before reporting email as working.
+
+[Domains](/domains) · [Mail Skill](https://ohmyho.st/skills/ohmyhost-domains-and-mail/SKILL.md) · [Mail pricing comparison](https://ohmyho.st/vs/resend)

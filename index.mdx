@@ -1,20 +1,43 @@
 ---
-title: "Introduction"
-description: "Welcome to your project"
+title: "Deploy with ohmyho.st"
 ---
 
-Write a short description of your product here. What it does, who it's for, and what they can accomplish with it.
+Deploy your GitHub app, connect a domain, and manage it through your agent.
 
-<Tip>
-  Ready to make this your own? Start by editing this page. Update your `docs.json` file to customize your site. Then fill out the [Quickstart](/quickstart) page.
-</Tip>
+## Start with your agent
 
-<Card title="Quickstart" icon="rocket" href="/quickstart">
-  This card links to the quickstart page in your project.
-</Card>
-<Card title="Components" icon="puzzle-piece" href="https://mintlify.com/docs/components">
-  Add cards, callouts, steps, tabs, and more to design and structure your pages.
-</Card>
-<Card title="Settings" icon="gear" href="https://mintlify.com/docs/organize/settings">
-  Set your site name, branding, and navigation in the `docs.json` file.
-</Card>
+Open a terminal in your project and run:
+
+```
+curl -fsSL https://omh.st/0.sh | bash
+```
+
+Choose Codex, Claude Code, Cursor, Hermes or OpenClaw. Follow the sign-in link and authorize your GitHub repository. Then ask:
+
+> Deploy this project to ohmyho.st. Show me the plan, then verify the deployed app.
+
+Your agent checks the app, configures the project and follows the deployment. It can also connect your domain, check usage and export your database.
+
+## Prefer the CLI?
+
+Install with Node.js 22 or newer:
+
+```
+npm install --global https://ohmyho.st/releases/0.1.0-beta.25/ohmyhost-product-cli-0.1.0-beta.25.tgz
+export OHMYHOST_ENVIRONMENT=production
+ohmyhost login --json
+```
+
+Continue with the [CLI guide](/cli). For native Windows, use the [MCP setup](/agents/mcp) without Bash.
+
+## What next?
+
+- [Connect your agent with MCP](/agents/mcp)
+- [Install task Skills](/skills)
+- [Connect a domain or email](/domains)
+- [Check usage and database size](/usage)
+- [Download a database export](/backups)
+- [Read the API reference](https://ohmyho.st/api)
+
+Ask your agent for status and changes: “Is my domain ready?” or “Which project used the most credits this month?”
+

@@ -1,0 +1,11 @@
+---
+title: "TypeScript SDK"
+---
+
+The generated SDK exposes the same REST /v1 contract used by CLI and MCP. Install the current sdk-ts archive listed in the public release manifest linked from the CLI guide; the package needs no platform-repository access.
+
+Create a client with the selected public API origin and your customer authorization. Import the generated operation for the action you need. Consult the OpenAPI reference for request fields, result types and errors. Keep tokens in the calling process, outside source code and browser bundles.
+
+Requests that create work return an operation to observe. Preserve the original idempotency key after a network interruption; do not submit another deployment to read status.
+
+[OpenAPI](https://ohmyho.st/api) · [CLI and release manifest](/cli) · [Operation status](/status)

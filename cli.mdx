@@ -1,0 +1,54 @@
+---
+title: "CLI"
+---
+
+Deploy and manage projects from your terminal. Requires Node.js 22 or newer.
+
+## Install and log in
+
+```
+npm install --global https://ohmyho.st/releases/0.1.0-beta.25/ohmyhost-product-cli-0.1.0-beta.25.tgz
+ohmyhost login --json
+ohmyhost whoami --json
+```
+
+Open the sign-in link printed by login. Use the organization ID returned by whoami. If signup asks for an invitation, use the link you received.
+
+## Prepare your app
+
+Run these commands in your GitHub repository:
+
+```
+ohmyhost init --dry-run --json
+ohmyhost project create --organization "$ORGANIZATION_ID" --name "My app" --data-mode isolated --idempotency-key "$PROJECT_REQUEST_KEY" --json
+ohmyhost link --help
+ohmyhost plan --help
+ohmyhost deploy --help
+```
+
+Choose a unique request key for project creation. Link your repository, review the plan for the exact pushed commit, then deploy. Reuse the same request key if a response is interrupted. Your agent can handle this workflow with the [GitHub deployment Skill](https://ohmyho.st/skills/ohmyhost-deploy-github/SKILL.md).
+
+Isolated data gives Dev and Prod separate databases; each uses credits. Shared data uses one database for both. Keep your application's existing authentication choice.
+
+## Check progress
+
+```
+ohmyhost project context --project "$PROJECT_ID" --json
+ohmyhost project status --help
+ohmyhost operation get --help
+```
+
+Use the operation ID returned by deploy to follow progress. Dev links are private; ask your agent to open a Dev access link before testing.
+
+## Save a token for your agent
+
+From your interactive login:
+
+```
+ohmyhost token create --organization "$ORGANIZATION_ID" --name "Deployment agent" --idempotency-key "$TOKEN_REQUEST_KEY" --out .env.local --json
+ohmyhost token list --organization "$ORGANIZATION_ID" --json
+```
+
+Tokens default to 90 days. The command saves the newly issued value to the private file; it cannot be retrieved again later. Ignore the file in Git. Existing credentials are not overwritten. Load it into your agent process using Node's --env-file option. Use token revoke --help to revoke a selected key from your interactive login.
+
+[Release manifest and checksums](https://ohmyho.st/releases/0.1.0-beta.25/manifest.json) · [MCP setup](/agents/mcp) · [API reference](https://ohmyho.st/api)

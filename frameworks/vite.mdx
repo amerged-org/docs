@@ -1,0 +1,13 @@
+---
+title: "Host a Vite or React app"
+---
+
+> Inspect this Vite app and deploy it without adding services it does not use.
+
+A public static application can deploy without a database or login. Run ohmyhost init --dry-run --json and retain the matching package-manager lockfile. Vite applications can use React and TanStack Router/Query; those packages do not by themselves turn the app into TanStack Start.
+
+If the app requires server capabilities, follow the returned same-origin API companion contract and implement the routes it actually calls. VITE_ variables are visible in the browser bundle; private credentials belong in server runtime secrets.
+
+Verify navigation and a direct reload of a nested route, then any requested API and auth flows.
+
+[Portable-app Skill](https://ohmyho.st/skills/ohmyhost-build-portable-app/SKILL.md) · [GitHub](/github) · [Secrets](/secrets)

@@ -1,0 +1,13 @@
+---
+title: "Export your database"
+---
+
+Ask your agent to create a password-encrypted SQL ZIP using a private password file you choose. You keep the password.
+
+Exports run asynchronously. Your agent requests one, checks its progress, then gives you a download link valid for 24 hours. You can request one export per project per rolling 24 hours. An accepted failed request still uses that allowance.
+
+The export contains SQL dumps for your project's databases. It excludes application source, files and configuration. The plaintext SQL limit is 256 MiB. Use an AES-compatible ZIP reader such as 7-Zip to open it.
+
+Exports require the organization Owner and remain available at zero credits. Direct Google Drive, S3 and R2 destinations are not currently available.
+
+[Database export Skill](https://ohmyho.st/skills/ohmyhost-export-database/SKILL.md)

@@ -1,0 +1,11 @@
+---
+title: "Project spending limits"
+---
+
+An organization has one credit balance. An optional project budget limits a project's spending; it does not create another wallet.
+
+Ask your agent to read project_budget_get and explain the current limit before changing it. project_budget_set accepts the requested amount and mode using the current tool schema. Read the result back after an authorized change.
+
+Check both reserved credits and posted consumption when a new operation cannot start. Low balance, a project limit and a Paid entitlement are different conditions. The returned error tells the agent which action is needed.
+
+[Usage and budgets Skill](https://ohmyho.st/skills/ohmyhost-usage-and-budgets/SKILL.md) · [Usage](/usage) · [Pricing](https://ohmyho.st/pricing)
