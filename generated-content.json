@@ -1,5 +1,5 @@
 {
-  "source_commit": "d749a1f962833aa583ad463fe47123f1e128d07f",
+  "source_commit": "8e5d1917afe7cbcf0e8134293ac3c8cf14edf79c",
   "source_dirty": false,
   "files": [
     {
@@ -120,11 +120,11 @@
     },
     {
       "path": "legal/privacy.mdx",
-      "sha256": "822d39dbb5c9b01579f4745bb6241d26ee282f96a8887a5fc4f6f214083b7e4f"
+      "sha256": "1efab28c6a1229b981027a93e07468c37afdc94023a2a1794c73bc5f665e7a28"
     },
     {
       "path": "legal/cookies.mdx",
-      "sha256": "5e6473dca5544b6f8d03cd38088f565da6cab66505a479e300d87b157aa299c4"
+      "sha256": "5ba09b5938a0219c1c59546f616c4c7938a1372a4e6f3185bcb7f6aaf1f4bbf0"
     },
     {
       "path": "legal/dpa.mdx",
