@@ -6,16 +6,11 @@ Deploy your GitHub app, connect a domain, and manage it through your agent.
 
 ## Start with your agent
 
-Open a terminal in your project and run:
+Paste this prompt into Codex, Claude Code, Cursor or the agent you already use:
 
-```
-curl -fsSL https://omh.st/0.sh | bash
-```
+> Read https://ohmyho.st/llms.txt and https://ohmyho.st/skills/ohmyhost-get-started/SKILL.md. Connect this agent to ohmyho.st and deploy this GitHub project using only the capabilities it needs. Follow the deployment Skill, keep my existing project decisions and verify the app.
 
-Choose Codex, Claude Code, Cursor, Hermes or OpenClaw. Follow the sign-in link and authorize your GitHub repository. Then ask:
-
-> Deploy this project to ohmyho.st. Show me the plan, then verify the deployed app.
-
+Include the invitation link you received. Your agent installs the public clients, connects MCP and guides you through sign-in.
 Your agent checks the app, configures the project and follows the deployment. It can also connect your domain, check usage and export your database.
 
 ## Prefer the CLI?
@@ -28,7 +23,7 @@ export OHMYHOST_ENVIRONMENT=production
 ohmyhost login --json
 ```
 
-Continue with the [CLI guide](/cli). For native Windows, use the [MCP setup](/agents/mcp) without Bash.
+Continue with the [CLI guide](/cli) or [MCP setup](/agents/mcp).
 
 ## What next?
 

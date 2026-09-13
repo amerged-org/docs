@@ -1,10 +1,10 @@
 {
-  "source_commit": "f7c47a685fe399a8439423024feb93399c6a5268",
+  "source_commit": "d749a1f962833aa583ad463fe47123f1e128d07f",
   "source_dirty": false,
   "files": [
     {
       "path": "index.mdx",
-      "sha256": "325ba3f906d9c6068cb64e2a85d6f09bc35dd499c8101ce5e0cafb00a7cb3a22"
+      "sha256": "a8c42f5a2e3a4cfc6d4b625459ce10cbd3052a8886242b596f6c38c4cc67075f"
     },
     {
       "path": "quickstart.mdx",
