@@ -12,6 +12,43 @@ servers:
 security:
   - BearerAuth: []
 paths:
+  /v1/contact-requests:
+    post:
+      operationId: submitContactRequest
+      summary: Submit a contact or privacy question
+      description: Stores a private contact request for twelve months, with idempotent replay and no account creation or marketing enrollment.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [name, email, company, message, idempotency_key]
+              properties:
+                name: { type: string, minLength: 1, maxLength: 120 }
+                email: { type: string, format: email, maxLength: 254 }
+                company: { type: string, maxLength: 200, description: Empty for an individual. }
+                message: { type: string, minLength: 1, maxLength: 8000 }
+                idempotency_key: { type: string, format: uuid }
+      responses:
+        "202":
+          description: Request durably received; repeat submissions with the same key do not create duplicates.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [accepted]
+                properties:
+                  accepted: { type: boolean, const: true }
+        "400": { $ref: "#/components/responses/Problem" }
+        "403": { $ref: "#/components/responses/Problem" }
+        "409": { $ref: "#/components/responses/Problem" }
+        "413": { $ref: "#/components/responses/Problem" }
+        "429": { $ref: "#/components/responses/Problem" }
+        "503": { $ref: "#/components/responses/Problem" }
   /v1/beta/eligibility:
     get:
       operationId: getBetaEligibility

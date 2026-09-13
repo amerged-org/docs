@@ -66,6 +66,17 @@
               "limits",
               "changelog"
             ]
+          },
+          {
+            "group": "Legal",
+            "pages": [
+              "legal/privacy",
+              "legal/cookies",
+              "legal/dpa",
+              "legal/dpa/toms",
+              "legal/dpa/subprocessors",
+              "legal/dpa/transfers"
+            ]
           }
         ]
       },

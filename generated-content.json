@@ -1,10 +1,10 @@
 {
-  "source_commit": "f4d0cf9cde74066abb20e088785b441904d767f6",
+  "source_commit": "f7c47a685fe399a8439423024feb93399c6a5268",
   "source_dirty": false,
   "files": [
     {
       "path": "index.mdx",
-      "sha256": "169850263360c0efe9a564676e4c84001bbe21cdeff0f5440ce3737fffee9455"
+      "sha256": "325ba3f906d9c6068cb64e2a85d6f09bc35dd499c8101ce5e0cafb00a7cb3a22"
     },
     {
       "path": "quickstart.mdx",
@@ -12,11 +12,11 @@
     },
     {
       "path": "cli.mdx",
-      "sha256": "3c3754ccd03a04054f270027c19f15d7e60de3c0ca12ec6261ed1af7c969dd40"
+      "sha256": "4d95470292799f57b10e3b06556af037c917fa3097f9df847122226ff478609e"
     },
     {
       "path": "agents/mcp.mdx",
-      "sha256": "97bc6265ca4aaa819ea97412bc2d035fde1e3c047dee29529f11c8b6f6b1ceb6"
+      "sha256": "a660e237199de16ccfed5f18aeac6b14f94379d6a8bcb22da393b6e6543a1fa9"
     },
     {
       "path": "mcp-tools.mdx",
@@ -119,6 +119,30 @@
       "sha256": "6ccb34781607b2a238cdd12f312b0a225664d39cc1946cd708ba3af758dd1d66"
     },
     {
+      "path": "legal/privacy.mdx",
+      "sha256": "822d39dbb5c9b01579f4745bb6241d26ee282f96a8887a5fc4f6f214083b7e4f"
+    },
+    {
+      "path": "legal/cookies.mdx",
+      "sha256": "5e6473dca5544b6f8d03cd38088f565da6cab66505a479e300d87b157aa299c4"
+    },
+    {
+      "path": "legal/dpa.mdx",
+      "sha256": "8e82cbc45587e083ec6e40919dcafce838584378962745f8e02d3b34ba6d4d38"
+    },
+    {
+      "path": "legal/dpa/toms.mdx",
+      "sha256": "945a15f2877036f677074d2987026477c525940f3acd2413ebbb21588930dcd5"
+    },
+    {
+      "path": "legal/dpa/subprocessors.mdx",
+      "sha256": "2e025da6c432870e33267b04b1a8e101c4e1cac1903a2622df4242475895c3a4"
+    },
+    {
+      "path": "legal/dpa/transfers.mdx",
+      "sha256": "dff02987fc284c80696842eaf38b7d9bb33a97160df1dfeec143321674c22d89"
+    },
+    {
       "path": "skills/ohmyhost-build-portable-app/SKILL.md",
       "sha256": "d3734b4f5a0bd60cf956129c84c44e88051afa5c325c95a56c7e74889d771da0"
     },
@@ -172,15 +196,15 @@
     },
     {
       "path": "openapi.yaml",
-      "sha256": "c3b6c42c677c63a8c661bb6ffc05fd1dec3f363a79a88a46c18a89d5d6209d96"
+      "sha256": "e58af060f45145140e729b5dbfb86e42372c9d9e16e04c2147d74ab36f042785"
     },
     {
       "path": "openapi.json",
-      "sha256": "d3256b75628cf1df69f899fafec6bfa1bd82798ad6f1f587d651313d0787471f"
+      "sha256": "b0329ab2f5bad46c9097a7dcd4e519a59617fa4d830f58343d9fed87faf0f873"
     },
     {
       "path": "llms.txt",
-      "sha256": "a4b0d462320cd06714f8340a208b061693729d865531d3e43f9241cb50cba47f"
+      "sha256": "580f91b72aa2961605511e139af15b1a4122e61361bad1dcb07ebc979c682ad5"
     },
     {
       "path": "mcp-tools.json",
@@ -188,7 +212,7 @@
     },
     {
       "path": "docs.json",
-      "sha256": "ddbdfbef4a64cd96dcc5cc96be3b57487b096687297d24ec142cd3f16751a17a"
+      "sha256": "c5725bed0bc0106500970dea10a37b1cdb668313e02fde0a7829639f695a2e00"
     },
     {
       "path": "logo/light.svg",
