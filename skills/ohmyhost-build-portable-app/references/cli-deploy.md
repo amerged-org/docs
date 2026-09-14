@@ -28,7 +28,29 @@ Prefer Cloudflare-hosted customer DNS through the scoped authorization flow. For
 - Deploy only when requested. A push does not mean permission to enable auto-deploy. Auto-deploy is optional and branch-bound; promotion reuses the verified artifact, never an implicit rebuild.
 - Free supplies platform Dev/Prod domains with no customer DNS setup. Paid custom domains and transactional-mail senders are optional. Prefer Cloudflare-hosted customer DNS and offer the product's scoped OAuth link; otherwise return the exact manual DNS records from its plan. Do not require a Cloudflare account or migration of the entire zone. Web CNAME/TLS and mail verification or scoped delegation are separate; preserve existing mailbox MX records. Report unsupported apex routing explicitly.
 - Return human-action URLs in the customer's chat; do not open them in an operator's account. After a callback or manual DNS change, read status and continue the same project. Explain expired/declined authorization or missing access with a fresh next action; never report success merely because the customer clicked a link.
-- Use MCP `database_query` for bounded Owner-only read-only Dev diagnosis; discover table names before querying an unfamiliar schema and prefer aggregate counts over personal data. Use `promotion_plan`, review its effects/risks and expiry, then pass its unchanged guards to `promotion_execute` only when that action is authorized. Read the resulting operation to terminal state and verify the application. Local preparation and stdin-only secret entry remain explicit CLI steps, not hidden provider workarounds.
+- Use MCP `database_query` with an explicit `dev` or `prod` environment for bounded Owner-authorized reads; discover table names before querying an unfamiliar schema and prefer aggregate counts over personal data. Use `promotion_plan`, review its effects/risks and expiry, then pass its unchanged guards to `promotion_execute` only when that action is authorized. Read the resulting operation to terminal state and verify the application. Local preparation and stdin-only secret entry remain explicit CLI steps, not hidden provider workarounds.
+
+## Query and update project data
+
+Use the current API token from the customer's environment or the existing CLI login. `OHMYHOST_ENVIRONMENT` selects platform Dev/Prod; `--environment dev|prod` selects the project's database. Explicitly shared data resolves to the same physical database.
+
+Discover table names before querying application data:
+
+```sh
+ohmyhost database query --project PROJECT_ID --environment dev --statement "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name" --json
+```
+
+Use `database_query` in MCP with the same `project_id`, `environment`, `statement` and `parameters`. Reads return at most 100 rows with a five-second SQL timeout. Application RLS policies apply; use the authorized SQL-export workflow for a complete archive, including RLS-protected records.
+
+For an authorized data update, review one parameterized INSERT, UPDATE or DELETE/upsert and save it to a local SQL file. Then use:
+
+```sh
+ohmyhost database write --project PROJECT_ID --environment prod --statement-file approved-update.sql --parameters-json '["new-value", "record-id"]' --idempotency-key SAVED_REQUEST_KEY --yes --json
+```
+
+MCP `database_write` accepts `project_id`, explicit `environment`, SQL `statement`, JSON `parameters`, saved `idempotency_key` and `confirmed: true`. Use confirmation within the customer's existing authorization. Application RLS policies remain effective for writes as well as reads; do not alter policies or roles to make a diagnostic/data-write request succeed. Schema changes remain versioned GitHub migrations. SQL execution wakes compute and uses ordinary metering and the existing credit/Stop-budget admission.
+
+The result identifies the original operation and affected-row count; fetch records with a separate query. A single write is limited to 1,000 directly affected rows and five seconds; triggers and cascades can affect additional rows. Preserve the key and exact request after network uncertainty. Repeating it reads the original receipt. If `database_write_outcome_unknown` is returned, inspect target data and retain the operation ID before deciding on any new write; never automatically choose a new key. Use `operation_get` for an in-flight result. A failed receipt is not a successful update. Keep SQL parameters, records and passwords out of project notes and feedback.
 
 ## User-owned deployment tokens
 

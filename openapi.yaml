@@ -1884,11 +1884,44 @@ paths:
         "404": { $ref: "#/components/responses/ResourceNotFound" }
         "429": { $ref: "#/components/responses/Problem" }
         "503": { $ref: "#/components/responses/Problem" }
+  /v1/projects/{project_id}/database/write:
+    post:
+      operationId: writeProjectDatabase
+      summary: Execute one bounded database write in Dev or Prod
+      description: Owner-authorized INSERT, UPDATE or DELETE through the restricted runtime role, including ordinary upsert. Environment is mandatory. One direct statement and transaction, five-second timeout and at most 1000 directly affected rows; customer triggers and cascades may affect more rows. Rows are not returned. The durable Idempotency-Key receipt persists until project deletion. Same-key retries observe the original execution attempt; unknown outcomes never automatically execute again. Inspect target data before deliberately choosing a new key. Schema changes use GitHub migrations. Database compute is metered normally and existing credit grace and Stop budgets apply. Application row-level security policies remain effective for writes.
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProjectDatabaseWriteRequest" }
+      responses:
+        "200":
+          description: Terminal receipt; failed state is not a successful write.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProjectDatabaseWriteReceipt" }
+        "202":
+          description: The same write is in progress. Poll the existing operation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProjectDatabaseWriteReceipt" }
+        "400": { $ref: "#/components/responses/Problem" }
+        "401": { $ref: "#/components/responses/Problem" }
+        "402": { $ref: "#/components/responses/Problem" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/Problem" }
+        "429": { $ref: "#/components/responses/Problem" }
+        "503": { $ref: "#/components/responses/Problem" }
+      x-ohmyhost-resource-disclosure: indistinguishable-not-found
   /v1/projects/{project_id}/database/query:
     post:
       operationId: queryProjectDatabase
-      summary: Run one bounded read-only Dev database query
-      description: Executes one SELECT through the project's least-privilege read-only role. Connection credentials are never returned.
+      summary: Run one bounded read-only Dev or Prod database query
+      description: Executes one SELECT through the project's least-privilege read-only role. Application row-level security policies apply and may filter rows; a complete SQL archive uses the separate authorized export workflow. Connection credentials are never returned.
       parameters:
         - $ref: "#/components/parameters/RequestId"
         - $ref: "#/components/parameters/ProjectId"
@@ -1899,7 +1932,7 @@ paths:
             schema: { $ref: "#/components/schemas/ProjectDatabaseQueryRequest" }
       responses:
         "200":
-          description: At most 100 JSON rows from the Dev project database.
+          description: At most 100 JSON rows from the selected project database.
           content:
             application/json:
               schema: { $ref: "#/components/schemas/ProjectDatabaseQueryResult" }
@@ -2601,12 +2634,30 @@ components:
       type: string
       pattern: ^(0|[1-9][0-9]{0,18})$
       description: Non-negative microcredits, at most 9223372036854775807. One credit equals 1000000 microcredits.
+    BillingTaxIssue:
+      description: Verified issue on an existing Stripe invoice; no new purchase is needed.
+      type: [object, "null"]
+      additionalProperties: false
+      required: [code, invoice_id, observed_at, required_action]
+      properties:
+        code:
+          type: string
+          enum:
+            [
+              billing_tax_location_required,
+              billing_tax_calculation_failed,
+              billing_tax_configuration_required,
+            ]
+        invoice_id: { type: string, pattern: "^in_[A-Za-z0-9_]{1,253}$" }
+        observed_at: { type: string, format: date-time }
+        required_action: { type: string, enum: [open_billing_portal, contact_support] }
     BillingRecharge:
       type: object
       additionalProperties: false
       required:
         [
           organization_id,
+          portal_available,
           enabled,
           revision,
           status,
@@ -2618,15 +2669,28 @@ components:
           threshold_credits,
           setup_url,
           invoice_url,
+          billing_issue,
         ]
       properties:
         organization_id: { $ref: "#/components/schemas/Ulid" }
+        portal_available:
+          type: boolean
+          description: An existing customer in this billing account is ready for a hosted billing-portal handoff; this does not imply a paid subscription.
         enabled: { type: boolean }
         revision: { type: integer, minimum: 0 }
         status:
           {
             type: string,
-            enum: [off, setup_required, on, payment_required, monthly_limit, needs_reconciliation],
+            enum:
+              [
+                off,
+                setup_required,
+                on,
+                payment_required,
+                monthly_limit,
+                needs_reconciliation,
+                tax_required,
+              ],
           }
         monthly_limit_minor: { type: integer, minimum: 1000, maximum: 100000 }
         spent_minor: { type: integer, minimum: 0 }
@@ -2636,6 +2700,7 @@ components:
         threshold_credits: { type: integer, const: 100 }
         setup_url: { type: [string, "null"], format: uri, maxLength: 8192 }
         invoice_url: { type: [string, "null"], format: uri, maxLength: 8192 }
+        billing_issue: { $ref: "#/components/schemas/BillingTaxIssue" }
     BillingCheckout:
       type: object
       additionalProperties: false
@@ -2653,6 +2718,7 @@ components:
           revoked_micros,
           paid_until,
           required_action,
+          billing_issue,
         ]
       properties:
         organization_id: { $ref: "#/components/schemas/Ulid" }
@@ -2668,8 +2734,9 @@ components:
         paid_until: { type: [string, "null"], format: date-time }
         required_action:
           type: string
-          enum: [none, complete_checkout, open_billing_portal]
-          description: Human payment handoff. Complete the returned Checkout URL, or request a fresh billing portal URL to resolve an unpaid renewal. none includes a draft invoice awaiting automatic processing; it is not a claim of current Paid coverage. Never infer renewal success from the historical payment_confirmed flag.
+          enum: [none, complete_checkout, open_billing_portal, contact_support]
+          description: Human payment handoff. Complete the returned Checkout URL, request a fresh billing portal URL to correct billing details, or contact ohmyho.st when tax configuration requires review. none includes a draft invoice awaiting automatic processing; it is not a claim of current Paid coverage. Never infer renewal success from the historical payment_confirmed flag.
+        billing_issue: { $ref: "#/components/schemas/BillingTaxIssue" }
     BillingPortal:
       type: object
       additionalProperties: false
@@ -3443,6 +3510,36 @@ components:
           maxItems: 100
           items: { $ref: "#/components/schemas/DeploymentDiagnostic" }
         next_cursor: { type: string, maxLength: 2048 }
+    ProjectDatabaseWriteRequest:
+      type: object
+      additionalProperties: false
+      required: [environment, statement, parameters]
+      properties:
+        environment: { type: string, enum: [dev, prod] }
+        statement:
+          type: string
+          minLength: 1
+          maxLength: 65536
+          description: One direct INSERT, UPDATE or DELETE, max 64 KiB UTF-8; entire JSON request is limited to 65,600 bytes.
+        parameters:
+          type: array
+          maxItems: 100
+          items: {}
+          description: JSON values, at most 8 levels and 10000 nodes, max 64 KiB encoded.
+    ProjectDatabaseWriteReceipt:
+      type: object
+      additionalProperties: false
+      required: [operation_id, environment, state, command, affected_rows, error]
+      properties:
+        operation_id: { $ref: "#/components/schemas/Ulid" }
+        environment: { type: string, enum: [dev, prod] }
+        state: { type: string, enum: [running, succeeded, failed] }
+        command: { type: [string, "null"], enum: [INSERT, UPDATE, DELETE, null] }
+        affected_rows: { type: [integer, "null"], minimum: 0, maximum: 1000 }
+        error:
+          oneOf:
+            - $ref: "#/components/schemas/OperationFailure"
+            - type: "null"
     ProjectDatabaseQueryRequest:
       type: object
       additionalProperties: false
@@ -3450,7 +3547,7 @@ components:
       properties:
         environment:
           type: string
-          const: dev
+          enum: [dev, prod]
         statement:
           type: string
           minLength: 1
@@ -3472,7 +3569,7 @@ components:
       properties:
         environment:
           type: string
-          const: dev
+          enum: [dev, prod]
         rows:
           type: array
           maxItems: 100
@@ -4192,6 +4289,7 @@ components:
             - project_budget_exceeded
             - compute_performance_paid_required
             - compute_performance_unavailable
+            - database_write_pending
             - compute_change_pending
             - compute_change_conflict
             - billing_purchase_conflict
@@ -4498,6 +4596,9 @@ components:
             - recovery_archive_too_large
             - build_not_started
             - build_failed
+            - database_write_rejected
+            - database_write_unavailable
+            - database_write_outcome_unknown
             - database_compute_failed
             - database_compute_plan_changed
             - database_compute_rejected

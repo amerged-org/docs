@@ -7,6 +7,9 @@ description: "Understand bounded requests, permissions and long-running operatio
 | --- | --- |
 | New user API token | No expiry; valid until revoked; full value shown once. |
 | Existing user token | Keeps its recorded expiry. |
+| Database query | Explicit Dev/Prod; one read-only statement, 4 KiB SQL, 32 scalar parameters, 100 rows and five seconds. |
+| Database write | Explicit Dev/Prod; one INSERT/UPDATE/DELETE/upsert, 64 KiB SQL, up to 100 JSON parameters, 1,000 directly affected rows and five seconds. |
+| Write retry | Keep the original idempotency key; an existing receipt observes one attempt, and unknown outcomes must be inspected before any deliberately new write. |
 | Project context | At most 500 lines / 32 KiB. |
 | Saved project notes | At most 250 lines / 16 KiB. |
 | SQL export | One accepted request per project per rolling 24 hours; 256 MiB plaintext maximum. |
@@ -24,6 +27,10 @@ During beta, request fields, commands and supported behavior can change without 
 ## Request failures
 
 Use the endpoint's error code and suggested action. `401` means authenticate; `403` means check concrete permissions; `409` means resolve the version/operation conflict; `429` means respect `Retry-After`. An unknown provider result is not a reason to repeat a payment or destructive mutation with a new key.
+
+Database API reads and writes retain application RLS. Empty results are not proof that no rows exist, and the write count does not include every possible trigger/cascade effect. Use [database access](/database) for the request and receipt contract.
+
+A `billing_issue` refers to an existing invoice. Follow its address-correction or contact action and preserve that invoice; a new payment or disabled tax is not a retry strategy. [Billing issues](/billing#resolve-a-tax-issue-on-the-original-invoice).
 
 ## Waiting for work
 

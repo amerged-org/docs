@@ -1,6 +1,6 @@
 ---
-title: "Database compute and queries"
-description: "Inspect actual Postgres settings without waking compute and choose a profile."
+title: "Postgres queries, writes and compute"
+description: "Use your account token to query or update Dev and Prod data, then inspect actual compute settings."
 ---
 
 Read provider metadata without executing SQL:
@@ -26,16 +26,67 @@ ohmyhost database compute set --project "$PROJECT_ID" --environment dev --profil
 
 Explain the price and possible brief connection interruption first. Use `--profile standard` to return to standard, and choose `prod` only when that is the intended target. Poll the returned operation, then read actual compute again. Resizing preserves SQL data. A shared placement affects both logical environments.
 
-## Query data
+## Query Dev or Prod
 
-The current CLI provides a bounded read diagnostic:
+Use your existing CLI login or load your user API token from a private environment file. The token must have the selected organization's Owner project permissions. `OHMYHOST_ENVIRONMENT` chooses the independent hosting platform; `--environment dev|prod` chooses this project's database.
 
 ```sh
-ohmyhost database query --project "$PROJECT_ID" --statement 'SELECT current_database() AS database_name' --json
+ohmyhost database query --project "$PROJECT_ID" --environment dev --statement 'SELECT current_database() AS database_name' --json
 ```
 
-Use the current [API schema](/api) and installed command help for supported query environments and permissions. Querying wakes a suspended database; avoid repeated SQL health checks when metadata is sufficient. Application data writes use the configured application runtime and versioned [migrations](/migrations) handle schema changes.
+Choose `--environment prod` for the project's production database. For application records, discover the actual schema and use parameters rather than interpolating values into SQL:
 
-Your user API token can be used by an authorized automation platform for supported API operations. Polling is an explicit query; there is no row-change subscription implied by this connection.
+```sh
+ohmyhost database query --project "$PROJECT_ID" --environment prod --statement 'SELECT id, title FROM public.items WHERE id = $1' --parameters-json '["item-123"]' --json
+```
+
+`items`, its columns and `item-123` are examples: use the application's actual table and record ID. Reads accept one read-only SELECT/WITH query, at most 32 scalar parameters, 100 rows and five seconds. Both queries and writes wake suspended compute and use ordinary database metering.
+
+## Update application data
+
+Review the intended rows and environment before an update. Put one parameterized INSERT, UPDATE or DELETE in a UTF-8 SQL file; ordinary `INSERT … ON CONFLICT …` upserts are supported. For example, `approved-update.sql`:
+
+```sql
+UPDATE public.items SET title = $1 WHERE id = $2
+```
+
+Execute only the chosen update, with one retained request key:
+
+```sh
+ohmyhost database write --project "$PROJECT_ID" --environment prod --statement-file approved-update.sql --parameters-json '["Updated title", "item-123"]' --idempotency-key "$WRITE_REQUEST_KEY" --yes --json
+```
+
+The write returns `operation_id`, `environment`, `state`, `command`, `affected_rows` and `error`. It does not return rows, including rows produced by a SQL RETURNING clause. Fetch records with a separate query. One write has a five-second SQL timeout and at most 1,000 directly affected rows; triggers and cascades can affect additional rows. Existing credit grace and project Stop budgets apply.
+
+Check the receipt's `state`: HTTP 200 alone is not success. `succeeded` confirms the reported command and count; `running` means inspect the original operation; `failed` carries the error and next action.
+
+```sh
+ohmyhost operation get "$OPERATION_ID" --json
+```
+
+Retain the exact request and key after a lost response. Repeating a key that already has a receipt observes its existing attempt. For `database_write_outcome_unknown`, first inspect the data and keep the operation ID; never automatically choose a new key or execute a second write. Even an error can mean the original commit result was not received.
+
+## Use MCP or an automation platform
+
+MCP `database_query` requires `project_id`, `environment`, `statement` and optional scalar `parameters`. `database_write` uses the same project/environment with JSON `parameters`, the saved `idempotency_key` and `confirmed: true` for an authorized write.
+
+REST uses your token in the Authorization header:
+
+```sh
+curl --fail-with-body "https://app.ohmyho.st/v1/projects/$PROJECT_ID/database/query" \
+  --header "Authorization: Bearer $OHMYHOST_TOKEN" \
+  --header 'Content-Type: application/json' \
+  --data-binary '{"environment":"dev","statement":"SELECT current_database() AS database_name","parameters":[]}'
+```
+
+The write endpoint is `POST /v1/projects/{project_id}/database/write`; supply the `Idempotency-Key` header and JSON `environment`, `statement` and `parameters`. An automation should keep the same key for retries of one event and use a new key only for a deliberately new write. [Download the exact OpenAPI schema](/openapi.json).
+
+## Permissions and shared data
+
+Application row-level security (RLS) applies to reads and writes. Hosting Owner permission does not bypass those policies or sign you in as an application user. A filtered or empty query does not prove the database is empty. Keep the policies; use the separate authorized [SQL export](/backups) when a complete archive is required.
+
+Shared Dev/Prod data resolves to one physical database, so a selected-environment write can affect both apps. In isolated mode each environment resolves its own data. Schema and role changes remain versioned [GitHub migrations](/migrations), not this data-write endpoint.
+
+Polling is an explicit query, not a row-change subscription. Keep returned records, SQL parameters, passwords and signed URLs out of project notes and feedback.
 
 [Usage](/usage) · [API tokens](/login-tokens) · [SQL exports](/backups).

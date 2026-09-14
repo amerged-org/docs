@@ -377,7 +377,7 @@
     },
     {
       "name": "billing_checkout_get",
-      "description": "Owner-only: observe the original checkout and reconcile confirmed credits/refunds, without another purchase. payment_confirmed is historical; read organization_credits_get for spendable funds and paid_until for coverage. Follow required_action: complete_checkout means give its URL to the human; open_billing_portal means call billing_portal_create and give that fresh URL to the human to resolve payment. none means no human payment step now, not proof of current Paid coverage. Never start a second subscription to repair a failed renewal. Retry the same checkout after an outage. state=expired ends this attempt; use a new key only for an explicitly requested new purchase, never automatically after an error or timeout.",
+      "description": "Owner-only: observe the original checkout and reconcile confirmed credits/refunds, without another purchase. payment_confirmed is historical; read organization_credits_get for spendable funds and paid_until for coverage. Follow required_action: complete_checkout means give its URL to the human; open_billing_portal means call billing_portal_create and give that fresh URL to the human to resolve payment. contact_support means contact https://ohmyho.st/contact about the original invoice; none means no human payment step now, not proof of current Paid coverage. Never start a second subscription to repair a failed renewal. Follow billing_issue when tax needs attention: use billing_portal_create for open_billing_portal, or https://ohmyho.st/contact for contact_support; retain the original invoice and never disable tax. Retry the same checkout after an outage. state=expired ends this attempt; use a new key only for an explicitly requested new purchase, never automatically after an error or timeout.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -406,7 +406,7 @@
     },
     {
       "name": "billing_recharge_get",
-      "description": "Owner-only: read auto-recharge consent, spending limit and payment handoff. Reading never initiates a charge. Return private setup_url/invoice_url only to the human; never log them. Read again after Stripe card setup or payment.",
+      "description": "Owner-only: read auto-recharge consent, spending limit and payment handoff. Reading never initiates a charge. Return private setup_url/invoice_url only to the human; never log them. Read again after Stripe card setup or payment. billing_issue identifies the original invoice: open_billing_portal means collect corrected billing details through billing_portal_create; contact_support means use https://ohmyho.st/contact. Never disable tax, discard the invoice or start another purchase to repair it.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -759,7 +759,7 @@
     },
     {
       "name": "database_query",
-      "description": "Run one owner-authorized read-only Dev database query (at most 100 rows, five-second timeout).",
+      "description": "Read one owner-authorized Dev or Prod database query (at most 100 rows, five-second timeout). Explicitly choose the environment. Shared data resolves to the same physical database. Application RLS policies apply; use an authorized SQL export when a full archive is required.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -770,9 +770,11 @@
             "maxLength": 256
           },
           "environment": {
-            "default": "dev",
             "type": "string",
-            "const": "dev"
+            "enum": [
+              "dev",
+              "prod"
+            ]
           },
           "statement": {
             "type": "string",
@@ -804,12 +806,67 @@
         },
         "required": [
           "project_id",
+          "environment",
           "statement"
         ]
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
+      "name": "database_write",
+      "description": "Execute one explicitly authorized INSERT, UPDATE or DELETE/upsert in the chosen Dev or Prod database. Requires Owner project permission, confirmation and an idempotency key. At most 1000 directly affected rows and five seconds. Returns a durable receipt, not rows. If outcome is unknown, never automatically repeat with another key: inspect data using database_query and retain the operation ID. Same-key retries only observe the existing attempt. Schema changes use GitHub migrations; compute wakes and is metered normally. Application RLS policies also apply to writes.",
+      "inputSchema": {
+        "type": "object",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "environment": {
+            "type": "string",
+            "enum": [
+              "dev",
+              "prod"
+            ]
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 65536
+          },
+          "parameters": {
+            "default": [],
+            "maxItems": 100,
+            "type": "array",
+            "items": {}
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "confirmed": {
+            "type": "boolean",
+            "const": true
+          }
+        },
+        "required": [
+          "project_id",
+          "environment",
+          "statement",
+          "idempotency_key",
+          "confirmed"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
         "idempotentHint": true
       }
     },

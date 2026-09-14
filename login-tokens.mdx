@@ -29,6 +29,12 @@ ohmyhost token list --organization "$ORGANIZATION_ID" --json
 
 Retain the same request key for an interrupted request. Creation writes the new secret to the selected private file; it does not overwrite existing credentials. Ignore the file in Git and load it into the CLI/MCP process using your runtime's env-file support. Never copy the value into a prompt, URL or application source.
 
+## Connect an automation to project data
+
+Use the token in your automation platform's secret field and send it as a Bearer header to the [database API](/database). Select the project and `dev` or `prod` explicitly. Owner project permissions are required for these reads and writes; creating a token does not grant additional permissions or bypass the application's row-level security.
+
+For each deliberate write, retain one idempotency key and inspect its receipt before proceeding. Never create a new key automatically after an unknown write outcome. Keep the token itself out of URLs, prompts, SQL parameters and application source.
+
 ## Use and revoke
 
 Send `Authorization: Bearer` with the token to the selected API origin. The key identifies its owner and organization; project IDs do not grant access. Current membership and action permissions still apply.

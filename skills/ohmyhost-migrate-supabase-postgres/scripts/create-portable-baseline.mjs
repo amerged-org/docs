@@ -227,7 +227,7 @@ RETURNS boolean
 LANGUAGE sql
 STABLE
 AS $$
-  SELECT current_user = 'ohmyho_runtime'
+  SELECT current_user ~ '^ohmyho_rw_[0-7][0-9a-hjkmnp-tv-z]{25}$'
     AND current_setting('app.service_request', true) = 'on'
 $$`;
 }

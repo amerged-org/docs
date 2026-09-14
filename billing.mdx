@@ -35,7 +35,30 @@ To turn it off, read the latest revision and submit `--enabled false` with that 
 
 Only one unresolved refill is allowed. A tax/address/payment issue requires the stated action; do not create a second payment to bypass it or disable tax. Credits are issued from confirmed paid events, once.
 
+## Resolve a tax issue on the original invoice
+
+Read the original checkout or recharge policy:
+
+```sh
+ohmyhost billing status --organization "$ORGANIZATION_ID" --checkout "$CHECKOUT_ID" --json
+ohmyhost billing recharge get --organization "$ORGANIZATION_ID" --json
+```
+
+Use the command matching the original purchase or automatic refill. A returned `billing_issue` contains `code`, `invoice_id`, `observed_at` and `required_action`:
+
+| Issue | Next action |
+| --- | --- |
+| `billing_tax_location_required` | Use `billing portal` to open a fresh Stripe link so the human can correct billing address/tax details. |
+| `billing_tax_calculation_failed` | Use the [contact form](https://ohmyho.st/contact) with the original invoice ID. |
+| `billing_tax_configuration_required` | Use the [contact form](https://ohmyho.st/contact) with the original invoice ID. |
+
+Follow `required_action`: `open_billing_portal` opens the supported correction flow; `contact_support` uses the contact form. Auto-recharge can show `tax_required` while this invoice needs attention. Keep the original invoice and check the same checkout/policy again after the required correction. Reading status never initiates a new charge.
+
+Do not disable tax, discard the invoice, create another subscription/top-up or repeatedly re-enable recharge to bypass the issue. Applicable tax and the approved gross monthly cap remain in force. A past `payment_confirmed` is historical; read the current account balance and effective plan separately.
+
 ## Manage payment details
+
+The recharge response includes `portal_available`. When it is `true`, the workspace has a Stripe customer and Billing shows **Manage in Stripe**; Beta access alone does not create a Stripe customer.
 
 ```sh
 ohmyhost billing portal --organization "$ORGANIZATION_ID" --json
