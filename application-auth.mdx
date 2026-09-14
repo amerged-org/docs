@@ -7,11 +7,11 @@ Your ohmyho.st login authorizes hosting operations. Your application chooses its
 
 ## Choose the integration your app already uses
 
-Better Auth, customer-owned WorkOS and Auth0 are the supported integration targets. Support is checked against the actual framework, runtime, secrets and callback behavior. Read the returned compatibility result; one verified framework combination does not establish every combination.
+Better Auth and customer-owned WorkOS are the verified integration targets. Any other OAuth or OIDC provider is hosted the same way as an ordinary application dependency, without a completed support claim. Support is checked against the actual framework, runtime, secrets and callback behavior. Read the returned compatibility result; one verified framework combination does not establish every combination.
 
 - **Better Auth:** keep its server handler, schema and base URL in the supported app runtime.
 - **WorkOS:** use your application's own client ID, private server key where needed, callback URL and logout URL.
-- **Auth0:** use the application type matching your architecture; public clients cannot hold a client secret.
+- **Other providers:** use the application type matching your architecture; public clients cannot hold a client secret, and server SDKs read their private values from runtime secrets.
 
 ## Set up an environment
 

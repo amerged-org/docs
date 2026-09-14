@@ -1347,7 +1347,7 @@
     },
     {
       "name": "deployment_plan",
-      "description": "Plan an immutable deployment. Preserve the customer's Better Auth, WorkOS or Auth0 integration and use the same generic Next.js/Vite/TanStack runtime contract. ohmyho.st login is separate. Read the app Skill's auth guidance and report actual plan blockers, required secret names/callback configuration and unverified runtime compatibility. Never assume a working platform login proves application login or silently replace its auth provider.",
+      "description": "Plan an immutable deployment. Preserve the customer's existing authentication integration, such as Better Auth or WorkOS, and use the same generic Next.js/Vite/TanStack runtime contract. ohmyho.st login is separate. Read the app Skill's auth guidance and report actual plan blockers, required secret names/callback configuration and unverified runtime compatibility. Never assume a working platform login proves application login or silently replace its auth provider.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",

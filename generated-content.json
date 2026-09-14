@@ -1,11 +1,11 @@
 {
-  "source_commit": "88c44399049d8ec5ff7bde9077d958d9e224cb13",
+  "source_commit": "d86db4cf5ebf509925ea637a080a559be81a2130",
   "source_dirty": false,
   "release": "0.1.0-beta.31",
   "files": [
     {
       "path": "skills/ohmyhost-build-portable-app/SKILL.md",
-      "sha256": "d3734b4f5a0bd60cf956129c84c44e88051afa5c325c95a56c7e74889d771da0"
+      "sha256": "9ccfd8b8600c08fa6194bc994483781587a3dd27fb608b50ca994b5e7b260328"
     },
     {
       "path": "skills/ohmyhost-build-portable-app/references/cli-deploy.md",
@@ -13,7 +13,7 @@
     },
     {
       "path": "skills/ohmyhost-build-portable-app/references/stack-contracts.md",
-      "sha256": "8ba1b174ccc8ac31452973d09877ec397be957a669470acc6581156ddffd885e"
+      "sha256": "851ecc0af2236fa2f3da401bca7e112bf65da768ed89273db6127d78d7b98193"
     },
     {
       "path": "skills/ohmyhost-deploy-github/SKILL.md",
@@ -69,7 +69,7 @@
     },
     {
       "path": "mcp-tools.json",
-      "sha256": "2d8c88f267ef7d39eb24adba6c6ff93d4b00a60119afd7860104ba77a109ef43"
+      "sha256": "8a32bbf8a27027886ccf8d7950e51ca1d583188acd11906e0bdc462179b579b9"
     },
     {
       "path": "mcp.json",
