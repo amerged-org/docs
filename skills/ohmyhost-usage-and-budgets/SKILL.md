@@ -17,8 +17,18 @@ For database savings, use the database Skill: idle suspension stops compute char
 
 Only start `billing_checkout_create` when the owner requested or approved that purchase. `paid` starts a subscription; `topup` purchases credits and does not extend a subscription. Complete the returned checkout, then verify `billing_checkout_get` and the wallet. A browser return is not payment confirmation.
 
-Use `billing_portal_create` for invoice history, payment methods and subscription management. Every successful purchase, including a one-time top-up, has an invoice. If checkout is unavailable for the selected platform, report that response; never call a test payment a real purchase. Automatic recharge is not currently available.
+Use `billing_portal_create` for invoice history, payment methods and subscription management. Every successful purchase, including a one-time top-up, has an invoice. If checkout is unavailable for the selected platform, report that response; never call a test payment a real purchase.
 
 Return a concise cost explanation and the requested next action. For a suspected incorrect charge, use `feedback_submit` with the period and safe receipt/error identifiers, without payment details or raw records.
 
 The portal Usage page edits the same `project_budget_set` contract: no limit, or credits per UTC calendar month with continue/stop. Preserve the selected mode and read back changes. Existing work and delayed measurements may settle after reaching a limit. IDs in a copied project prompt identify context only; authenticate and check current scope before retrieving details.
+
+## Auto-recharge
+
+Read `billing_recharge_get` before changing auto-recharge. It is off by default: each refill adds 1,000 non-expiring credits for USD 9 plus tax when available credits fall below 100. The monthly limit includes tax and uses UTC calendar months; it does not override project stop budgets or enable Paid features.
+
+Only enable after the Owner explicitly approves these recurring off-session charges and a gross monthly limit. Call `billing_recharge_configure` with the current `revision`, the approved `monthly_limit_minor` in USD cents, `enabled: true`, `consent: "off_session_v1"` and a saved `idempotency_key`. Return `setup_url` to the human to save a card at Stripe, then read again. Never reuse approval for a one-off purchase as recurring-payment consent.
+
+To turn it off, use the current revision, `enabled: false` and `consent: null`; already initiated payments may complete. Replay the same key and payload after uncertainty. `payment_required` pauses further attempts: return the private `invoice_url` when present, or ask the human to review Billing. Do not repeatedly re-enable or create another purchase to bypass a decline. `monthly_limit` resumes next UTC month; `needs_reconciliation` requires checking the original attempt rather than a new charge. Every paid refill has an invoice. Refunds/chargebacks adjust only their original credit lot and pause further automatic refills.
+
+CLI read: `ohmyhost billing recharge get --organization "$ORGANIZATION_ID" --json`. Authorized change: `ohmyhost billing recharge set --organization "$ORGANIZATION_ID" --enabled true --monthly-limit-minor 10000 --revision 0 --consent off_session_v1 --idempotency-key "$REQUEST_KEY" --json`; replace the example revision and USD 100 cap with the current read and approved amount. When disabling, omit `--consent` and use `--enabled false`. If billing is unavailable for the chosen platform, report that result; do not switch the customer's environment.

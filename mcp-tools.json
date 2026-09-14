@@ -350,6 +350,84 @@
       }
     },
     {
+      "name": "billing_recharge_get",
+      "description": "Owner-only: read auto-recharge consent, spending limit and payment handoff. Reading never initiates a charge. Return private setup_url/invoice_url only to the human; never log them. Read again after Stripe card setup or payment.",
+      "inputSchema": {
+        "type": "object",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "organization_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "required": ["organization_id"]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
+      "name": "billing_recharge_configure",
+      "description": "Owner-only: enable or disable automatic off-session payments. NEVER enable without explicit human approval for USD 9 plus tax per 1000 non-expiring credits, refill below 100 credits, and the chosen gross USD monthly limit. Set consent off_session_v1 only after that approval; null when disabling. Read current revision first. Preserve the original idempotency key and payload after uncertainty. A saved Stripe card may require setup_url. Disabling prevents new payment initiation; in-progress payments may finish. This does not create a subscription or Paid access.",
+      "inputSchema": {
+        "type": "object",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "organization_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "monthly_limit_minor": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 100000
+          },
+          "consent": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "off_session_v1"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "organization_id",
+          "enabled",
+          "monthly_limit_minor",
+          "consent",
+          "revision",
+          "idempotency_key"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
       "name": "billing_portal_create",
       "description": "Owner-only: return a short-lived Stripe portal URL to the human for invoices, payment methods or cancellation at period end. This tool does not pay or cancel anything. Do not log/commit the URL; request a fresh one if it expires. Available at zero credit.",
       "inputSchema": {

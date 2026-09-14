@@ -26,7 +26,7 @@
 - [OpenAPI JSON](https://ohmyho.st/api/openapi.json): Canonical REST /v1 schemas; production API base https://app.ohmyho.st.
 - [OpenAPI YAML](https://ohmyho.st/api/openapi.yaml): The same contract in YAML.
 - [API errors and limits](https://ohmyho.st/docs/limits.md): Typed errors, authorization and polling.
-- [Release manifest](https://ohmyho.st/releases/0.1.0-beta.27/manifest.json): Exact CLI, MCP and SDK archives with integrity hashes.
+- [Release manifest](https://ohmyho.st/releases/0.1.0-beta.28/manifest.json): Exact CLI, MCP and SDK archives with integrity hashes.
 
 Use Bearer authentication for private REST requests. Public discovery and project/user IDs grant no authority. Product access is checked for the current user, organization, project and action. Read the operation's returned polling guidance and reuse mutation idempotency keys after uncertainty.
 

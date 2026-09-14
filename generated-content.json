@@ -1,10 +1,10 @@
 {
-  "source_commit": "998d3fde8b4f26921e2e50b0c4a19a0493aad007",
+  "source_commit": "c6eac93f1c685303efa1004dbd4594986e4876a5",
   "source_dirty": false,
   "files": [
     {
       "path": "index.mdx",
-      "sha256": "25683f09ecaf2e929a159ac3db69b3a663df0fa8783360d2309cd21344dfaca0"
+      "sha256": "7b6e1df5f230d260bce0a9661e4aec26d7838d64939a5d6fd4fe2e6078cd25f6"
     },
     {
       "path": "quickstart.mdx",
@@ -12,15 +12,15 @@
     },
     {
       "path": "cli.mdx",
-      "sha256": "132161558b6c101503fc4009605525828055cf41022601861b0e400db37686a6"
+      "sha256": "1fa5c6be6c0b5470525f96b09abe33c9b76d78a17f74045f19dbeaf921ee13f9"
     },
     {
       "path": "agents/mcp.mdx",
-      "sha256": "17fcd279cc52838f063faf46ee8536ef1107685f0bb5ccbc58b6d3b378fa8062"
+      "sha256": "b59869ac1a6853ff89221c26f78a81e41df0fcd4dffb9d554a7188d1efd2a6cf"
     },
     {
       "path": "mcp-tools.mdx",
-      "sha256": "ce78fd0b1ddbc0429f04e3a112efb5fe601e6ed4a3354ddd3c66c29986748863"
+      "sha256": "3d87cb5b26d402df1f03052bb43d46cf8588f4370023d4ea2c7fedf359524d6c"
     },
     {
       "path": "skills.mdx",
@@ -88,7 +88,7 @@
     },
     {
       "path": "usage.mdx",
-      "sha256": "7ad3b7df1a84547ab634a556d5b987c8facae5ee9e52f5e04ea3891309176aca"
+      "sha256": "84b5fb2c8c6ae957d3ab99b353d7bbd0be87c32c4f56024b927d6399572191dc"
     },
     {
       "path": "budgets.mdx",
@@ -96,7 +96,7 @@
     },
     {
       "path": "billing.mdx",
-      "sha256": "fbd0f8a93cd9c1dc84d855223b5ea427559ec5a3dde9968d4f90fea2f3f3afe2"
+      "sha256": "5a424c1f9e5abc6f0ef0968770b265ceecd89b174eef61f744057fb2add70a2d"
     },
     {
       "path": "backups.mdx",
@@ -112,7 +112,7 @@
     },
     {
       "path": "limits.mdx",
-      "sha256": "c87b50bafbc8463eeaa7ad952da708fc359279905f513d2669f5f3a85871e014"
+      "sha256": "ab983f6e6c32de5b1b207535038962ee9194751b0ee5433e30ca1d88b5b26694"
     },
     {
       "path": "changelog.mdx",
@@ -192,23 +192,23 @@
     },
     {
       "path": "skills/ohmyhost-usage-and-budgets/SKILL.md",
-      "sha256": "4a3e949093f23a215b8c9d54cf47f2f20fa0d2b0bf7a7595f3dbfe2663aa2aad"
+      "sha256": "88dc6ab081d404f5aa62bb7ff88f31a81dc475449962309424e280f767510a81"
     },
     {
       "path": "openapi.yaml",
-      "sha256": "0dc2673b53442b0449cc7a6529129a715ceafa8e92a70d2f502ea3d2e106d4e0"
+      "sha256": "fba015ddd93edc06c34fe1aa7c82cf70b02bf586d2d76af1f4f741cb67fa0583"
     },
     {
       "path": "openapi.json",
-      "sha256": "135808104f4c73f410850f7bfc4d92cb0ff5f865a53fae1b72cf113cf52cd422"
+      "sha256": "08a45909ce5298f8d053b7f2be988ac2ecc63d0ea13e17d2e6475c8fdda4ac23"
     },
     {
       "path": "llms.txt",
-      "sha256": "48e9c0594da8acfcdc310c14c6e2c0143679c9162f79443675e7f11e25dff11f"
+      "sha256": "ca325aedfa3b9b4da4cf4e23efa867817d74c6cb27398ab766bb5467a7573602"
     },
     {
       "path": "mcp-tools.json",
-      "sha256": "6cba0cd8383c40bc791e0772e0755772f5d22decdc4319cceeeb69de9706d605"
+      "sha256": "556a2e3e3036f82188c3073d227e96e5c0d7cbfe41f8c1ed3600592da86b14ad"
     },
     {
       "path": "docs.json",

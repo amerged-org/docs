@@ -665,6 +665,76 @@ paths:
         "413": { $ref: "#/components/responses/Problem" }
         "429": { $ref: "#/components/responses/Problem" }
         "503": { $ref: "#/components/responses/Problem" }
+  /v1/organizations/{organization_id}/billing/recharge:
+    get:
+      operationId: getBillingRecharge
+      summary: Read auto-recharge and the current payment handoff
+      description: Owner-only. Reads saved consent and gross UTC-month spending; a pending Stripe card setup may be resumed. No charge is initiated by reading. Private Stripe URLs must not be logged.
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+        - name: organization_id
+          in: path
+          required: true
+          schema: { $ref: "#/components/schemas/Ulid" }
+      responses:
+        "200":
+          description: Actual recharge settings; disabled by default.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BillingRecharge" }
+        "400": { $ref: "#/components/responses/Problem" }
+        "401": { $ref: "#/components/responses/Problem" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "429": { $ref: "#/components/responses/Problem" }
+        "503": { $ref: "#/components/responses/Problem" }
+    put:
+      operationId: configureBillingRecharge
+      summary: Enable or disable explicitly authorized auto-recharge
+      description: Owner-only. An agent must obtain explicit approval for off-session charges and the gross monthly spending cap before enabling. Each refill costs USD 9 before tax for 1000 non-expiring credits when available credits fall below 100. A saved Stripe card is required; follow setup_url if returned. Current revision prevents stale edits; retry the original Idempotency-Key and payload after uncertainty. Disable prevents new charge initiation; already initiated payments may complete. No subscription or Paid features are created.
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - name: organization_id
+          in: path
+          required: true
+          schema: { $ref: "#/components/schemas/Ulid" }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [enabled, monthly_limit_minor, consent, revision]
+              properties:
+                enabled: { type: boolean }
+                monthly_limit_minor:
+                  {
+                    type: integer,
+                    minimum: 1000,
+                    maximum: 100000,
+                    description: Gross USD cents per UTC calendar month including tax.,
+                  }
+                consent:
+                  {
+                    type: [string, "null"],
+                    enum: [off_session_v1, null],
+                    description: Explicit Owner consent when enabling; null when disabling.,
+                  }
+                revision: { type: integer, minimum: 0 }
+      responses:
+        "200":
+          description: Saved policy and optional Stripe card setup.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BillingRecharge" }
+        "400": { $ref: "#/components/responses/Problem" }
+        "401": { $ref: "#/components/responses/Problem" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/Problem" }
+        "413": { $ref: "#/components/responses/Problem" }
+        "429": { $ref: "#/components/responses/Problem" }
+        "503": { $ref: "#/components/responses/Problem" }
   /v1/organizations/{organization_id}/credits:
     get:
       operationId: getOrganizationCredits
@@ -2485,6 +2555,41 @@ components:
       type: string
       pattern: ^(0|[1-9][0-9]{0,18})$
       description: Non-negative microcredits, at most 9223372036854775807. One credit equals 1000000 microcredits.
+    BillingRecharge:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          organization_id,
+          enabled,
+          revision,
+          status,
+          monthly_limit_minor,
+          spent_minor,
+          currency,
+          amount_minor,
+          credits,
+          threshold_credits,
+          setup_url,
+          invoice_url,
+        ]
+      properties:
+        organization_id: { $ref: "#/components/schemas/Ulid" }
+        enabled: { type: boolean }
+        revision: { type: integer, minimum: 0 }
+        status:
+          {
+            type: string,
+            enum: [off, setup_required, on, payment_required, monthly_limit, needs_reconciliation],
+          }
+        monthly_limit_minor: { type: integer, minimum: 1000, maximum: 100000 }
+        spent_minor: { type: integer, minimum: 0 }
+        currency: { type: string, const: usd }
+        amount_minor: { type: integer, const: 900 }
+        credits: { type: integer, const: 1000 }
+        threshold_credits: { type: integer, const: 100 }
+        setup_url: { type: [string, "null"], format: uri, maxLength: 8192 }
+        invoice_url: { type: [string, "null"], format: uri, maxLength: 8192 }
     BillingCheckout:
       type: object
       additionalProperties: false
@@ -4044,6 +4149,7 @@ components:
             - compute_change_pending
             - compute_change_conflict
             - billing_purchase_conflict
+            - billing_recharge_conflict
             - cloudflare_authorization_closed
             - project_notes_conflict
             - project_export_not_ready

@@ -18,6 +18,8 @@ These tools are discovered from the shipped local MCP server. Read a tool's curr
 | `domain_paid_delete` | `project_id`, `hostname`, `idempotency_key`, `confirm` | Change or prepare a change |
 | `billing_checkout_create` | `organization_id`, `offer`, `idempotency_key` | Read |
 | `billing_checkout_get` | `organization_id`, `checkout_id` | Read |
+| `billing_recharge_get` | `organization_id` | Read |
+| `billing_recharge_configure` | `organization_id`, `enabled`, `monthly_limit_minor`, `consent`, `revision`, `idempotency_key` | Change or prepare a change |
 | `billing_portal_create` | `organization_id` | Read |
 | `project_export_create` | `project_id`, `password_file`, `idempotency_key` | Change or prepare a change |
 | `project_export_get` | `project_id`, `export_id` | Read |
