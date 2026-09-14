@@ -1,11 +1,32 @@
 ---
 title: "Read deployment status"
+description: "Follow the accepted operation and inspect the actual application heads."
 ---
 
-Use project_context_get for the current project summary, project_status for environments and URLs, and operation_get for the accepted operation. Poll at the interval returned by the operation.
+```sh
+ohmyhost project context --project "$PROJECT_ID" --json
+ohmyhost project status --project "$PROJECT_ID" --json
+ohmyhost operation get "$OPERATION_ID" --json
+```
 
-A successful build can still be publishing. waiting_for_mail directs the agent to mail_domain_status. A private Dev URL needs a Dev access link before an application check.
+Use the operation ID returned by the mutation. `queued` or `running` means work remains; `succeeded`, `failed` and `cancelled` are terminal. Project status supplies actual environments, deployment heads and URLs.
 
-operation_logs returns available events within a bounded collection window; it is not a wait for completion. A CLI wait timeout does not cancel the deployment. Keep the original operation ID when resuming.
+## Observe the next step
 
-[Service status](https://ohmyho.st/status) · [Troubleshooting](/troubleshooting) · [Project context](/project-context)
+During a deployment, `progress.phase` distinguishes building, publishing and waiting for mail. Follow `progress.next_poll_after_seconds` and the returned suggested action. Read sender or domain status when that dependency is pending.
+
+CLI `--wait` can reach its own timeout without cancelling the server operation. Read the same operation afterward. Never submit another deployment just to get a status update.
+
+For a live event stream:
+
+```sh
+ohmyhost logs "$OPERATION_ID" --follow --json
+```
+
+MCP `operation_logs` returns a bounded snapshot. Use `operation_get` for current completion rather than assuming the snapshot waits until done.
+
+## Verify success
+
+An operation marked succeeded must still produce the requested outcome. Open a private Dev access link when needed and test the real application, or read back the changed domain, budget or compute settings.
+
+[Errors and recovery](/troubleshooting) · [Limits](/limits).

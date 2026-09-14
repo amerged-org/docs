@@ -1,11 +1,50 @@
 ---
 title: "Your first deployment"
+description: "Connect GitHub, deploy one app and verify its Dev URL."
 ---
 
-> Read the ohmyhost-get-started Skill, connect this agent and deploy my selected GitHub app. Use only the capabilities the app needs.
+Start in the directory of the GitHub app you want to deploy. You need its pushed source and lockfile, access to authorize that repository, and your ohmyho.st invitation for first signup.
 
-Open your invitation link and copy the prompt into your agent. It installs the current public CLI/MCP packages if needed, opens the sign-in flow and selects your organization. A first signup without an organization creates one using the invitation and signs in again to select it.
+## 1. Give your agent the task
 
-The agent checks the repository, gets your GitHub authorization and plans the exact pushed commit. Review the plan and let it follow the accepted operation. Dev is private; the agent obtains a Dev access link for application testing.
+> Read https://ohmyho.st/llms.txt and https://ohmyho.st/skills/ohmyhost-get-started/SKILL.md. Connect this agent to ohmyho.st and deploy this GitHub project using only the capabilities it needs. Follow the deployment Skill, keep my existing project decisions and verify the app.
 
-Start with [CLI installation](/cli), [MCP setup](/agents/mcp) or the [get-started Skill](https://ohmyho.st/skills/ohmyhost-get-started/SKILL.md). Builds and selected services consume the quoted credits; an app does not need a Paid domain or database merely to be hosted.
+Your agent uses the [get-started Skill](https://ohmyho.st/skills/ohmyhost-get-started/SKILL.md). It installs the current CLI/MCP if required and gives you the login link. Complete sign-in, then confirm the workspace shown by `identity_get` or `ohmyhost whoami --json`.
+
+An eligible first signup creates **My workspace**. Reuse it. If you already have projects, select the existing project instead of creating another.
+
+## 2. Inspect the application
+
+```sh
+ohmyhost init --dry-run --json
+```
+
+The result identifies the framework, requirements and concrete blockers. Resolve the reported issue and repeat inspection. Keep one pinned package manager and its matching lockfile. Preserve application auth and existing migrations; a package name alone does not require replacing them.
+
+For data-backed apps, choose isolated Dev/Prod databases and files or explicitly shared data. Isolation is recommended; two databases consume credits independently. [How environments work](/environments).
+
+## 3. Connect the selected GitHub repository
+
+The agent creates or selects the project, then uses `source_link`. Open its GitHub authorization link and allow the selected repository. When requested, install the GitHub App for that repository first.
+
+After consent, the agent repeats the original link request and key. This confirms access; it does not start a build. [Exact CLI sequence](/cli#connect-and-deploy).
+
+## 4. Review and deploy
+
+The agent plans the exact pushed commit and shows the required services, estimated credit effects and missing configuration. It sets needed private application secrets through the supported stdin flow, then executes that plan with one saved idempotency key.
+
+The response supplies an operation ID. The agent observes that operation until it succeeds or returns an actionable error. A network timeout does not cancel it and is not a reason to create another project or deployment.
+
+## 5. Verify the app
+
+The agent reads the URL from project status and obtains a private single-use Dev access link. Check navigation and, where used, application login and a real data read/write. A successful build alone is not the finished app.
+
+When you request publication, the agent creates a promotion plan and publishes the verified artifact to Prod. Isolated promotion applies migrations without copying Dev records into Prod.
+
+## If something needs time
+
+- Build or deployment pending: follow the operation's returned polling interval.
+- DNS/DKIM pending: apply the exact records and check again after the supplied interval, usually 60 minutes.
+- An error without a useful next action: use the [troubleshooting Skill](/troubleshooting) and report the operation through [feedback](/feedback).
+
+You finish with a verified application URL, deployed commit and any clearly stated pending action.

@@ -1,13 +1,18 @@
 ---
 title: "Host a Next.js app"
+description: "Deploy ordinary Next.js routes with the capabilities your app uses."
 ---
 
-> Inspect this Next.js app, prepare its needed capabilities and deploy the selected GitHub commit.
+Run `ohmyhost init --dry-run --json` in the Next.js project. Keep an exact package-manager version and one matching lockfile; resolve the concrete inspection output before planning a deployment.
 
-Run ohmyhost init --dry-run --json in the application directory. Keep one pinned package manager and its matching lockfile. Use the returned framework compatibility result and resolve actual blockers before deploying.
+## Keep the app portable
 
-Keep ordinary Next.js routes and configuration. The service supplies its build adapter; do not add a customer Wrangler project to make hosting work. Configure your application's auth callback URLs and server secrets separately from hosting login.
+Use ordinary Next.js routes and configuration. The hosting service supplies its build adapter; do not create a customer Wrangler project merely to make deployment work. Private auth credentials and database access belong in the server runtime, not `NEXT_PUBLIC_` values.
 
-Verify the actual routes, server behavior and data flows your app uses. A successful landing page does not prove every framework feature. The admission result identifies verified, experimental or unsupported combinations.
+Keep existing authentication unless you choose to replace it. Configure exact callback and logout URLs for the environment you are testing. [Application authentication](/application-auth) · [Runtime secrets](/secrets).
 
-[Portable-app Skill](https://ohmyho.st/skills/ohmyhost-build-portable-app/SKILL.md) · [Secrets](/secrets) · [Auth](/application-auth)
+## Verify after deployment
+
+Check the landing page, a nested route on direct reload, server behavior, application login if present, and a real data operation where used. An admitted or successful build does not prove every Next.js feature. The inspection response distinguishes verified, experimental and unsupported capabilities.
+
+Use the [portable-app Skill](https://ohmyho.st/skills/ohmyhost-build-portable-app/SKILL.md) for required source changes, then follow [your first deployment](/quickstart).

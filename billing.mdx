@@ -1,19 +1,44 @@
 ---
-title: "Purchases and invoices"
+title: "Purchases, invoices and auto-recharge"
+description: "See the real plan and credit buckets, then manage explicitly authorized payments."
 ---
 
-The [account portal](https://app.ohmyho.st/billing) shows Free/Paid, the source of Paid access, monthly expiring credits and remaining one-time credits. Reservations remain available through the API/CLI/MCP. Beta and manual grants provide Paid features without a Stripe subscription or extra monthly Paid allowance. Signup/referral and top-up credits never expire; the existing Free monthly base allowance is separate.
+[Billing](https://app.ohmyho.st/billing) shows effective Free/Paid access, monthly credits with their expiry and non-expiring one-time credits. A Beta badge means Paid features were granted; it does not represent a Stripe subscription or add another monthly Paid allowance.
 
-An organization Owner can request checkout for a Paid subscription or a one-time credit top-up where billing is enabled. A top-up adds credits; it does not extend a subscription. Every successful purchase has an invoice.
+## Make a purchase
 
-Your agent opens billing_checkout_create only for an authorized purchase, then reads billing_checkout_get and the organization balance to confirm its result. Returning from the checkout browser page alone is not payment confirmation. billing_portal_create opens invoices, payment methods and subscription management.
-
-Production purchases are not enabled in the current beta. Existing organizations can inspect their available balance and usage. Where billing is enabled, auto-recharge is off by default. Enable it in Billing or ask your agent to read billing_recharge_get and configure billing_recharge_configure after your explicit approval. Each refill adds 1,000 non-expiring credits for USD 9 plus tax below a 100-credit balance, with your chosen monthly limit including tax. Save your card using the returned Stripe setup link. Every refill has an invoice. Turn it off at any time; payments already initiated may finish. Declines and refunds pause further attempts, and the monthly cap resets in UTC. Other calculator amount/volume discounts are not account settings.
-
+```sh
+ohmyhost billing checkout --organization "$ORGANIZATION_ID" --offer paid --idempotency-key "$CHECKOUT_REQUEST_KEY" --json
 ```
+
+Use `--offer topup --packs 1` for a one-time credit purchase. Open the returned human Checkout URL, review the total and complete payment yourself. The command does not pay automatically. Every successful purchase has an invoice; applicable tax is calculated by Stripe Tax.
+
+Follow the returned checkout ID with `billing status`. A top-up adds credits and does not extend a subscription. Payment availability is reported by your account; do not treat a disabled Live handoff as a completed purchase.
+
+## Auto-recharge
+
+When enabled, a refill adds **1,000 non-expiring credits for USD 9 plus tax** after the available balance falls below 100 credits. You explicitly authorize recurring off-session charges and choose a gross UTC-month limit including tax.
+
+```sh
 ohmyhost billing recharge get --organization "$ORGANIZATION_ID" --json
 ```
 
-Your agent must confirm the recurring charge and monthly cap with you before enabling it. Follow the [usage and budgets Skill](https://ohmyho.st/skills/ohmyhost-usage-and-budgets/SKILL.md) for the exact change command. Production payment activation remains pending.
+To enable, use the returned policy revision, a new retained key, your selected limit in USD cents and the required consent:
 
-[Usage](/usage) · [Budgets](/budgets) · [Pricing](https://ohmyho.st/pricing)
+```sh
+ohmyhost billing recharge set --organization "$ORGANIZATION_ID" --enabled true --monthly-limit-minor "$MONTHLY_LIMIT_CENTS" --revision "$POLICY_REVISION" --idempotency-key "$RECHARGE_REQUEST_KEY" --consent off_session_v1 --json
+```
+
+Complete the returned card-setup URL if needed, then read policy and payment readiness again. Consent must come from the organization Owner; a website pricing switch is not payment authorization.
+
+To turn it off, read the latest revision and submit `--enabled false` with that revision and a new key. Reuse the current saved monthly limit. Turning it off prevents new attempts; an already submitted payment can still settle.
+
+Only one unresolved refill is allowed. A tax/address/payment issue requires the stated action; do not create a second payment to bypass it or disable tax. Credits are issued from confirmed paid events, once.
+
+## Manage payment details
+
+```sh
+ohmyhost billing portal --organization "$ORGANIZATION_ID" --json
+```
+
+Open the fresh returned Stripe Portal URL to manage available billing settings. Keep expired signed links out of saved project notes. [Usage](/usage) · [Budgets](/budgets).

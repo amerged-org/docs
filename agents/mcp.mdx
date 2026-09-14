@@ -1,25 +1,37 @@
 ---
 title: "Connect your agent"
+description: "Use the local ohmyho.st MCP server in Codex, Claude Code, Cursor, Hermes or OpenClaw."
 ---
 
-The ohmyho.st MCP server lets your agent deploy apps, check status, connect domains, inspect usage and export databases.
+import InstallClients from '/snippets/install-clients.mdx';
 
-## 1. Install
+## Install and sign in
 
-Requires Node.js 22 or newer. Works on macOS, Linux and native Windows.
+<InstallClients />
 
+MCP uses your local CLI login. Keep existing servers, models and permission settings. If a server named `ohmyho` is already configured, inspect it before changing that entry.
+
+## Codex
+
+```sh
+codex mcp add ohmyho --env OHMYHOST_ENVIRONMENT=production -- ohmyhost-mcp
 ```
-npm install --global https://ohmyho.st/releases/0.1.0-beta.28/ohmyhost-product-cli-0.1.0-beta.28.tgz https://ohmyho.st/releases/0.1.0-beta.28/ohmyhost-mcp-0.1.0-beta.28.tgz
-ohmyhost login --json
+
+Reload the connection if requested, then ask Codex to call `identity_get` and list the available Skills.
+
+## Claude Code
+
+```sh
+claude mcp add --transport stdio --scope user --env OHMYHOST_ENVIRONMENT=production ohmyho -- ohmyhost-mcp
 ```
 
-Follow the sign-in link.
+Open `/mcp` in Claude Code and confirm the connection. Ask it to call `identity_get`.
 
-## 2. Add the MCP server
+## Cursor
 
-Add this local server to your agent's MCP settings:
+Merge this server into your existing `~/.cursor/mcp.json`, or `.cursor/mcp.json` for this project:
 
-```
+```json
 {
   "mcpServers": {
     "ohmyho": {
@@ -30,20 +42,32 @@ Add this local server to your agent's MCP settings:
 }
 ```
 
-Keep any other configured servers. Client settings formats can differ; your agent can add this command using its own MCP setup. Reload the connection if requested, then ask it to list the ohmyho.st tools and Skills.
+[Download this configuration](https://ohmyho.st/mcp.json). It contains no token. Check the MCP connection in Cursor settings; current Cursor CLI also supports `agent mcp list-tools ohmyho`. Use your installed CLI's help if its executable is named differently.
 
-The current server runs locally and uses your CLI login. A hosted URL-only connection is not available yet.
+## Hermes
 
-## 3. Ask your agent
+```sh
+hermes mcp add ohmyho --command ohmyhost-mcp --env OHMYHOST_ENVIRONMENT=production
+hermes mcp test ohmyho
+```
 
-> Deploy this GitHub project to ohmyho.st.
+Start or reload the agent session after changing settings. Preserve your installed Hermes version and model unless the reported missing capability requires an update.
 
-> Check whether my domain and email are ready.
+## OpenClaw
 
-> Show this month's usage by project.
+For versions with the native outbound MCP registry:
 
-> Export my database using the password file I selected.
+```sh
+openclaw mcp add ohmyho --command ohmyhost-mcp --env OHMYHOST_ENVIRONMENT=production
+openclaw mcp probe ohmyho --json
+```
 
-[Agent Skills](/skills) provide the workflow for each task. Project tools link to a shared project note with current status and unfinished actions, so another session can pick up where you left off.
+Use the installed `openclaw mcp add --help` to confirm support. `mcp serve` exposes OpenClaw itself and is a different feature. Preserve the current approval policy; a saved registry entry alone does not prove that the running agent has loaded it.
 
-[CLI guide](/cli) · [API reference](https://ohmyho.st/api)
+## Confirm the connection
+
+Ask the agent: “Read my ohmyho.st identity and list my projects.” It should call `identity_get` and `projects_list`, then read `project_context_get` for the project you select. If a tool is missing, compare the installed client with the [current release](https://ohmyho.st/client-release.json) and reconnect after updating.
+
+The product server uses local stdio. Mintlify's search MCP answers documentation questions; it cannot deploy or access your account. No product URL-only OAuth connection is advertised here.
+
+[Task Skills](/skills) · [Actual tool catalogue](/mcp-tools) · [CLI](/cli)

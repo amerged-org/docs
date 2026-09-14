@@ -1,13 +1,18 @@
 ---
 title: "Host a Vite or React app"
+description: "Deploy a public frontend or a Vite app with its supported server companion."
 ---
 
-> Inspect this Vite app and deploy it without adding services it does not use.
+A public Vite application can deploy with hosting alone. Run `ohmyhost init --dry-run --json`, keep a pinned package manager and its matching lockfile, and follow the returned requirements.
 
-A public static application can deploy without a database or login. Run ohmyhost init --dry-run --json and retain the matching package-manager lockfile. Vite applications can use React and TanStack Router/Query; those packages do not by themselves turn the app into TanStack Start.
+React, TanStack Router and TanStack Query can be part of a Vite frontend. Those packages do not by themselves turn it into TanStack Start.
 
-If the app requires server capabilities, follow the returned same-origin API companion contract and implement the routes it actually calls. VITE_ variables are visible in the browser bundle; private credentials belong in server runtime secrets.
+## When the app needs a server
 
-Verify navigation and a direct reload of a nested route, then any requested API and auth flows.
+Follow the actual same-origin API companion contract returned by inspection. Implement the routes the browser calls and configure private [runtime secrets](/secrets) for that server. `VITE_` variables are public build-time values; they must not contain private credentials.
 
-[Portable-app Skill](https://ohmyho.st/skills/ohmyhost-build-portable-app/SKILL.md) · [GitHub](/github) · [Secrets](/secrets)
+Retain the customer's selected auth provider. A frontend-only application must use the provider's public-client flow; server-only SDKs belong in a supported server component.
+
+## Verify the deployment
+
+Test client navigation and a direct reload of a nested route. Then test any actual server/auth/data feature. Use the [portable-app Skill](https://ohmyho.st/skills/ohmyhost-build-portable-app/SKILL.md) to resolve supported companion requirements and the [deployment workflow](/quickstart) to publish.

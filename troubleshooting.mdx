@@ -1,13 +1,37 @@
 ---
 title: "Diagnose a deployment"
+description: "Get a useful error and continue the original operation safely."
 ---
 
-> Read the original operation and logs, explain the cause and take the supported next action.
+Start with the current project and original operation:
 
-Start with project_context_get, project_status and operation_get. Use operation_logs for the available event prefix. Follow the actual phase and error: pending DNS requires a verification check, while a source build failure requires fixing the reported code or configuration.
+```sh
+ohmyhost project context --project "$PROJECT_ID" --json
+ohmyhost operation get "$OPERATION_ID" --json
+ohmyhost logs "$OPERATION_ID" --follow --json
+```
 
-When reconciliation is explicitly required, use one confirmed operation_reconcile with the original operation ID and a saved request key. Pending reconciliation means poll that operation; exhausted recovery means report it rather than create a new deployment to bypass the limit.
+Read the stable error code, suggested action and any retry interval. Keep source-admission failures, build failures and pending DNS/mail separate.
 
-Use feedback_submit for a suspected bug, issue or feature request. Retain its acknowledgment ID and include only a minimal reproduction and safe operation/error identifiers.
+| Result | Next action |
+| --- | --- |
+| Source blocker or conversion requirement | Inspect the exact source file/capability, fix it, push and plan that commit. |
+| `waiting_for_mail` | Read `mail_domain_status`; finish its required records or provisioning action. |
+| `reconciliation.required` | Review the operation and perform one confirmed reconciliation. |
+| `reconciliation.pending` | Wait and inspect the existing operation; do not submit another attempt. |
+| Terminal build failure | Preserve diagnostics, fix the actual cause, then create a new plan for the same project. |
+| HTTP 429 | Respect `Retry-After`; do not fan out retries. |
 
-[Troubleshooting Skill](https://ohmyho.st/skills/ohmyhost-troubleshoot-deployment/SKILL.md) · [Feedback](/feedback) · [Status](/status)
+## Reconcile only when requested
+
+```sh
+ohmyhost operation reconcile "$OPERATION_ID" --idempotency-key "$RECONCILE_KEY" --yes --json
+```
+
+Use this when the operation reports reconciliation is required and no attempt is pending. Retain the same request key across uncertainty. A completed reconciliation attempt does not itself mean the original deployment succeeded.
+
+## Report a platform issue
+
+If an error lacks a useful cause or the documented operation cannot continue, submit [feedback](/feedback) with the project/operation IDs, expected behavior and a short redacted reproduction. Do not paste tokens, secret values, raw environment files or customer records.
+
+A provider observation failure means unavailable, not ready or zero usage. Keep customer source changes separate from a provider-capacity issue.

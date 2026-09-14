@@ -1,13 +1,36 @@
 ---
-title: "Domains and email"
+title: "Connect a domain"
+description: "Use Cloudflare authorization or add the exact DNS records manually."
 ---
 
-Every project gets a hosting address. For a custom domain or transactional email, ask your agent:
+Every project has a hosting address. A custom hostname requires Paid access. Use the real hostname you want to publish:
 
-> Connect app.example.com and set up email from my sender domain.
+```sh
+ohmyhost domain paid plan --project "$PROJECT_ID" --hostname app.example.com --json
+```
 
-Custom domains and managed email require Paid access. We prefer Cloudflare-hosted DNS: your agent can provide an authorization link and apply the required records. Other DNS providers work too; your agent gives you the exact records to add manually.
+Review the plan, then apply it through `domain_paid_apply` or its CLI command. Keep the same hostname and idempotency key when an interrupted apply needs replay.
 
-Website routing, HTTPS and email verification have separate statuses. Keep existing mailbox records. While DNS, certificates or DKIM are pending, ask your agent to check again after 60 minutes. It follows the existing deployment instead of starting another build.
+## Cloudflare-hosted DNS
 
-[Domains and email Skill](https://ohmyho.st/skills/ohmyhost-domains-and-mail/SKILL.md)
+We prefer Cloudflare because the supported authorization flow can apply the required records:
+
+```sh
+ohmyhost domain cloudflare authorize --project "$PROJECT_ID" --zone example.com --idempotency-key "$DNS_AUTH_KEY" --json
+ohmyhost domain cloudflare status --project "$PROJECT_ID" --json
+```
+
+Open the private authorization URL in the Cloudflare account that owns the zone. Read back the authorized zone and expiry, then apply the requested records through the normal project operation. Authorization alone does not make DNS or HTTPS ready.
+
+## Other DNS providers
+
+Your agent returns the exact type, name, value and TTL from the API. Add those records with your DNS provider. Preserve existing mailbox MX and unrelated records. You do not need to move your domain to Cloudflare.
+
+## Check readiness
+
+```sh
+ohmyhost domain paid status --project "$PROJECT_ID" --json
+ohmyhost mail domain status --project "$PROJECT_ID" --json
+```
+
+DNS, HTTPS and sender DKIM have separate statuses. Follow the returned next-check time; while pending, ask your agent to check again after 60 minutes. Keep the original deployment and do not rebuild to poll DNS. [Email](/email) · [Project context](/project-context).

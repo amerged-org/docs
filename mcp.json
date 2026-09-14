@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "ohmyho": {
+      "command": "ohmyhost-mcp",
+      "env": {
+        "OHMYHOST_ENVIRONMENT": "production"
+      }
+    }
+  }
+}

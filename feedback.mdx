@@ -1,11 +1,18 @@
 ---
 title: "Report a bug or request a feature"
+description: "Give the service a useful redacted report from your customer agent."
 ---
 
-Use feedback_submit or ohmyhost feedback submit. Choose bug, issue or feature_request, describe expected and actual behavior, and include the relevant organization/project and safe operation ID.
+```sh
+ohmyhost feedback submit --organization "$ORGANIZATION_ID" --kind issue --title "Deployment cannot continue" --description "$REDACTED_DESCRIPTION" --project "$PROJECT_ID" --operation "$OPERATION_ID" --error-code "$ERROR_CODE" --idempotency-key "$FEEDBACK_KEY" --json
+```
 
-A small reproducible example is more useful than raw logs. Do not include credentials, customer records or environment files. Reuse the same request key after an uncertain response.
+Choose `bug`, `issue` or `feature_request`. Describe what you expected, what happened and the smallest reproduction. Project, environment and operation references must belong to the supplied organization. Omit optional references that do not apply.
 
-The returned feedback ID and timestamp confirm submission. They do not promise a fix or a delivery date. Reporting consumes no credits.
+MCP `feedback_submit` uses the same endpoint. Its schema identifies valid argument names. Use compact error/client-version identifiers without spaces, such as `cli/0.1.0`.
 
-[Troubleshooting Skill](https://ohmyho.st/skills/ohmyhost-troubleshoot-deployment/SKILL.md) · [Status](/status) · [API](https://ohmyho.st/api)
+Keep the returned feedback ID and submission time. Replay an uncertain request with the same content and key; changed content gets a new key. A receipt confirms storage, not a promised fix date.
+
+Do not submit tokens, passwords, signed links, raw environment files or customer records. If submission itself fails, return the failure honestly and continue independent work where possible.
+
+[Troubleshooting](/troubleshooting) · [API](/api).

@@ -1,49 +1,10 @@
 ---
-title: "Technical and organisational measures"
+title: "Technical and organizational measures"
+description: "The measures described for the implemented service."
 ---
 
-Annex II to the ohmyho.st DPA. Version: September 13, 2026.
+The current [full Technical and organizational measures](https://ohmyho.st/dpa/toms) and its [Markdown version](https://ohmyho.st/dpa/toms.md) are published on the main website. That version governs; this documentation link does not create a separate agreement.
 
-Statements about authentication, encryption, scoping, validation and export limits describe the current technical controls; personnel, review, notification and incident-response procedures are Processor’s organisational commitments under this annex.
+Amerged B.V., KVK 42154221, Venray, Limburg, NL operates ohmyho.st. Use the [contact form](https://ohmyho.st/contact) for questions or requests.
 
-## Governance and authorised access
-
-Access to production management systems is restricted to authorised personnel and service identities. Interactive access uses the relevant provider's authentication and available multifactor protection; automation uses scoped credentials. Access is assigned for the required role, reviewed when responsibilities change and removed when no longer required. Persons permitted to process Customer Personal Data are subject to confidentiality obligations.
-
-## Tenant and environment separation
-
-Product requests are authenticated and authorised against the relevant organisation, project, environment and action. Data access and resource changes use the authorised scope. Platform Dev and Prod use separate resource/binding and credential configurations. Customers explicitly select shared or isolated application Dev/Prod data; isolated mode scopes database, runtime and file references to the chosen environment. A shared-data selection intentionally shares those resources and does not represent isolation between Dev and Prod.
-
-## Credentials and encryption
-
-Public service endpoints use HTTPS. Database connections use encrypted transport with server validation in the supported connection paths. Infrastructure storage uses the storage provider's encryption controls. Application runtime secrets are encrypted separately in the control system and delivered only to the intended runtime environment; secret listing exposes metadata rather than plaintext. Management credentials are separated from customer source, untrusted builds and public client responses.
-
-API-token creation exposes the new value once through the supported flow. Local persistence applies owner-only file controls. Short-lived handoffs and download capabilities have bounded lifetimes and remain subject to their scope. These controls do not make service execution end-to-end encrypted against every infrastructure operator.
-
-## Application and build isolation
-
-Source is acquired from an explicitly authorised GitHub repository and tied to the selected commit. Build and runtime contracts validate supported capabilities and declared configuration. Customer execution does not receive platform-management credentials. Runtime secrets are delivered separately from the source/build transfer. Changes are scoped, versioned and recorded; promotion of isolated environments applies versioned schema changes without copying Dev records over Prod.
-
-## Data minimisation and safe interfaces
-
-Requests and external responses are validated at the service boundary. Inputs are bounded, database statements are parameterised, public registration responses do not echo submitted personal data, and anonymous entry routes have separate request limits. Operational reporting uses appropriate organisation/project scope. Public deployment statistics expose aggregate counts rather than customer or repository identifiers.
-
-## Logging and accountability
-
-Relevant operations, authorisations, usage and cleanup outcomes are recorded with identifiers and timestamps. Long-running operations have observable states and idempotency controls. Diagnostic paths use bounded records and safe error fields. Credentials, raw secret values and contact-form messages are excluded from ordinary application error output; access to retained operational records is restricted. Customer agents should submit redacted reproductions rather than credentials or raw personal records in feedback.
-
-## Recovery and deletion
-
-Recovery procedures use the selected database and storage capabilities. On-demand SQL exports are asynchronous password-encrypted ZIP archives, limited to one accepted request per project per rolling 24 hours. The customer controls the password; it is not kept as a recoverable customer password vault. The archive lifecycle is seven days and authorised download links last 24 hours. Export/restore procedures have been exercised through the supported workflow. Recovery capability does not establish a guaranteed recovery point or recovery time for every workload.
-
-Deletion follows scoped operation records and provider observations. Retained backups are restricted and expire under their applicable lifecycle. Website beta-interest and contact records have explicit expiry timestamps and are purged through the existing maintenance process. Legal or data-subject requests are handled through the contact channel and recorded with access limited to responsible personnel.
-
-## Change and vulnerability management
-
-Source changes undergo review and relevant automated checks, including type, contract, regression and build checks. Release artifacts identify their source and integrity metadata. Provider bindings are checked during release to avoid unintended configuration changes. Reported defects and dependency/security findings are assessed and corrected according to their impact. Infrastructure providers maintain the physical security of their own facilities; this document does not represent a separate amerged certification of those facilities.
-
-## Incident handling
-
-Suspected incidents are assessed, contained and investigated using available logs and provider information. Access can be restricted and affected processing isolated. Customer notifications and follow-up information follow the DPA's breach provisions. Measures evolve with the service and risks without materially reducing the agreed overall protection.
-
-[Data Processing Agreement](https://ohmyho.st/dpa) · [Contact form](https://ohmyho.st/contact)
+[Terms of Service](https://ohmyho.st/terms) · [Privacy](https://ohmyho.st/privacy) · [DPA](https://ohmyho.st/dpa).

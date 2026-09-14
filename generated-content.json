@@ -1,47 +1,15 @@
 {
-  "source_commit": "7bb3692efd7267ebad2431086ed0ac91073865fc",
+  "source_commit": "35fe6eb7961259f301c76d3138fbed500acdac36",
   "source_dirty": false,
-  "release": "0.1.0-beta.29",
+  "release": "0.1.0-beta.30",
   "files": [
-    {
-      "path": "logo/light.svg",
-      "sha256": "0dc593c4538b5e3e7317f9942c92767305b6be2f4d505bf7c7b6b5749efc2be9"
-    },
-    {
-      "path": "logo/dark.svg",
-      "sha256": "d2228f89816c6bd552a87347c8db81a7357982e009f9157f76e77bb3b8711f13"
-    },
-    {
-      "path": "favicon.svg",
-      "sha256": "3b5172ad8046d1262db633902e5405fef85a06424971266ff46346feb7a6fe47"
-    },
-    {
-      "path": "favicon.ico",
-      "sha256": "0926751b38cd6b0356cef4c512701602364034949fcd1459e50fdf2efed03059"
-    },
-    {
-      "path": "apple-touch-icon.png",
-      "sha256": "c7cc76cc62881d5876b12de43d63c4b42f13810ec36fa94c80f0d7bb8ef86e2e"
-    },
-    {
-      "path": "openapi.yaml",
-      "sha256": "61189dbc91ed20650724595811d4947c9c4d4f3873a1d1665805e116d34eb5c4"
-    },
-    {
-      "path": "openapi.json",
-      "sha256": "c0c19135fd6ebbb87edc3e192e3b2a4d735fcad21feb6b02f18dd3d9aab45cc9"
-    },
     {
       "path": "skills/ohmyhost-build-portable-app/SKILL.md",
       "sha256": "d3734b4f5a0bd60cf956129c84c44e88051afa5c325c95a56c7e74889d771da0"
     },
     {
-      "path": "skills/ohmyhost-build-portable-app/agents/openai.yaml",
-      "sha256": "ca805f3aa3fee95b165b820b44fe2f383eecb125ff946b4b979d35e6b679872f"
-    },
-    {
       "path": "skills/ohmyhost-build-portable-app/references/cli-deploy.md",
-      "sha256": "f3a785740e9e2adea2c23373650442d091a9266acc29f415bf72e3cda5bfaf49"
+      "sha256": "3ef326ed40233380eb5c7206bceba705019351106c04747500c8fa3ea35cdf1c"
     },
     {
       "path": "skills/ohmyhost-build-portable-app/references/stack-contracts.md",
@@ -61,7 +29,11 @@
     },
     {
       "path": "skills/ohmyhost-get-started/SKILL.md",
-      "sha256": "fbf97e0324572ac95c30129305bff4b5d090caddeda58a251afb856eb546cc70"
+      "sha256": "f99b1d9fdbc7cd81cc7748b7113aedfd44132e0807e694071b2f65013fe4f7b8"
+    },
+    {
+      "path": "skills/ohmyhost-get-started/references/harness-setup.md",
+      "sha256": "9e25304d20526a13d64979df134eedfec6140f731a59529da47a3f0be74e42a6"
     },
     {
       "path": "skills/ohmyhost-manage-database/SKILL.md",
@@ -72,20 +44,12 @@
       "sha256": "1cd7230e96a1305f78e0d810970bcb8ef138d04105a92ebb61dd25d2e22a5164"
     },
     {
-      "path": "skills/ohmyhost-migrate-supabase-postgres/agents/openai.yaml",
-      "sha256": "01ae3ff047be0a3035381256d6033155f498c638e2134d11ecc528360552800a"
-    },
-    {
       "path": "skills/ohmyhost-migrate-supabase-postgres/references/provider-contracts.md",
       "sha256": "37ffc0ea130fcdcdb7cd301fdee34df1ad9f664f8db84be89409da923a95f091"
     },
     {
       "path": "skills/ohmyhost-migrate-supabase-postgres/scripts/create-portable-baseline.mjs",
       "sha256": "d2500341f52dd0da17570dfa631677c39c9bc3835de8229157a48bbb16e1de89"
-    },
-    {
-      "path": "skills/ohmyhost-migrate-supabase-postgres/scripts/create-portable-baseline.test.mjs",
-      "sha256": "8141e86cebfe556a24250ba5d16140f7f9822897e3ff86b1f5092a3675d2b209"
     },
     {
       "path": "skills/ohmyhost-troubleshoot-deployment/SKILL.md",
@@ -96,8 +60,56 @@
       "sha256": "88dc6ab081d404f5aa62bb7ff88f31a81dc475449962309424e280f767510a81"
     },
     {
+      "path": "openapi.yaml",
+      "sha256": "51bcdbb2c5843d3eb5c49b7c62b4efd2c285f3bca0851ffd34aecc8dfdc2456a"
+    },
+    {
+      "path": "openapi.json",
+      "sha256": "6ae68c8c1fc4eed816a3ef2ffa17984322d443fac815daca9df85af9b5eac545"
+    },
+    {
       "path": "mcp-tools.json",
-      "sha256": "3b0858afc322d54639416a3a7c9b2a0e5ecc09c04ec7102e3a61d1b5e77a6e6c"
+      "sha256": "278c02dce3e83703ff7ad80977dd62bee2d45ebda39ab1de369a6d5946f54308"
+    },
+    {
+      "path": "mcp.json",
+      "sha256": "371c9fbbd1c8fa13ddcd6f54c5087df11d5dffc0f6c72039c0228561a97410ec"
+    },
+    {
+      "path": "snippets/install-clients.mdx",
+      "sha256": "513b394470d8662f158580467c95802084ba74ff128df9292ad2343aabf52945"
+    },
+    {
+      "path": "snippets/install-sdk.mdx",
+      "sha256": "ac193708a4cff966fffb586c520dc2119ea9145a6cd6b2d654a9b4499ac4acb6"
+    },
+    {
+      "path": "snippets/skill-catalog.mdx",
+      "sha256": "a785bdb733dd1a46ae8bccdc71750baf3295465e0014b343e4c1e5ab3eab57be"
+    },
+    {
+      "path": "snippets/mcp-tools.mdx",
+      "sha256": "a367c7494c341df2b6acba195b81664cc6f414f9f51a6932297c4d9c3aeea55e"
+    },
+    {
+      "path": "logo/light.svg",
+      "sha256": "0dc593c4538b5e3e7317f9942c92767305b6be2f4d505bf7c7b6b5749efc2be9"
+    },
+    {
+      "path": "logo/dark.svg",
+      "sha256": "d2228f89816c6bd552a87347c8db81a7357982e009f9157f76e77bb3b8711f13"
+    },
+    {
+      "path": "favicon.svg",
+      "sha256": "3b5172ad8046d1262db633902e5405fef85a06424971266ff46346feb7a6fe47"
+    },
+    {
+      "path": "favicon.ico",
+      "sha256": "0926751b38cd6b0356cef4c512701602364034949fcd1459e50fdf2efed03059"
+    },
+    {
+      "path": "apple-touch-icon.png",
+      "sha256": "c7cc76cc62881d5876b12de43d63c4b42f13810ec36fa94c80f0d7bb8ef86e2e"
     }
   ]
 }

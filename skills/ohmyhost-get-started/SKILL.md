@@ -9,8 +9,8 @@ Connect this agent to the customer's account, then continue with the selected Gi
 
 ## Install and connect
 
-1. Read https://ohmyho.st/llms.txt and the current CLI/MCP installation guide. Check installed Node.js, CLI and MCP versions. Install the published packages only when missing or when required tools are absent, using the current archive URLs in the guide.
-2. Register the local `ohmyhost-mcp` command using this harness's installed help and documented settings. Preserve other MCP servers, model choices and permission settings. Use `OHMYHOST_ENVIRONMENT=production` for both CLI and MCP unless the customer explicitly selected the development platform.
+1. Read https://ohmyho.st/llms.txt and [the current CLI/MCP installation guide](https://docs.ohmyho.st/agents/mcp). Check installed Node.js, CLI and MCP versions. Install the published packages only when missing or when required tools are absent, using the current archive URLs in the guide.
+2. Read [harness setup](references/harness-setup.md) and register the local `ohmyhost-mcp` command using this harness's installed help and documented settings. Preserve other MCP servers, model choices and permission settings. Use `OHMYHOST_ENVIRONMENT=production` for both CLI and MCP unless the customer explicitly selected the development platform.
 3. Reload the connection if required. Verify `tools/list` and `resources/list`; read the relevant Skill and its supporting files. A saved configuration alone is not a working connection.
 
 ## Sign in and select an organization
@@ -36,7 +36,7 @@ If the invitation is missing or rejected, return the next action and https://ohm
 
 ## Keep access for later
 
-The current CLI login is sufficient to continue. When the customer wants a deployment token, use `token_create` or `ohmyhost token create` and save the newly issued non-expiring value once to the chosen private env file. Configure the local process to load that file. Preserve existing credentials; the value never belongs in chat, source or command arguments.
+The current CLI login is sufficient to continue. Profile → API Tokens also creates a user key for an automation platform; its full value appears only once. When the customer wants a deployment token, use `token_create` or `ohmyhost token create` and save the newly issued non-expiring value once to the chosen private env file. Configure the local process to load that file. Preserve existing credentials; the value never belongs in chat, source or command arguments.
 
 `OHMYHOST_TOKEN` takes precedence over the CLI login. Use a process without that variable for interactive login, organization creation or token management; do not delete the saved token file.
 

@@ -377,9 +377,49 @@
       }
     },
     "/v1/beta/feature-interests": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "X-Ohmyho-Voter",
+          "required": true,
+          "description": "Random UUIDv4 identifying only this anonymous browser's votes; not an account credential or proof of a unique person. Keep it out of URLs and logs.",
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "getFeatureInterests",
+        "summary": "Read this anonymous browser's current roadmap votes",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Current choices; a missing, removed or expired choice is null.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeatureVoteState"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
       "post": {
         "operationId": "registerFeatureInterest",
-        "summary": "Record interest in a proposed feature",
+        "summary": "Set or remove this anonymous browser's roadmap vote",
+        "description": "Store a desired choice once per request key for twelve months. Replaying an earlier request never overwrites a later choice. A null choice removes the vote; this is not toggle-on-every-request behavior.",
         "security": [],
         "requestBody": {
           "required": true,
@@ -390,6 +430,7 @@
                 "additionalProperties": false,
                 "required": [
                   "feature",
+                  "choice",
                   "idempotency_key"
                 ],
                 "properties": {
@@ -399,6 +440,17 @@
                       "eu",
                       "iso27001",
                       "soc2"
+                    ]
+                  },
+                  "choice": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      "up",
+                      "down",
+                      null
                     ]
                   },
                   "idempotency_key": {
@@ -412,19 +464,23 @@
         },
         "responses": {
           "202": {
-            "description": "The feature interest is stored once for this request key.",
+            "description": "The request is persisted, with the browser's current state after this request or replay.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "additionalProperties": false,
                   "required": [
-                    "accepted"
+                    "accepted",
+                    "votes"
                   ],
                   "properties": {
                     "accepted": {
                       "type": "boolean",
                       "const": true
+                    },
+                    "votes": {
+                      "$ref": "#/components/schemas/FeatureVoteChoices"
                     }
                   }
                 }
@@ -3356,7 +3412,7 @@
       "post": {
         "operationId": "changeDatabaseCompute",
         "summary": "Select standard or Paid performance database compute",
-        "description": "Requires project-write access and explicit confirmation. Reads the organization plan at acceptance (Free 0.25 CU/1 GB/60 idle seconds or Paid 0.5 CU/2 GB/120 idle seconds). Changes the existing database in place without copying or resetting data. Shared Dev/Prod data changes both environments. A brief connection interruption is possible. Poll the returned operation every 60 seconds; do not submit a second change while it runs. Completion requires actual provider settings and settled operations. Actual CU consumption remains metered. Performance requires effective Paid access and an active rate; it selects fixed 1 CU/4 GB/300 idle seconds at 2.5 times Paid-standard database compute credits per equal active minute. Only database compute changes price. Raw CU-second measurements are preserved; mixed or uncertain transition hours waive the premium. Returning to standard restores the effective plan size.",
+        "description": "Requires project-write access and explicit confirmation. Reads the organization plan at acceptance (Free 0.25 CU/1 GB/60 idle seconds or Paid 0.5 CU/2 GB/60 idle seconds). Changes the existing database in place without copying or resetting data. Shared Dev/Prod data changes both environments. A brief connection interruption is possible. Poll the returned operation every 60 seconds; do not submit a second change while it runs. Completion requires actual provider settings and settled operations. Actual CU consumption remains metered. Performance requires effective Paid access and an active rate; it selects fixed 1 CU/4 GB/300 idle seconds at 2.5 times Paid-standard database compute credits per equal active minute. Only database compute changes price. Raw CU-second measurements are preserved; mixed or uncertain transition hours waive the premium. Returning to standard restores the effective plan size.",
         "parameters": [
           {
             "$ref": "#/components/parameters/ProjectId"
@@ -4503,6 +4559,53 @@
       }
     },
     "schemas": {
+      "FeatureVoteChoices": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "One entry for each roadmap topic; no personal data or other browsers' votes.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "feature",
+            "choice"
+          ],
+          "properties": {
+            "feature": {
+              "type": "string",
+              "enum": [
+                "eu",
+                "iso27001",
+                "soc2"
+              ]
+            },
+            "choice": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "up",
+                "down",
+                null
+              ]
+            }
+          }
+        }
+      },
+      "FeatureVoteState": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "votes"
+        ],
+        "properties": {
+          "votes": {
+            "$ref": "#/components/schemas/FeatureVoteChoices"
+          }
+        }
+      },
       "UserApiKeyId": {
         "type": "string",
         "pattern": "^api_key_[A-Za-z0-9_]{1,120}$"

@@ -1,55 +1,73 @@
 ---
 title: "CLI"
+description: "Install the public clients and deploy a GitHub commit with real commands."
 ---
 
-Deploy and manage projects from your terminal. Requires Node.js 22 or newer.
+import InstallClients from '/snippets/install-clients.mdx';
 
-## Install and log in
+## Install and sign in
 
-```
-npm install --global https://ohmyho.st/releases/0.1.0-beta.28/ohmyhost-product-cli-0.1.0-beta.28.tgz
-ohmyhost login --json
-ohmyhost whoami --json
-```
+<InstallClients />
 
-Open the sign-in link printed by login. Use the organization ID returned by whoami. If signup asks for an invitation, use the link you received.
+Open the sign-in URL and complete it. Use the organization returned by `whoami`; when several are available, select the one for this project. Run a token-management or organization command from your interactive login, without `OHMYHOST_TOKEN` overriding it.
 
-## Prepare your app
+## Inspect and select a project
 
-Run these commands in your GitHub repository:
+Run inside the repository:
 
-```
+```sh
 ohmyhost init --dry-run --json
+ohmyhost project list --json
+```
+
+Resolve actual blockers. Reuse an existing project, or create one after choosing isolated or shared data:
+
+```sh
 ohmyhost project create --organization "$ORGANIZATION_ID" --name "My app" --data-mode isolated --idempotency-key "$PROJECT_REQUEST_KEY" --json
-ohmyhost link --help
-ohmyhost plan --help
-ohmyhost deploy --help
+ohmyhost operation get "$PROJECT_OPERATION_ID" --json
+ohmyhost project list --json
 ```
 
-Choose a unique request key for project creation. Link your repository, review the plan for the exact pushed commit, then deploy. Reuse the same request key if a response is interrupted. Your agent can handle this workflow with the [GitHub deployment Skill](https://ohmyho.st/skills/ohmyhost-deploy-github/SKILL.md).
+`ORGANIZATION_ID` comes from `whoami`. Create a unique `PROJECT_REQUEST_KEY` once and retain it for retries. `PROJECT_OPERATION_ID` is the creation response's `operation.id`. After success, select the created project's ID from the list as `PROJECT_ID`.
 
-Isolated data gives Dev and Prod separate databases; each uses credits. Shared data uses one database for both. Keep your application's existing authentication choice.
+## Connect and deploy
 
-## Check progress
+Set `GITHUB_OWNER` and `GITHUB_REPOSITORY` to the repository you selected. Retain one unique `SOURCE_REQUEST_KEY` for this connection:
 
+```sh
+ohmyhost link --project "$PROJECT_ID" --repository-owner "$GITHUB_OWNER" --repository-name "$GITHUB_REPOSITORY" --idempotency-key "$SOURCE_REQUEST_KEY" --json
 ```
-ohmyhost credits account --organization "$ORGANIZATION_ID" --json
+
+If the result is `authorization_required`, open `authorization.installation_url` if installation is needed and then `authorization.authorization_url`. After consent, repeat the exact command/key. Wait for `completed`.
+
+Use the full SHA of the pushed commit as `COMMIT_SHA`:
+
+```sh
+ohmyhost plan --project "$PROJECT_ID" --commit "$COMMIT_SHA" --json
+```
+
+Read the plan, its requirements and credit effects. Set application [runtime secrets](/secrets) if required. Take `PLAN_ID` from `plan.id`, retain a new `DEPLOY_REQUEST_KEY`, and execute the approved plan:
+
+```sh
+ohmyhost deploy --project "$PROJECT_ID" --plan-id "$PLAN_ID" --idempotency-key "$DEPLOY_REQUEST_KEY" --yes --wait --json
+```
+
+## Verify progress and the application
+
+```sh
+ohmyhost operation get "$OPERATION_ID" --json
+ohmyhost project status --project "$PROJECT_ID" --json
+ohmyhost project dev-access create --project "$PROJECT_ID" --json
+```
+
+`OPERATION_ID` is the deploy response's `operation.id`. A wait timeout leaves the accepted operation running; inspect it without submitting another deployment. Follow returned polling guidance. Open the private `redeem_url` once, then test the clean Dev URL; keep access links out of logs and project notes.
+
+## Common follow-ups
+
+```sh
 ohmyhost project context --project "$PROJECT_ID" --json
-ohmyhost project status --help
-ohmyhost operation get --help
+ohmyhost credits account --organization "$ORGANIZATION_ID" --json
+ohmyhost budget get --project "$PROJECT_ID" --json
 ```
 
-Use the operation ID returned by deploy to follow progress. Dev links are private; ask your agent to open a Dev access link before testing.
-
-## Save a token for your agent
-
-From your interactive login:
-
-```
-ohmyhost token create --organization "$ORGANIZATION_ID" --name "Deployment agent" --idempotency-key "$TOKEN_REQUEST_KEY" --out .env.local --json
-ohmyhost token list --organization "$ORGANIZATION_ID" --json
-```
-
-Tokens default to 90 days. The command saves the newly issued value to the private file; it cannot be retrieved again later. Ignore the file in Git. Existing credentials are not overwritten. Load it into your agent process using Node's --env-file option. Use token revoke --help to revoke a selected key from your interactive login.
-
-[Release manifest and checksums](https://ohmyho.st/releases/0.1.0-beta.28/manifest.json) · [MCP setup](/agents/mcp) · [API reference](https://ohmyho.st/api)
+For later automation, create a token from Profile → API Tokens or the [token commands](/login-tokens). New tokens stay valid until revoked. [MCP setup](/agents/mcp) uses the same account access.

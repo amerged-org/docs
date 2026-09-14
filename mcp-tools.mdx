@@ -1,65 +1,14 @@
 ---
-title: "MCP tools"
+title: "MCP tool reference"
+description: "Discover the shipped tool names, required arguments and current schemas."
 ---
 
-These tools are discovered from the shipped local MCP server. Read a tool's current schema before calling it. Project and billing permissions are checked by the API; a listed tool does not grant access.
+import McpTools from '/snippets/mcp-tools.mdx';
 
-| Tool | Required arguments | Action |
-| --- | --- | --- |
-| `database_compute_get` | `project_id` | Read |
-| `database_compute_set` | `project_id`, `environment`, `profile`, `confirm`, `idempotency_key` | Change or prepare a change |
-| `project_context_get` | `project_id` | Read |
-| `project_notes_set` | `project_id`, `markdown`, `expected_version`, `idempotency_key` | Change or prepare a change |
-| `domain_cloudflare_authorize` | `project_id`, `zone`, `idempotency_key` | Change or prepare a change |
-| `domain_cloudflare_status` | `project_id` | Read |
-| `domain_paid_plan` | `project_id`, `hostname` | Read |
-| `domain_paid_apply` | `project_id`, `hostname`, `idempotency_key`, `confirm` | Change or prepare a change |
-| `domain_paid_status` | `project_id` | Read |
-| `domain_paid_delete` | `project_id`, `hostname`, `idempotency_key`, `confirm` | Change or prepare a change |
-| `billing_checkout_create` | `organization_id`, `offer`, `idempotency_key` | Read |
-| `billing_checkout_get` | `organization_id`, `checkout_id` | Read |
-| `billing_recharge_get` | `organization_id` | Read |
-| `billing_recharge_configure` | `organization_id`, `enabled`, `monthly_limit_minor`, `consent`, `revision`, `idempotency_key` | Change or prepare a change |
-| `billing_portal_create` | `organization_id` | Read |
-| `project_export_create` | `project_id`, `password_file`, `idempotency_key` | Change or prepare a change |
-| `project_export_get` | `project_id`, `export_id` | Read |
-| `organization_usage_get` | `organization_id`, `month` | Read |
-| `organization_account_get` | `organization_id` | Read |
-| `organization_credits_get` | `organization_id` | Read |
-| `project_budget_get` | `project_id` | Read |
-| `project_budget_set` | `project_id`, `amount_micros`, `idempotency_key` | Change or prepare a change |
-| `organization_create` | `name`, `signup_source`, `idempotency_key` | Change or prepare a change |
-| `database_query` | `project_id`, `statement` | Read |
-| `promotion_plan` | `project_id`, `source_deployment_id` | Change or prepare a change |
-| `promotion_execute` | `project_id`, `source_deployment_id`, `if_match`, `confirmation_token`, `idempotency_key`, `confirmed` | Change or prepare a change |
-| `token_create` | `organization_id`, `name`, `idempotency_key`, `out_file`, `confirmed` | Change or prepare a change |
-| `tokens_list` | `organization_id` | Read |
-| `token_revoke` | `organization_id`, `key_id`, `confirmed` | Change or prepare a change |
-| `identity_get` | None | Read |
-| `projects_list` | None | Read |
-| `feedback_submit` | `organization_id`, `kind`, `title`, `description`, `idempotency_key` | Change or prepare a change |
-| `project_create` | `organization_id`, `name`, `idempotency_key` | Change or prepare a change |
-| `project_get` | `project_id` | Read |
-| `project_status` | `project_id` | Read |
-| `project_dev_access_create` | `project_id` | Change or prepare a change |
-| `source_link` | `project_id`, `repository_owner`, `repository_name`, `idempotency_key` | Change or prepare a change |
-| `source_get` | `project_id` | Read |
-| `deployment_plan` | `project_id`, `commit_sha` | Read |
-| `deployment_create` | `project_id`, `plan_id`, `idempotency_key` | Change or prepare a change |
-| `deployments_list` | `project_id` | Read |
-| `deployment_get` | `project_id`, `deployment_id` | Read |
-| `operation_get` | `operation_id` | Read |
-| `operation_logs` | `operation_id` | Read |
-| `operation_reconcile` | `operation_id`, `idempotency_key`, `confirmed` | Change or prepare a change |
-| `mail_domain_set` | `project_id`, `domain`, `idempotency_key` | Change or prepare a change |
-| `mail_domain_status` | `project_id` | Read |
-| `secrets_list` | `project_id`, `environment_id` | Read |
-| `secret_delete` | `project_id`, `environment_id`, `name`, `idempotency_key` | Change or prepare a change |
-| `secret_set_command` | `project_id`, `environment_id`, `name`, `idempotency_key` | Read |
-| `rollback_plan` | `project_id`, `deployment_id` | Read |
-| `rollback_execute` | `project_id`, `deployment_id`, `if_match`, `confirmation_token`, `idempotency_key` | Change or prepare a change |
-| `delete_plan` | `project_id` | Read |
-| `delete_execute` | `project_id`, `if_match`, `confirmation_token`, `idempotency_key` | Change or prepare a change |
+Call `tools/list` after connecting the local product server. Read the returned schema before supplying arguments; the catalogue below is generated with the public client release.
 
-[Download the complete tool schemas](https://ohmyho.st/mcp-tools.json) · [Connect MCP](/agents/mcp) · [Task Skills](/skills)
+<McpTools />
 
+[Download complete tool schemas](https://ohmyho.st/mcp-tools.json) · [Connect MCP](/agents/mcp) · [Task Skills](/skills).
+
+A listed tool does not grant account access. The API checks the current user, organization, project, environment and action. Use the existing project context before changes, and retain mutation idempotency keys across uncertain responses.

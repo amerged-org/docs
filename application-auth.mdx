@@ -1,11 +1,25 @@
 ---
-title: "Bring your application's auth"
+title: "Bring your application\u2019s auth"
+description: "Keep application users and sessions separate from your hosting account."
 ---
 
-Your ohmyho.st login gives your agent hosting access. Your application chooses its own users, sessions and authentication provider. A deliberately public application needs no login.
+Your ohmyho.st login authorizes hosting operations. Your application chooses its own users, sessions and auth provider. A deliberately public app requires no application login.
 
-Better Auth, customer-owned WorkOS and Auth0 are the supported integration targets. Compatibility and completed verification depend on the actual framework/runtime combination; ask the agent to inspect the current admission result and test your application's full login path. Existing hosted Next.js with customer-owned WorkOS has been verified; do not assume that proves every other combination.
+## Choose the integration your app already uses
 
-Keep an existing provider unless you choose to change it. Configure its exact callback/logout URLs, allowed origins and required server secrets. Test login, callback, a protected route, reload and logout. The provider may send its own verification email; this does not automatically require managed ohmyho.st mail.
+Better Auth, customer-owned WorkOS and Auth0 are the supported integration targets. Support is checked against the actual framework, runtime, secrets and callback behavior. Read the returned compatibility result; one verified framework combination does not establish every combination.
 
-[Secrets](/secrets) · [Frameworks](/frameworks/nextjs) · [Portable-app Skill](https://ohmyho.st/skills/ohmyhost-build-portable-app/SKILL.md)
+- **Better Auth:** keep its server handler, schema and base URL in the supported app runtime.
+- **WorkOS:** use your application's own client ID, private server key where needed, callback URL and logout URL.
+- **Auth0:** use the application type matching your architecture; public clients cannot hold a client secret.
+
+## Set up an environment
+
+1. Select Dev or Prod and read its actual URL.
+2. Configure the exact callback, logout and allowed origins in your auth provider.
+3. Deliver private values with [runtime secrets](/secrets). Keep public identifiers separate from server credentials.
+4. Test login, callback, a protected page, reload and logout. Confirm protected access is denied after logout.
+
+The provider may send its own account-verification email; this does not automatically require managed ohmyho.st mail. Keep existing auth unless you explicitly decide to change it.
+
+[Next.js](/frameworks/nextjs) · [Vite](/frameworks/vite) · [TanStack](/frameworks/tanstack).

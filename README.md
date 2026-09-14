@@ -1,7 +1,7 @@
 # ohmyho.st documentation
 
-Customer guides, API reference and installable agent Skills for https://ohmyho.st.
+Customer documentation at https://docs.ohmyho.st. Editorial MDX and navigation live in this repository.
 
-Install a Skill with `npx skills add amerged/docs -s ohmyhost-get-started`. The platform repository is not required.
+OpenAPI, executable Skills, tool schemas, install snippets and Ω assets are synchronized from the reviewed platform release and listed in generated-content.json. Never edit those generated files independently. Platform synchronization preserves editorial pages. Mintlify generates llms.txt and llms-full.txt from the published documents; do not replace them with a stale copied index.
 
-Editorial MDX lives here. OpenAPI and executable Skills are synchronized from the platform release and recorded in generated-content.json; change their source in the platform, then publish a reviewed snapshot. Validate this site with the official Mintlify CLI before publishing. The public /docs cutover is a separate operation.
+Install a Skill with `npx skills add amerged/docs -s ohmyhost-get-started`. Validate content and broken links with the official Mintlify CLI before publishing.

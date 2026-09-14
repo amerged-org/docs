@@ -1,22 +1,28 @@
 ---
-title: "Current limits"
+title: "Limits, errors and polling"
+description: "Understand bounded requests, permissions and long-running operations."
 ---
-
-The API uses REST /v1 and Bearer authentication. Private endpoints return application/problem+json with code, detail and suggested_action; retry rate-limited requests after Retry-After. The current beta has no general stability or deprecation-window promise. Published client archives are immutable; follow release notes when upgrading. Future breaking version changes will be documented before a public stability commitment is introduced.
-
-Use the operation plan and active rate cards for the selected account. The published clients support GitHub deployment, the documented framework/capability contracts and customer-chosen application authentication.
 
 | Capability | Current contract |
 | --- | --- |
-| New user API token | 90-day default; full value available once |
-| Project context | 500 lines / 32 KiB |
-| Shared notes | 250 lines / 16 KiB |
-| SQL export requests | One accepted export per project per rolling 24 hours |
-| Export payload | SQL only, up to 256 MiB plaintext |
-| Export download URL | 24 hours |
-| Export archive retention | Seven days |
-| Pending DNS/mail follow-up | Follow the returned interval, typically 60 minutes |
+| New user API token | No expiry; valid until revoked; full value shown once. |
+| Existing user token | Keeps its recorded expiry. |
+| Project context | At most 500 lines / 32 KiB. |
+| Saved project notes | At most 250 lines / 16 KiB. |
+| SQL export | One accepted request per project per rolling 24 hours; 256 MiB plaintext maximum. |
+| Export download | Signed URL valid 24 hours; encrypted ZIP retained seven days. |
+| Private Dev access | Ten-minute single-use link; request only when needed. |
+| Standard database compute | Free 0.25 CU / 1 GB / 60 s; Paid 0.5 CU / 2 GB / 60 s. |
+| Performance database compute | Paid 1 CU / 4 GB / 300 s; 2.5× compute credits per equal active duration. |
 
-Hosted URL-only product MCP, managed AI, customer Drive/S3/R2 export destinations and optional EU placement are not available in this release. The local npm MCP client is available.
+## Request failures
 
-[API contract](https://ohmyho.st/api) · [Compute profiles](/database) · [Export guide](/backups)
+Use the endpoint's error code and suggested action. `401` means authenticate; `403` means check concrete permissions; `409` means resolve the version/operation conflict; `429` means respect `Retry-After`. An unknown provider result is not a reason to repeat a payment or destructive mutation with a new key.
+
+## Waiting for work
+
+The original operation is the source of progress. CLI `--wait` has a bounded local wait; the operation can continue afterward. MCP status tools return current observations. Follow the response's polling interval and stop on terminal state.
+
+For pending DNS/DKIM, the next check is normally after 60 minutes. A Skill instruction to poll does not schedule a future agent run. Arrange your harness's supported scheduler when authorized, or keep the operation ID and return the next command to the user.
+
+[OpenAPI schemas](/api) contain the exact field, request and endpoint limits. [Status](/status) · [Export](/backups).

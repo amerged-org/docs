@@ -1,13 +1,27 @@
 ---
 title: "Transactional email"
+description: "Set a sender domain, follow DKIM verification and verify delivery."
 ---
 
-> Configure my chosen sender domain, show the required records and verify a real application send.
+Managed transactional email requires Paid access and a sender domain for the project. Use a sender subdomain where appropriate to preserve your existing inbox setup:
 
-Managed transactional mail requires Paid access and a configured sender domain. mail_domain_set starts setup; mail_domain_status reads current DNS/DKIM readiness and any next action. Present the exact records returned by the API and preserve existing mailbox MX.
+```sh
+ohmyhost mail domain set --project "$PROJECT_ID" --domain mail.example.com --idempotency-key "$MAIL_REQUEST_KEY" --json
+ohmyhost mail domain status --project "$PROJECT_ID" --json
+```
 
-Cloudflare DNS authorization can automate supported records. Other DNS providers work with manual entry. During verification, follow next_check_after_seconds and ask the agent to check again after 60 minutes. Continue the original deployment operation instead of rebuilding.
+Apply the exact DNS records returned by the service, through [Cloudflare authorization or manual DNS](/domains). Preserve mailbox MX records.
 
-Sender verification and the provider account's sending availability are separate. A ready sender alone does not prove commercial delivery. Read the actual error if a send is unavailable and verify receipt before reporting email as working.
+## While verification is pending
 
-[Domains](/domains) · [Mail Skill](https://ohmyho.st/skills/ohmyhost-domains-and-mail/SKILL.md) · [Mail pricing comparison](https://ohmyho.st/vs/resend)
+The status includes the current observation and next action. Follow `next_check_after_seconds`, normally 3600. A stored configuration receipt is not a new provider observation; use the actual status response to decide what remains.
+
+Do not recreate the sender or repeat correct records because DKIM is still propagating. Resume the original deployment after its dependency becomes ready.
+
+## Verify application delivery
+
+Sender verification, account sending availability and deployment completion are separate checks. Send a real transactional message through your application's supported runtime and verify receipt before claiming email works.
+
+If `verification_issue` reports a missing tenant association, report the operation through [feedback](/feedback); that is platform provisioning, not a request for the customer to guess new DNS records. Respect suppression and sending limits returned by the service.
+
+[Deployment status](/status) · [Troubleshooting](/troubleshooting).

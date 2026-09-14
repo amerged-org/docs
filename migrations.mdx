@@ -1,11 +1,20 @@
 ---
 title: "Apply schema changes"
+description: "Version SQL migrations and preserve existing production data."
 ---
 
-Keep versioned SQL migrations in the application's configured directory, with filenames YYYYMMDDHHMMSS_name.sql. Check the current init output for the exact required naming and capability contract.
+Keep migrations in the directory selected by application inspection. Filenames use `YYYYMMDDHHMMSS_name.sql`: a 14-digit UTC prefix and lowercase descriptive name. Read `ohmyhost init --dry-run --json` for the exact source contract.
 
-Prefer additive changes: introduce a nullable column, deploy compatible code, backfill existing rows, then review removal or stronger constraints separately. Test against existing records before promotion. Never replace production data with a Dev dump to synchronize schemas.
+## Make an additive change
 
-Promotion plans show the verified artifact and migration effects. After applying them, check both the new behavior and preservation of existing records. Shared data means the same physical database serves Dev and Prod.
+For example, add a nullable field, deploy code that can use either schema, backfill existing rows, then review stronger constraints or removal separately. Commit each versioned migration with the application code and matching lockfile.
 
-[Database Skill](https://ohmyho.st/skills/ohmyhost-manage-database/SKILL.md) · [Environments](/environments) · [SQL exports](/backups)
+Before promotion, test the migration against representative existing records. A successful clean-database setup alone does not prove an upgrade preserves customer data.
+
+## Promote the schema
+
+The promotion plan identifies the verified artifact and migration effects. Isolated Prod receives migrations, not Dev records. After applying, verify both the new feature and pre-existing Prod rows.
+
+In shared mode, both environments refer to the same data. Explain that impact before changing it. Do not restore a Dev dump into an existing Prod database to keep them synchronized.
+
+[Dev and Prod](/environments) · [Database Skill](https://ohmyho.st/skills/ohmyhost-manage-database/SKILL.md) · [SQL exports](/backups).

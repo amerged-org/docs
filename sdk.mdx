@@ -1,11 +1,27 @@
 ---
 title: "TypeScript SDK"
+description: "Call the generated REST client from a trusted server or automation process."
 ---
 
-The generated SDK exposes the same REST /v1 contract used by CLI and MCP. Install the current sdk-ts archive listed in the public release manifest linked from the CLI guide; the package needs no platform-repository access.
+import InstallSdk from '/snippets/install-sdk.mdx';
 
-Create a client with the selected public API origin and your customer authorization. Import the generated operation for the action you need. Consult the OpenAPI reference for request fields, result types and errors. Keep tokens in the calling process, outside source code and browser bundles.
+<InstallSdk />
 
-Requests that create work return an operation to observe. Preserve the original idempotency key after a network interruption; do not submit another deployment to read status.
+Load `OHMYHOST_TOKEN` from a private environment file or your secret store, then create an explicit client:
 
-[OpenAPI](https://ohmyho.st/api) · [CLI and release manifest](/cli) · [Operation status](/status)
+```ts
+import { createClient, listProjects } from '@ohmyhost/sdk-ts';
+
+const token = process.env.OHMYHOST_TOKEN;
+if (!token) throw new Error('OHMYHOST_TOKEN is required');
+const client = createClient({
+  baseUrl: 'https://app.ohmyho.st',
+  headers: { Authorization: `Bearer ${token}` },
+});
+const response = await listProjects({ client });
+console.log(response.data);
+```
+
+Use the generated operation's parameter types for path, query, headers and body. Keep this token outside browser bundles and application source. A project or user ID identifies a resource but does not authorize access.
+
+For an asynchronous mutation, retain its idempotency key and observe the returned operation. Handle typed API errors rather than silently returning success. [API contract](/api) · [Authentication](/login-tokens) · [Deployment workflow](/quickstart).

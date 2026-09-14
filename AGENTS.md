@@ -1,8 +1,9 @@
-# Documentation working rules
+# Documentation rules
 
-- Write concise English customer instructions with working public commands.
-- Keep editorial MDX here; OpenAPI and Skills are generated from the platform and must remain byte-identical to the reviewed source.
-- Read the real tool/CLI contract before changing examples; do not describe unshipped features as available.
-- Keep the homepage link and distinguish local product MCP from Mintlify search and operator Admin MCP.
-- Never include credentials, private provider identifiers or internal launch evidence.
-- Update navigation and check links and MDX when editing pages.
+- Write concise English instructions with actual public commands and expected outcomes.
+- Editorial MDX and navigation are maintained here; API/Skills/catalog/install snippets/brand assets are generated from the reviewed platform source.
+- New user API tokens remain valid until revoked; browser and CLI sessions have separate lifetimes, and existing keys retain their recorded expiry.
+- Keep main-site links and distinguish local product MCP from Mintlify search and Admin MCP.
+- Keep credentials, customer data and internal acceptance evidence out of public documents.
+- Preserve current auth/runtime support boundaries; link concrete contracts rather than inventing a command or shipped capability.
+- Check Markdown, links, generated-resource hashes and navigation before publishing.

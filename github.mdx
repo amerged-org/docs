@@ -1,11 +1,35 @@
 ---
 title: "Connect GitHub"
+description: "Authorize one repository and deploy the pushed commit you selected."
 ---
 
-> Connect the repository I selected and deploy its chosen branch and commit.
+Push your application, lockfile and configuration to the repository you want to host. Run these commands from that application directory after selecting its `PROJECT_ID`:
 
-GitHub is the deployment source. Push your application and its matching lockfile, then use source_link or the CLI link command. Open the returned authorization link and allow the repository in your own GitHub account.
+```sh
+ohmyhost link --project "$PROJECT_ID" --repository-owner "$GITHUB_OWNER" --repository-name "$GITHUB_REPOSITORY" --idempotency-key "$SOURCE_REQUEST_KEY" --json
+```
 
-After authorization, repeat the same link arguments and request key, then follow the source operation. Authorization alone does not start a build. Read source_get before deployment_plan and use the exact inspected commit. Local archives and source uploads are not supported.
+Open the returned GitHub authorization URL. If the App is not installed for the repository, complete the supplied installation link first. Use the GitHub account that actually has access to this repository.
 
-[Deploy Skill](https://ohmyho.st/skills/ohmyhost-deploy-github/SKILL.md) · [Secrets](/secrets) · [Quickstart](/quickstart)
+After consent, repeat the same arguments and key. Wait for the connection to complete. Do not create another project or replay the callback code.
+
+## Deploy the intended revision
+
+```sh
+ohmyhost plan --project "$PROJECT_ID" --commit "$COMMIT_SHA" --json
+```
+
+`COMMIT_SHA` is the full SHA of the pushed revision. The plan inspects that source and returns concrete requirements. Once ready, [execute the returned plan](/cli#connect-and-deploy).
+
+GitHub authorization alone does not start a build. Direct local archive uploads are not a deployment source. Private runtime secrets travel through the separate [secret workflow](/secrets), not through the source archive.
+
+## Automatic deployment
+
+Where the returned source capability is available, explicitly choose a branch:
+
+```sh
+ohmyhost source auto-deploy set --project "$PROJECT_ID" --branch "$BRANCH" --enabled true --idempotency-key "$AUTO_DEPLOY_KEY" --json
+ohmyhost source auto-deploy status --project "$PROJECT_ID" --json
+```
+
+Read back the selected branch and status. Use the same command with `--enabled false` to turn it off. [Troubleshooting](/troubleshooting).

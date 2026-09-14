@@ -1,11 +1,16 @@
 ---
 title: "Host a TanStack application"
+description: "Distinguish TanStack Start from Router and Query in a Vite app."
 ---
 
-Use the Vite guide for TanStack Router or Query in a Vite app. For TanStack Start, keep the native server routes, loaders and server functions and run the framework check before deployment.
+Use the [Vite guide](/frameworks/vite) when the project uses TanStack Router or Query in a Vite frontend. For TanStack Start, retain native server routes, loaders and server functions.
 
-The agent should identify the actual runtime, lockfile, migrations and server capabilities. It follows the returned compatibility classification and resolves concrete missing capabilities. Package names do not select an auth provider or require a database migration.
+Run `ohmyhost init --dry-run --json`. The result identifies the actual framework/runtime, package manager and required capabilities. Resolve concrete unsupported behavior; do not choose a runtime or authentication system from a package name alone.
 
-After deployment, verify rendered routes, navigation, server loaders and required writes. Configure environment secrets and callback URLs for the environment being tested.
+## Deploy and verify
 
-[Vite guide](/frameworks/vite) · [Portable-app Skill](https://ohmyho.st/skills/ohmyhost-build-portable-app/SKILL.md) · [Dev and Prod](/environments)
+Follow [the GitHub deployment workflow](/quickstart). Set server credentials through [runtime secrets](/secrets), and configure the exact application-auth callback/logout URLs.
+
+After the build, verify rendered pages, client navigation, loaders, server functions and the requested data writes. For isolated environments, verify existing Prod records after promotion rather than copying Dev data across.
+
+[Application auth](/application-auth) · [Dev and Prod](/environments).

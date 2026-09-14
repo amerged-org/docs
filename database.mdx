@@ -1,13 +1,41 @@
 ---
-title: "Database compute"
+title: "Database compute and queries"
+description: "Inspect actual Postgres settings without waking compute and choose a profile."
 ---
 
-> Show my database's current size, region and idle setting, then explain whether changing it would help.
+Read provider metadata without executing SQL:
 
-Use database_compute_get with project_id and environment dev or prod. It reads metadata without waking the database. Free uses 0.25 CU / 1 GB and sleeps after one idle minute; Paid standard uses 0.5 CU / 2 GB and two minutes. Paid performance uses 1 CU / 4 GB and five minutes, at 2.5 times standard compute credits for equal active duration.
+```sh
+ohmyhost database compute get --project "$PROJECT_ID" --environment dev --json
+ohmyhost database compute get --project "$PROJECT_ID" --environment prod --json
+```
 
-Use database_compute_set for an authorized profile change, then poll the returned operation and read actual compute again. A resize preserves SQL data. Shared environments resolve to one physical database and a change affects both.
+| Profile | Compute | Memory | Idle suspension |
+| --- | --- | --- | --- |
+| Free standard | 0.25 CU | 1 GB | 60 seconds |
+| Paid standard | 0.5 CU | 2 GB | 60 seconds |
+| Paid performance | 1 CU | 4 GB | 300 seconds |
 
-Storage and retained history still consume credits when compute sleeps. Avoid periodic SQL checks that keep an idle database awake. Managed database connections are delivered through the application's supported runtime binding; this is not a public database-management credential console.
+Performance costs 2.5 times Paid standard database-compute credits for equal active duration. Its longer idle window can also add active minutes. Storage and retained history consume credits independently of suspended compute.
 
-[Database Skill](https://ohmyho.st/skills/ohmyhost-manage-database/SKILL.md) · [Usage](/usage) · [Migrations](/migrations)
+## Change the profile
+
+```sh
+ohmyhost database compute set --project "$PROJECT_ID" --environment dev --profile performance --idempotency-key "$COMPUTE_REQUEST_KEY" --yes --json
+```
+
+Explain the price and possible brief connection interruption first. Use `--profile standard` to return to standard, and choose `prod` only when that is the intended target. Poll the returned operation, then read actual compute again. Resizing preserves SQL data. A shared placement affects both logical environments.
+
+## Query data
+
+The current CLI provides a bounded read diagnostic:
+
+```sh
+ohmyhost database query --project "$PROJECT_ID" --statement 'SELECT current_database() AS database_name' --json
+```
+
+Use the current [API schema](/api) and installed command help for supported query environments and permissions. Querying wakes a suspended database; avoid repeated SQL health checks when metadata is sufficient. Application data writes use the configured application runtime and versioned [migrations](/migrations) handle schema changes.
+
+Your user API token can be used by an authorized automation platform for supported API operations. Polling is an explicit query; there is no row-change subscription implied by this connection.
+
+[Usage](/usage) · [API tokens](/login-tokens) · [SQL exports](/backups).

@@ -1,11 +1,34 @@
 ---
 title: "Dev and Prod"
+description: "Choose isolated or shared data and promote without copying production records."
 ---
 
-Every project has Dev and Prod environments sharing an organization credit balance. The customer chooses isolated or shared data when creating the project.
+Each project has Dev and Prod under one organization credit balance. Choose `isolated` or `shared` data when creating the project.
 
-Isolated data gives each environment its own database and files, with separate consumption. Shared data uses one set and changes can affect both. The Skills recommend isolation for safer testing and explain the difference before creating resources.
+| Mode | Databases and files | Implication |
+| --- | --- | --- |
+| Isolated | Separate Dev and Prod resources | Safer testing; each database consumes credits independently. |
+| Shared | One physical data set | Writes or schema changes can affect both environments. |
 
-Dev requires a private single-use access link. After verifying the app, use promotion_plan and promotion_execute for the requested promotion. Promotion reuses the verified artifact and applies versioned migrations; it does not copy Dev records into isolated Prod.
+Skills recommend isolation and explain the credit difference. An explicit customer choice to share is supported.
 
-[Migration guide](/migrations) · [Database profiles](/database) · [Deployment Skill](https://ohmyho.st/skills/ohmyhost-deploy-github/SKILL.md)
+## Read the actual environment
+
+```sh
+ohmyhost project status --project "$PROJECT_ID" --json
+ohmyhost project context --project "$PROJECT_ID" --json
+```
+
+Use the returned environment IDs for secrets and the returned logical environment selection for compute commands. Do not infer environment from a project name.
+
+## Promote after verification
+
+```sh
+ohmyhost deployment promote plan --project "$PROJECT_ID" --deployment "$DEV_DEPLOYMENT_ID" --json
+```
+
+Review the result, including migration effects, then use the returned ETag and confirmation token with the documented `deployment promote` command. Those values belong to this exact plan and are not account credentials.
+
+Promotion reuses the verified artifact and applies versioned migrations. It does not copy Dev records or secrets into an isolated Prod database. Keep app secrets and callback URLs appropriate for each environment and verify existing Prod records after the change.
+
+[Schema migrations](/migrations) · [Database profiles](/database) · [Private Dev access](/cli#verify-progress-and-the-application).

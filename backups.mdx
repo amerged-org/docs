@@ -1,13 +1,31 @@
 ---
 title: "Export your database"
+description: "Request a password-encrypted SQL ZIP and download it when ready."
 ---
 
-Ask your agent to create a password-encrypted SQL ZIP using a private password file you choose. You keep the password.
+You choose and keep the export password. Save the exact password in a private UTF-8 file outside the application source; do not put it in chat or a command argument.
 
-Exports run asynchronously. Your agent requests one, checks its progress, then gives you a download link valid for 24 hours. You can request one export per project per rolling 24 hours. An accepted failed request still uses that allowance.
+```sh
+ohmyhost export create --project "$PROJECT_ID" --idempotency-key "$EXPORT_REQUEST_KEY" --stdin --json < "$BACKUP_PASSWORD_FILE"
+ohmyhost export get "$EXPORT_ID" --project "$PROJECT_ID" --json
+```
 
-The export contains SQL dumps for your project's databases. It excludes application source, files and configuration. The plaintext SQL limit is 256 MiB. Use an AES-compatible ZIP reader such as 7-Zip to open it.
+`EXPORT_ID` is the create response's operation ID. MCP `project_export_create` takes the private password-file path; the local server reads it without placing the password in MCP arguments. Poll `project_export_get` after the returned interval.
 
-Exports require the organization Owner and remain available at zero credits. Direct Google Drive, S3 and R2 destinations are not currently available.
+## What the ZIP contains
 
-[Database export Skill](https://ohmyho.st/skills/ohmyhost-export-database/SKILL.md)
+SQL dumps only: isolated data uses `dev.sql` and/or `prod.sql`; shared data is exported once as `shared.sql`. The export contains no R2 files, application code, runtime secrets or configuration. The maximum plaintext SQL payload is 256 MiB.
+
+An AES-compatible ZIP tool such as 7-Zip opens it with your password. The service cannot recover a lost password.
+
+## Limits and download
+
+One accepted request per project per rolling 24 hours covers both environments; an accepted request that fails still uses that allowance. Retry uncertain creation using the same key, not a new export. Exports are Owner-only and remain available at zero credits.
+
+A completed ZIP is retained seven days. Its authorized signed download URL lasts 24 hours and is issued only when enough retention remains. Treat the URL as a bearer secret; do not save it in project notes, source or feedback.
+
+## Send it to your storage
+
+Your chosen automation tool can download the completed encrypted ZIP and upload it to your own Google Drive, S3 or R2. Those are customer automation destinations, not built-in scheduled exports. A restore is a separate deliberate action into a selected database; never overwrite production data merely to test an export.
+
+[Export Skill](https://ohmyho.st/skills/ohmyhost-export-database/SKILL.md) · [Project context](/project-context).
