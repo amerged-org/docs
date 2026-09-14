@@ -162,5 +162,19 @@
   },
   "markdown": {
     "instructions": "For account actions, read https://ohmyho.st/skills/ohmyhost-get-started/SKILL.md and use the authenticated ohmyho.st CLI or local product MCP. Mintlify search only reads documentation. Preserve the customer\u2019s selected project, environment and authentication provider."
+  },
+  "fonts": {
+    "heading": {
+      "family": "Space Grotesk",
+      "source": "/fonts/space-grotesk-600.woff2",
+      "format": "woff2",
+      "weight": 600
+    },
+    "body": {
+      "family": "Space Grotesk",
+      "source": "/fonts/space-grotesk-400.woff2",
+      "format": "woff2",
+      "weight": 400
+    }
   }
 }

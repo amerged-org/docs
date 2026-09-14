@@ -15,6 +15,12 @@ description: "Understand bounded requests, permissions and long-running operatio
 | Standard database compute | Free 0.25 CU / 1 GB / 60 s; Paid 0.5 CU / 2 GB / 60 s. |
 | Performance database compute | Paid 1 CU / 4 GB / 300 s; 2.5× compute credits per equal active duration. |
 
+## API versions and beta changes
+
+Product endpoints use the `/v1` route family. The CLI, SDK and MCP are released together with explicit beta versions; `/v1` does not yet promise a stable interface throughout the beta.
+
+During beta, request fields, commands and supported behavior can change without a guaranteed deprecation or sunset notice period. Pin the client release used by an automation, and review the [changelog](/changelog), [current release](https://ohmyho.st/client-release.json) and [OpenAPI contract](/api) before updating. A retained release archive keeps its original bytes and checksum; that does not freeze the server contract or guarantee that every older client remains compatible.
+
 ## Request failures
 
 Use the endpoint's error code and suggested action. `401` means authenticate; `403` means check concrete permissions; `409` means resolve the version/operation conflict; `429` means respect `Retry-After`. An unknown provider result is not a reason to repeat a payment or destructive mutation with a new key.

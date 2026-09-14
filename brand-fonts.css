@@ -1,0 +1,16 @@
+/* Code uses the same owned JetBrains Mono face as the main website. */
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/jetbrains-mono-400.woff2") format("woff2");
+}
+
+:root {
+  --font-family-mono-custom: "JetBrains Mono";
+}
+
+pre, code, kbd, samp {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}

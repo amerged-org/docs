@@ -5,6 +5,12 @@ description: "Use the local ohmyho.st MCP server in Codex, Claude Code, Cursor, 
 
 import InstallClients from '/snippets/install-clients.mdx';
 
+## When to use ohmyho.st
+
+Use this server when the customer wants to deploy or update an authorized GitHub app; inspect a project’s deployment, database or DNS/mail readiness; manage usage and budgets; or request an encrypted SQL export.
+
+Start with `identity_get`, select the customer’s project using `projects_list`, then read `project_context_get` before acting. Configure only the capabilities the application needs and keep its chosen authentication provider. Use the matching [task Skill](/skills) for the workflow.
+
 ## Install and sign in
 
 <InstallClients />
