@@ -804,7 +804,7 @@
     },
     {
       "name": "token_create",
-      "description": "Create your own 90-day API token after interactive login and save it to the selected private env file. Returns metadata and file path only. Existing tokens are never overwritten. Configure the MCP process to load this file; never copy the token into a prompt. Reuse the original Idempotency-Key after uncertain creation.",
+      "description": "Create your own non-expiring API token after interactive login and save it to the selected private env file. Returns metadata and file path only. Existing tokens are never overwritten. Configure the MCP process to load this file; never copy the token into a prompt. Reuse the original Idempotency-Key after uncertain creation.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",

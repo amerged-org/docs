@@ -1,38 +1,27 @@
 ---
 title: "Deploy with ohmyho.st"
+description: "Host your GitHub app and manage it through your agent."
 ---
 
-Deploy your GitHub app, connect a domain, and manage it through your agent.
-
-## Start with your agent
-
-Paste this prompt into Codex, Claude Code, Cursor or the agent you already use:
+Paste this prompt into Codex, Claude Code, Cursor, Hermes or OpenClaw:
 
 > Read https://ohmyho.st/llms.txt and https://ohmyho.st/skills/ohmyhost-get-started/SKILL.md. Connect this agent to ohmyho.st and deploy this GitHub project using only the capabilities it needs. Follow the deployment Skill, keep my existing project decisions and verify the app.
 
-Include the invitation link you received. Your agent installs the public clients, connects MCP and guides you through sign-in.
-Your agent checks the app, configures the project and follows the deployment. It can also connect your domain, check usage and export your database.
+Include your invitation link. Your agent signs you in, reuses your workspace and inspects the selected app before creating anything.
 
-## Prefer the CLI?
+## Start with what your app needs
 
-Install with Node.js 22 or newer:
+A public Vite app can start with hosting alone. Add Postgres, runtime secrets, a custom domain or transactional email when the application needs them. Keep your application's own authentication provider.
 
-```
-npm install --global https://ohmyho.st/releases/0.1.0-beta.28/ohmyhost-product-cli-0.1.0-beta.28.tgz
-export OHMYHOST_ENVIRONMENT=production
-ohmyhost login --json
-```
+## Your first result
 
-Continue with the [CLI guide](/cli) or [MCP setup](/agents/mcp).
+The agent follows the accepted deployment and verifies the real application. A Dev link is private; ask it to open a Dev access link for you. Publish to Prod after you are ready.
 
-## What next?
+- [First deployment](/quickstart): the complete GitHub workflow.
+- [Connect MCP](/agents/mcp): setup for your agent.
+- [CLI](/cli): install and run the commands yourself.
+- [API](/api): use your account token from another tool.
 
-- [Connect your agent with MCP](/agents/mcp)
-- [Install task Skills](/skills)
-- [Connect a domain or email](/domains)
-- [Check usage and database size](/usage)
-- [Download a database export](/backups)
-- [Read the API reference](https://ohmyho.st/api)
+## Come back with a question
 
-Ask your agent for status and changes: “Is my domain ready?” or “Which project used the most credits this month?”
-
+“Which project used the most credits?” “Is my domain ready?” “Export my database.” Your agent reads the saved [project context](/project-context) and uses the same account access as the [portal](https://app.ohmyho.st/).

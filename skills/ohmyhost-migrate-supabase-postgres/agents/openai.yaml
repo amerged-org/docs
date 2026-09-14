@@ -1,0 +1,4 @@
+interface:
+  display_name: "Migrate Supabase to ohmyho.st"
+  short_description: "Convert Supabase apps to the ohmyho.st runtime"
+  default_prompt: "Use $ohmyhost-migrate-supabase-postgres to replace this app's Supabase-specific capabilities with portable ohmyhost runtime contracts."

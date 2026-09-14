@@ -495,7 +495,7 @@
     "/v1/organizations/{organization_id}/user-api-keys": {
       "post": {
         "operationId": "createUserApiKey",
-        "summary": "Create a user-owned 90-day API token",
+        "summary": "Create a user-owned API token valid until revoked",
         "description": "Requires a current interactive user session. Organization membership and product permissions are revalidated. Only the first creation returns the full value; exact replay returns metadata and a null value. Save the first response locally without putting it in logs or agent prompts. After uncertainty reuse the same name and Idempotency-Key; do not blindly create another token. Available at zero credits.",
         "parameters": [
           {

@@ -1,11 +1,42 @@
 ---
-title: "Login and deployment tokens"
+title: "Login and API tokens"
+description: "Create a non-expiring automation token, save it once and revoke it when finished."
 ---
 
-Use ohmyhost login for the browser sign-in and whoami to read the selected organization. Your agent uses that local login through MCP.
+## Sign in interactively
 
-An invitation supplies the r value for first organization creation. Sign in again after creation to select the new organization. Existing users can return through /login without creating another organization.
+```sh
+ohmyhost login --json
+ohmyhost whoami --json
+```
 
-You can create a user-owned deployment token with a default 90-day lifetime and save it once to an owner-only, Git-ignored env file. Its full value cannot be retrieved later. Token listing returns metadata; revocation targets the selected token. Use an interactive-login process without OHMYHOST_TOKEN for organization creation or token management.
+Complete the returned link and confirm the selected organization. An eligible first browser signup creates **My workspace**. Reuse it instead of creating another. Existing customers can return through [login](https://app.ohmyho.st/login).
 
-[CLI token commands](/cli) · [Get-started Skill](https://ohmyho.st/skills/ohmyhost-get-started/SKILL.md) · [Application auth](/application-auth)
+## Create a token in the portal
+
+Open the profile menu → **API Tokens**. Choose the organization, enter a descriptive name and create the key. Copy its full value once into your automation platform's secret field or a private env file. The portal subsequently shows metadata only.
+
+New user API tokens have **no expiry** and remain valid until revoked. Existing tokens retain the expiry recorded when they were created. Browser and CLI login sessions have separate lifetimes.
+
+## Create a token with the CLI
+
+Use an interactive-login process without `OHMYHOST_TOKEN` set:
+
+```sh
+ohmyhost token create --organization "$ORGANIZATION_ID" --name "Automation" --idempotency-key "$TOKEN_REQUEST_KEY" --out .env.local --json
+ohmyhost token list --organization "$ORGANIZATION_ID" --json
+```
+
+Retain the same request key for an interrupted request. Creation writes the new secret to the selected private file; it does not overwrite existing credentials. Ignore the file in Git and load it into the CLI/MCP process using your runtime's env-file support. Never copy the value into a prompt, URL or application source.
+
+## Use and revoke
+
+Send `Authorization: Bearer` with the token to the selected API origin. The key identifies its owner and organization; project IDs do not grant access. Current membership and action permissions still apply.
+
+```sh
+ohmyhost token revoke --organization "$ORGANIZATION_ID" --key "$KEY_ID" --yes --json
+```
+
+`KEY_ID` comes from the metadata list. Revocation requires your interactive session and affects only that selected key. A revoked key cannot be recovered; create another when needed.
+
+[API examples](/api) · [MCP connection](/agents/mcp)

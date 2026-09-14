@@ -36,7 +36,7 @@ If the invitation is missing or rejected, return the next action and https://ohm
 
 ## Keep access for later
 
-The current CLI login is sufficient to continue. When the customer wants a deployment token, use `token_create` or `ohmyhost token create` and save the newly issued 90-day value once to the chosen private env file. Configure the local process to load that file. Preserve existing credentials; the value never belongs in chat, source or command arguments.
+The current CLI login is sufficient to continue. When the customer wants a deployment token, use `token_create` or `ohmyhost token create` and save the newly issued non-expiring value once to the chosen private env file. Configure the local process to load that file. Preserve existing credentials; the value never belongs in chat, source or command arguments.
 
 `OHMYHOST_TOKEN` takes precedence over the CLI login. Use a process without that variable for interactive login, organization creation or token management; do not delete the saved token file.
 

@@ -82,7 +82,21 @@
       },
       {
         "tab": "API reference",
-        "openapi": "openapi.json"
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "openapi": {
+              "source": "openapi.json",
+              "directory": "api-reference"
+            }
+          }
+        ]
       }
     ]
   },
@@ -106,12 +120,47 @@
       "chatgpt",
       "claude",
       "cursor",
-      "vscode"
+      "vscode",
+      "download-spec"
     ]
   },
   "footer": {
     "socials": {
       "github": "https://github.com/amerged/docs"
-    }
+    },
+    "links": [
+      {
+        "header": "ohmyho.st",
+        "items": [
+          {
+            "label": "Home",
+            "href": "https://ohmyho.st/"
+          },
+          {
+            "label": "Brand",
+            "href": "https://ohmyho.st/brand"
+          },
+          {
+            "label": "Contact",
+            "href": "https://ohmyho.st/contact"
+          },
+          {
+            "label": "Privacy",
+            "href": "https://ohmyho.st/privacy"
+          },
+          {
+            "label": "Terms",
+            "href": "https://ohmyho.st/terms"
+          },
+          {
+            "label": "DPA",
+            "href": "https://ohmyho.st/dpa"
+          }
+        ]
+      }
+    ]
+  },
+  "markdown": {
+    "instructions": "For account actions, read https://ohmyho.st/skills/ohmyhost-get-started/SKILL.md and use the authenticated ohmyho.st CLI or local product MCP. Mintlify search only reads documentation. Preserve the customer\u2019s selected project, environment and authentication provider."
   }
 }

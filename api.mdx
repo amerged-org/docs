@@ -1,0 +1,38 @@
+---
+title: "API reference"
+description: "Authenticate with your account token and use the same REST contract as CLI and MCP."
+---
+
+## Choose the API origin
+
+Production: `https://app.ohmyho.st`. Use `https://dev.app.ohmyho.st` only when you deliberately selected the development platform. Paths below already include `/v1`.
+
+Create your user token from [Profile → API Tokens](https://app.ohmyho.st/tokens) or the [CLI](/login-tokens), then load it through your shell or automation platform's secret storage.
+
+```sh
+curl --fail-with-body https://app.ohmyho.st/v1/projects \
+  --header "Authorization: Bearer $OHMYHOST_TOKEN"
+```
+
+The response lists projects available to that token's organization. Use the returned IDs for later requests. Empty results mean no visible projects, not a failed authentication.
+
+## Requests that change state
+
+Use the exact method, schema and permissions in the endpoint reference. Supply `Idempotency-Key` where required and retain it with the original request. After an uncertain response, replay the same key and payload; a new key can create new work.
+
+Accepted asynchronous mutations return an operation ID. Read `GET /v1/operations/{operation_id}` and follow its polling guidance. Operation success still requires checking the expected application outcome.
+
+## Errors and pagination
+
+The API returns a stable error code and suggested action. Handle `401` by checking account access; `403` by checking the concrete organization/action; `409` by inspecting the existing operation or version; `429` by respecting `Retry-After`. Do not retry every error as a new mutation.
+
+List endpoints return their documented cursor. Send that cursor on the next request and stop when it is absent. [Errors, limits and polling](/limits).
+
+## Download the contract
+
+- [OpenAPI YAML](/openapi.yaml)
+- [OpenAPI JSON](/openapi.json)
+- [CLI/MCP release manifest](https://ohmyho.st/releases/0.1.0-beta.29/manifest.json)
+- [Generated TypeScript SDK](/sdk)
+
+Both API documents describe the actual public REST contract, including each endpoint's authentication. Interactive browser-session endpoints cannot be used by substituting an API key. All product actions in the portal, CLI and MCP use this same service.

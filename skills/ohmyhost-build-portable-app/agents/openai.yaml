@@ -1,0 +1,4 @@
+interface:
+  display_name: "Build for ohmyho.st"
+  short_description: "Prepare Vite, TanStack, or Next.js for ohmyho.st"
+  default_prompt: "Use $ohmyhost-build-portable-app to prepare and verify this app through the public ohmyhost CLI workflow."
