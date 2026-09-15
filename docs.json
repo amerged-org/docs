@@ -38,6 +38,7 @@
               "frameworks/nextjs",
               "frameworks/vite",
               "frameworks/tanstack",
+              "functions",
               "application-auth",
               "secrets",
               "environments",

@@ -1,0 +1,40 @@
+---
+title: "Functions and cron"
+description: "Run a Worker module with HTTP and scheduled handlers on the managed runtime."
+---
+
+A project can run server code without a web framework. Set `runtime.mode: functions` in `ohmyhost.yaml`, keep `build.install` and export a Worker module from `src/ohmyhost/worker.ts`:
+
+```ts
+export default {
+  async fetch(request, env, ctx) {
+    return new Response("ok");
+  },
+  async scheduled(controller, env, ctx) {
+    // controller.cron, controller.scheduledTime, controller.noRetry()
+  },
+};
+```
+
+`fetch` answers every request of the environment. The module receives the same bindings as a framework app: the application database, files, mail, [runtime secrets](/secrets) and the declared egress origins. There is no `build.command` and no `build.output`; `ohmyhost init --dry-run --json` reports a missing module as a blocker.
+
+## Declare schedules
+
+```yaml
+functions:
+  crons:
+    - "0 3 * * *"
+    - "*/15 * * * *"
+```
+
+Between one and eight unique five-field UTC crons; the shortest interval is five minutes. Declared crons work on every edge runtime. The functions runtime, Next.js and TanStack Start export `scheduled` from `src/ohmyhost/worker.ts`; a Vite app exports it from its companion `src/ohmyhost/companion.ts`. Init blocks a declaration without that export.
+
+## How a run executes
+
+Every minute the platform starts one run per declared cron that is due. The handler receives `controller.cron`, `controller.scheduledTime` and `controller.noRetry()` together with the environment bindings. A run may take up to 120 seconds. A thrown error or a platform failure is retried in the following minutes up to three attempts; calling `controller.noRetry()` before throwing stops the retries. Promotion and rollback switch the crons together with the deployment, and deleting the project removes them.
+
+## Cost
+
+A run is metered like any request: one request plus the CPU milliseconds it uses, from the same credit balance and at the same rates as the application. There is no separate function plan.
+
+[Environments](/environments) · [Usage](/usage) · [Troubleshooting](/troubleshooting)

@@ -7,6 +7,8 @@ Use the [Vite guide](/frameworks/vite) when the project uses TanStack Router or 
 
 Run `ohmyhost init --dry-run --json`. The result identifies the actual framework/runtime, package manager and required capabilities. Resolve concrete unsupported behavior; do not choose a runtime or authentication system from a package name alone.
 
+Scheduled work is declared as `functions.crons` and runs the `scheduled` export of `src/ohmyhost/worker.ts`; see [Functions and cron](/functions).
+
 ## Deploy and verify
 
 Follow [the GitHub deployment workflow](/quickstart). Set server credentials through [runtime secrets](/secrets), and configure the exact application-auth callback/logout URLs.
