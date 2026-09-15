@@ -20,8 +20,8 @@ Read the stable error code, suggested action and any retry interval. Keep source
 | `reconciliation.required` | Review the operation and perform one confirmed reconciliation. |
 | `reconciliation.pending` | Wait and inspect the existing operation; do not submit another attempt. |
 | Terminal build failure | Preserve diagnostics, fix the actual cause, then create a new plan for the same project. |
-| `RUNTIME_CANDIDATE_REJECTED` | The runtime refused the built Worker script. Check the default export and imports of `src/ohmyhost/worker.ts`, then plan the new commit. |
-| `STORAGE_JURISDICTION_CONFLICT` | `storage.jurisdiction` differs from the bucket the environment already owns. Keep the existing jurisdiction and plan again. |
+| `error.code: runtime_candidate_rejected` | The runtime refused the built Worker script. Check the default export and imports of `src/ohmyhost/worker.ts`, then plan the new commit. |
+| `error.code: storage_jurisdiction_conflict` | `storage.jurisdiction` differs from the bucket the environment already owns. Keep the existing jurisdiction and plan again. |
 | HTTP 429 | Respect `Retry-After`; do not fan out retries. |
 
 ## Reconcile only when requested

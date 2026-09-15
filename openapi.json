@@ -8201,6 +8201,8 @@
               "insufficient_organization_credits",
               "paid_plan_required",
               "runtime_candidate_failed",
+              "runtime_candidate_rejected",
+              "storage_jurisdiction_conflict",
               "container_runtime_secrets_unsupported",
               "provider_state_absent"
             ]
