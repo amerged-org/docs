@@ -1,7 +1,7 @@
 {
-  "source_commit": "78b64eaf356bef505b4d33a2ab86b5e5e0b318c6",
+  "source_commit": "f210a96876129e8b06ce4df2f6dbb5f4f19123ad",
   "source_dirty": false,
-  "release": "0.1.0-beta.37",
+  "release": "0.1.0-beta.38",
   "files": [
     {
       "path": "skills/ohmyhost-build-portable-app/SKILL.md",
@@ -77,11 +77,11 @@
     },
     {
       "path": "snippets/install-clients.mdx",
-      "sha256": "81826366ba78efb1b1b28ae4b9873968872451d415367668d0a85e4e239920ca"
+      "sha256": "98bee2ba7e3f0ee350a1cf7073d69446b61a5966d96b0c1fe6dc569ce3067f7f"
     },
     {
       "path": "snippets/install-sdk.mdx",
-      "sha256": "943793567e872cdbca002f831d7e0086c6759682168f0f3e4c9e59598b6a2955"
+      "sha256": "b86f063061994ca92fded321eb557f36254b8b24c3777ce4a0abc0afb5f160e0"
     },
     {
       "path": "snippets/skill-catalog.mdx",
