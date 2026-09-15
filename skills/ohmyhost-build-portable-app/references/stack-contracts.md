@@ -38,13 +38,14 @@ Provider background: [Cloudflare Hyperdrive](https://developers.cloudflare.com/h
 ## Files, mail, functions, and secrets
 
 - Import the storage client from `@ohmyhost/customer-runtime/storage`. The Storage Gateway owns raw R2 bindings, signed operations, quotas, receipts, and cleanup.
-- Use authenticated same-origin framework routes for bounded request work. Vite may use the companion source contract returned by init; TanStack Start and Next.js retain their native server routes/functions.
-- Declare scheduled work only through `functions.scheduled` in `ohmyhost.yaml`. The platform owns dispatch, idempotency slots, retries, timeouts, DLQ, rollback fencing, and deletion drain.
+- Use authenticated same-origin framework routes for bounded request work. Vite may use the companion source contract returned by init; TanStack Start and Next.js retain their native server routes/functions. A project without a web framework sets `runtime.mode: functions` and exports `default { fetch, scheduled? }` from `src/ohmyhost/worker.ts`; it keeps `build.install` only and receives the same database, files, mail, secret and egress bindings as an edge app.
+- Declare scheduled work only through `functions.crons` in `ohmyhost.yaml`: one to eight unique five-field UTC crons with a five-minute minimum. Export `scheduled(controller, env, ctx)` from `src/ohmyhost/worker.ts` (functions runtime, Next.js, TanStack Start) or from the Vite companion `src/ohmyhost/companion.ts`; init blocks a declaration without that export. The platform runs one attempt per cron and UTC minute with a 120-second deadline, retries a thrown error or platform failure up to three attempts, and honors `controller.noRetry()`. Each run is billed as one request plus its CPU credits.
 - For ohmyho.st-managed transactional mail, use its runtime mail client. Verification/reset mail owned by an external identity provider stays with that integration. Install private runtime values through stdin-based CLI commands; source lists secret names, never values.
 
 ## Framework notes
 
 - Vite static applications need no server companion. Add the returned companion source only when the application uses database, Auth, mail, files, request functions, or schedules.
+- The functions runtime is a plain Worker module without a framework: `runtime.mode: functions`, `build.install` only, no `build.command` or `build.output`, HTTP through `fetch` and schedules through `scheduled`. Do not add customer Wrangler configuration.
 - TanStack Start uses its native server routes/functions. Keep an active TanStack Start Vite plugin; do not add a customer Wrangler file or platform base path.
 - Next.js Workers builds use the platform OpenNext 1.20.6 overlay and Webpack, including `proxy.ts` Node middleware. The service supplies `--webpack` to the admitted build script; customers do not need to rename middleware or add platform tools/configuration. Custom loaders must support Webpack; a Turbopack-only configuration is not evidence of a compatible Workers build. Keep route handlers, RSC/SSR, assets and images framework-native.
 - Containers remain deferred. Customer-owned custom domains use the normal Paid-domain flow. Native addons and non-functional Workers Node APIs remain typed blockers; the Node proxy filename alone is not a blocker.
