@@ -871,6 +871,119 @@
       }
     },
     {
+      "name": "database_access_create",
+      "description": "Issue a time-bound PostgreSQL credential for this project's own Dev or Prod database. THE CONNECTION URI AND psql COMMAND ARE RETURNED EXACTLY ONCE and can never be read again: use them immediately for psql or another SQL client in this same task, and never write them into files, notes, source, commit messages or later messages. Mode read (default) is read-only; mode write joins the restricted runtime role and requires confirmed: true. Neither mode can change schema, application row-level security still applies, and schema changes stay in GitHub migrations. The lifetime is 5 minutes to 24 hours (3600 seconds by default) and at most three credentials are active per environment. Database compute wakes and is metered normally. Call database_access_revoke as soon as the work is finished.",
+      "inputSchema": {
+        "type": "object",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "environment": {
+            "type": "string",
+            "enum": [
+              "dev",
+              "prod"
+            ]
+          },
+          "mode": {
+            "default": "read",
+            "type": "string",
+            "enum": [
+              "read",
+              "write"
+            ]
+          },
+          "ttl_seconds": {
+            "default": 3600,
+            "type": "integer",
+            "minimum": 300,
+            "maximum": 86400
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "confirmed": {
+            "type": "boolean",
+            "const": true
+          }
+        },
+        "required": [
+          "project_id",
+          "environment"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
+      "name": "database_access_list",
+      "description": "List this project's issued database credentials with their state (active, expired or revoked). Connection URIs and passwords are never returned again; only metadata is readable.",
+      "inputSchema": {
+        "type": "object",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "environment": {
+            "type": "string",
+            "enum": [
+              "dev",
+              "prod"
+            ]
+          }
+        },
+        "required": [
+          "project_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
+      "name": "database_access_revoke",
+      "description": "Revoke one issued database credential immediately: open sessions end and its PostgreSQL role is removed. Revocation is idempotent and never touches application roles or data.",
+      "inputSchema": {
+        "type": "object",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "access_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "required": [
+          "project_id",
+          "access_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
       "name": "promotion_plan",
       "description": "Plan promotion of the current Dev artifact to Prod without a rebuild.",
       "inputSchema": {

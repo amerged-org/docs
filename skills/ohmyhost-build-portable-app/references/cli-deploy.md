@@ -52,6 +52,23 @@ MCP `database_write` accepts `project_id`, explicit `environment`, SQL `statemen
 
 The result identifies the original operation and affected-row count; fetch records with a separate query. A single write is limited to 1,000 directly affected rows and five seconds; triggers and cascades can affect additional rows. Preserve the key and exact request after network uncertainty. Repeating it reads the original receipt. If `database_write_outcome_unknown` is returned, inspect target data and retain the operation ID before deciding on any new write; never automatically choose a new key. Use `operation_get` for an in-flight result. A failed receipt is not a successful update. Keep SQL parameters, records and passwords out of project notes and feedback.
 
+## Direct psql or SQL client access
+
+When bounded `database query` / `database write` calls are not enough — interactive exploration, a large read, or a client such as psql, DBeaver or TablePlus — issue a time-bound credential for the project's own database:
+
+```sh
+ohmyhost database access create --project PROJECT_ID --environment dev --mode read --ttl 1h --label laptop --yes --json
+ohmyhost database access list --project PROJECT_ID --json
+ohmyhost database access revoke --project PROJECT_ID --access ACCESS_ID --yes --json
+ohmyhost database psql --project PROJECT_ID --environment dev
+```
+
+MCP exposes the same contract as `database_access_create` (write mode needs `confirmed: true`), `database_access_list` and `database_access_revoke`. `ohmyhost database psql` issues a credential, starts the local `psql` with the password in its private environment and revokes the credential when psql exits; `psql_unavailable` means the PostgreSQL client is not installed.
+
+`connection_uri` and `psql_command` are returned **exactly once** and can never be read again. Use them immediately in the same task; never write a connection string, password or the `psql` command into files, notes, source, commit messages, chat history or feedback, and never commit them. Later `list` responses show metadata only.
+
+Mode `read` is read-only (`default_transaction_read_only=on`); mode `write` has the application's own DML rights. Neither can change schema — schema changes remain versioned GitHub migrations — and application row-level security still applies. The lifetime is 5 minutes to 24 hours (one hour by default), at most three credentials are active per project environment (`database_access_limit` otherwise), and open sessions wake compute and are metered like any other database use. Revoke as soon as the work is finished instead of waiting for expiry.
+
 ## User-owned deployment tokens
 
 First discover `ohmyhost token create --help` or MCP `token_create`, `tokens_list` and `token_revoke`. Older installed releases may lack these commands; keep the working Device Flow instead of guessing endpoints or borrowing provider keys. Token management requires an interactive ohmyho.st login in the selected environment. Run it outside a process that already supplies `OHMYHOST_TOKEN`.

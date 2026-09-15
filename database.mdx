@@ -66,6 +66,38 @@ ohmyhost operation get "$OPERATION_ID" --json
 
 Retain the exact request and key after a lost response. Repeating a key that already has a receipt observes its existing attempt. For `database_write_outcome_unknown`, first inspect the data and keep the operation ID; never automatically choose a new key or execute a second write. Even an error can mean the original commit result was not received.
 
+## Connect with psql or a SQL client
+
+For interactive work you can issue a direct PostgreSQL login for your own project database. Each credential is time-bound, revocable and returned **exactly once**:
+
+```sh
+ohmyhost database access create --project "$PROJECT_ID" --environment dev --mode read --ttl 1h --label laptop --yes --json
+```
+
+The response contains `connection_uri` and `psql_command` one single time; they are never retrievable again. Use them immediately, and never store a connection string or password in files, notes, source or commit messages. Later reads show metadata only:
+
+```sh
+ohmyhost database access list --project "$PROJECT_ID" --json
+ohmyhost database access revoke --project "$PROJECT_ID" --access "$ACCESS_ID" --yes --json
+```
+
+To open a session without handling the URI yourself, let the CLI start your local `psql`. It issues the credential, passes the password to `psql` through its private environment and revokes the credential when you exit:
+
+```sh
+ohmyhost database psql --project "$PROJECT_ID" --environment dev --mode write
+```
+
+MCP exposes `database_access_create` (`mode: "write"` requires `confirmed: true`), `database_access_list` and `database_access_revoke`; REST uses `POST`/`GET /v1/projects/{project_id}/database/access` and `DELETE /v1/projects/{project_id}/database/access/{access_id}`.
+
+| Setting | Values |
+| --- | --- |
+| Mode | `read` (default, read-only session) or `write` (the application's own INSERT/UPDATE/DELETE rights) |
+| Lifetime | `--ttl` 5 minutes to 24 hours, one hour by default |
+| Active credentials | at most three per project environment |
+| Database | `neondb`, TLS required (`sslmode=require`) |
+
+No mode can change schema or roles: schema changes remain versioned [GitHub migrations](/migrations), and application row-level security applies to these sessions exactly as it does to `database query` and `database write`. After expiry PostgreSQL refuses new logins and the platform ends remaining sessions and removes the role within 15 minutes. An open session wakes compute and is metered like any other database use, under the same credit grace and project Stop budgets. Revoke as soon as you are finished instead of waiting for expiry.
+
 ## Use MCP or an automation platform
 
 MCP `database_query` requires `project_id`, `environment`, `statement` and optional scalar `parameters`. `database_write` uses the same project/environment with JSON `parameters`, the saved `idempotency_key` and `confirmed: true` for an authorized write.

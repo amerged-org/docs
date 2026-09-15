@@ -1943,6 +1943,85 @@ paths:
         "429": { $ref: "#/components/responses/Problem" }
         "503": { $ref: "#/components/responses/Problem" }
       x-ohmyhost-resource-disclosure: indistinguishable-not-found
+  /v1/projects/{project_id}/database/access:
+    post:
+      operationId: createProjectDatabaseAccess
+      summary: Issue one time-bound PostgreSQL credential for Dev or Prod
+      description: Owner-authorized direct PostgreSQL login for the project's own database, returned exactly once and never retrievable again. Mode read joins the read-only role, mode write joins the same restricted runtime role the application uses; neither can change schema, and application row-level security policies remain effective. The lifetime is 5 minutes to 24 hours (3600 seconds by default) and PostgreSQL refuses new logins after it; the platform ends remaining sessions within 15 minutes after expiry, at the latest. At most three active credentials exist per project environment. Database compute wakes and is metered normally, and existing credit grace and Stop budgets apply. Revoke the credential as soon as the work is finished and never store the connection URI in files, notes or source.
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProjectDatabaseAccessRequest" }
+      responses:
+        "201":
+          description: The connection URI is returned once and is never persisted in plaintext.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+            Pragma:
+              schema:
+                type: string
+                const: no-cache
+            X-Request-Id:
+              $ref: "#/components/headers/XRequestId"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProjectDatabaseAccessCredential" }
+        "400": { $ref: "#/components/responses/Problem" }
+        "401": { $ref: "#/components/responses/Problem" }
+        "402": { $ref: "#/components/responses/Problem" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "409": { $ref: "#/components/responses/Problem" }
+        "429": { $ref: "#/components/responses/Problem" }
+        "503": { $ref: "#/components/responses/Problem" }
+      x-ohmyhost-resource-disclosure: indistinguishable-not-found
+    get:
+      operationId: listProjectDatabaseAccess
+      summary: List the project's issued database credentials
+      description: Returns at most the 50 newest credentials with their derived state (active, expired or revoked). Connection URIs and passwords are never returned again; only the credential metadata is readable.
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/DatabaseEnvironmentFilter"
+      responses:
+        "200":
+          description: The newest database credentials for this project, newest first.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProjectDatabaseAccessPage" }
+        "400": { $ref: "#/components/responses/Problem" }
+        "401": { $ref: "#/components/responses/Problem" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "429": { $ref: "#/components/responses/Problem" }
+        "503": { $ref: "#/components/responses/Problem" }
+      x-ohmyhost-resource-disclosure: indistinguishable-not-found
+  /v1/projects/{project_id}/database/access/{access_id}:
+    delete:
+      operationId: revokeProjectDatabaseAccess
+      summary: Revoke one issued database credential
+      description: Ends the credential's open sessions and removes its PostgreSQL role. Revocation is idempotent for an already revoked credential and never affects the application's own roles or any data.
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/DatabaseAccessId"
+      responses:
+        "200":
+          description: The revoked credential record without any connection URI.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProjectDatabaseAccess" }
+        "400": { $ref: "#/components/responses/Problem" }
+        "401": { $ref: "#/components/responses/Problem" }
+        "404": { $ref: "#/components/responses/ResourceNotFound" }
+        "429": { $ref: "#/components/responses/Problem" }
+        "503": { $ref: "#/components/responses/Problem" }
+      x-ohmyhost-resource-disclosure: indistinguishable-not-found
   /v1/projects/{project_id}/deployments/{target_deployment_id}:rollback-plan:
     post:
       operationId: planDeploymentRollback
@@ -2433,6 +2512,21 @@ components:
       required: true
       schema:
         $ref: "#/components/schemas/Ulid"
+    DatabaseAccessId:
+      name: access_id
+      in: path
+      description: Issued database credential identifier.
+      required: true
+      schema:
+        $ref: "#/components/schemas/Ulid"
+    DatabaseEnvironmentFilter:
+      name: environment
+      in: query
+      description: Restrict the listing to one application environment.
+      required: false
+      schema:
+        type: string
+        enum: [dev, prod]
     ProjectCursor:
       name: cursor
       in: query
@@ -3659,6 +3753,86 @@ components:
           maximum: 100
         truncated:
           type: boolean
+    ProjectDatabaseAccessRequest:
+      type: object
+      additionalProperties: false
+      required: [environment]
+      properties:
+        environment:
+          type: string
+          enum: [dev, prod]
+        mode:
+          type: string
+          enum: [read, write]
+          default: read
+          description: read joins the read-only role; write joins the restricted runtime role. Neither can change schema.
+        ttl_seconds:
+          type: integer
+          minimum: 300
+          maximum: 86400
+          default: 3600
+          description: Credential lifetime between 5 minutes and 24 hours.
+        label:
+          type: [string, "null"]
+          minLength: 1
+          maxLength: 64
+          description: Optional customer label without control characters or surrounding whitespace.
+    ProjectDatabaseAccess:
+      type: object
+      additionalProperties: false
+      required:
+        - access_id
+        - environment
+        - mode
+        - role_name
+        - host
+        - database
+        - label
+        - state
+        - issued_at
+        - expires_at
+        - revoked_at
+        - revocation_reason
+      properties:
+        access_id: { $ref: "#/components/schemas/Ulid" }
+        environment: { type: string, enum: [dev, prod] }
+        mode: { type: string, enum: [read, write] }
+        role_name:
+          type: string
+          pattern: ^ohmyho_da_[0-7][0-9a-hjkmnp-tv-z]{25}_[0-9a-z]{8}$
+        host: { type: string, minLength: 1, maxLength: 253 }
+        database: { type: string, const: neondb }
+        label: { type: [string, "null"], minLength: 1, maxLength: 64 }
+        state: { type: string, enum: [active, expired, revoked] }
+        issued_at: { type: string, format: date-time }
+        expires_at: { type: string, format: date-time }
+        revoked_at: { type: [string, "null"], format: date-time }
+        revocation_reason:
+          type: [string, "null"]
+          enum: [principal, expired, budget, creation_failed, null]
+    ProjectDatabaseAccessCredential:
+      allOf:
+        - $ref: "#/components/schemas/ProjectDatabaseAccess"
+        - type: object
+          additionalProperties: false
+          required: [connection_uri, psql_command]
+          properties:
+            connection_uri:
+              type: string
+              format: uri
+              description: Returned exactly once. Use it immediately and never store it in files, notes or source.
+            psql_command:
+              type: string
+              description: The same credential as a ready psql invocation.
+    ProjectDatabaseAccessPage:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          maxItems: 50
+          items: { $ref: "#/components/schemas/ProjectDatabaseAccess" }
     DevAccessTicket:
       type: object
       additionalProperties: false
@@ -4367,6 +4541,7 @@ components:
             - compute_performance_paid_required
             - compute_performance_unavailable
             - database_write_pending
+            - database_access_limit
             - compute_change_pending
             - compute_change_conflict
             - billing_purchase_conflict

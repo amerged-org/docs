@@ -33,6 +33,8 @@ Example feedback: “This app uses your WorkOS AuthKit account. The ohmyho.st CL
 - Keep transactions on one acquired runtime connection and release it in `finally`. Keep canonical expand-only migrations under the path reported by init.
 - When the customer selects the verified Better Auth integration, it owns schema `auth`, UUID IDs, `/api/auth`, secure host-only cookies, database sessions, verification/reset mail, and session revocation. Authorization remains explicit in each use case.
 
+- For interactive work a customer can issue a time-bound direct PostgreSQL login with `ohmyhost database access create` / MCP `database_access_create` (mode `read` or `write`, 5 minutes to 24 hours, at most three active per environment) and open it with `ohmyhost database psql`. The connection URI and `psql` command are returned exactly once: use them immediately, never store or commit a connection string or password, and revoke the credential when finished. Such a login can never change schema and row-level security still applies; application code keeps using `OHMYHOST_DATABASE`.
+
 Provider background: [Cloudflare Hyperdrive](https://developers.cloudflare.com/hyperdrive/get-started/), [Neon connections](https://neon.com/docs/connect/choose-connection), and [Better Auth PostgreSQL](https://better-auth.com/docs/adapters/postgresql). Do not copy their provider-specific runtime bindings into customer code.
 
 ## Files, mail, functions, and secrets
