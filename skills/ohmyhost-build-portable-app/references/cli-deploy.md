@@ -137,7 +137,7 @@ Common init recovery:
 
 Terminal deployment failure codes (`operation get` → `error.code`, with `message` and `suggested_action`) that need a source change, not a retry or reconciliation:
 
-- `build_failed`: the install or build step failed; reproduce with the same package manager and build command locally, fix, push and plan the new commit.
+- `build_failed`: the install or build step failed. Read the failed deployment's diagnostics first: `ohmyhost deployment logs --project ULID --deployment DEPLOYMENT_ULID --json` or MCP `deployment_logs` returns the `BUILD_FAILED` item with `excerpt`, the sanitized tail of your own install/build output (newest lines last; `excerpt_truncated` means earlier output was omitted). Fix the reported error, reproduce with the same package manager and build command locally, push and plan the new commit. A `BUILD_FAILED` item without `excerpt` means the build produced no output before failing; report it through feedback.
 - `runtime_candidate_rejected`: the runtime refused the built Worker script (startup error, invalid module graph or size limit). Check that `src/ohmyhost/worker.ts` exports its handlers as the default export and imports no framework-only modules, then plan the new commit.
 - `storage_jurisdiction_conflict`: `storage.jurisdiction` differs from the bucket the environment already owns. Keep the existing jurisdiction; a project cannot move its files between jurisdictions.
 - `native_addon_unsupported`, non-functional Workers Node APIs, or container-only behavior: stop with the typed blocker. Containers are deferred from the private POC; do not weaken admission or disguise the capability as edge-compatible.

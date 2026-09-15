@@ -1471,6 +1471,41 @@
       }
     },
     {
+      "name": "deployment_logs",
+      "description": "List the newest normalized diagnostics of one deployment (build, control, runtime and function failures with catalog codes). A BUILD_FAILED item carries excerpt: the sanitized tail of the customer's own install/build output, newest lines last, with excerpt_truncated when earlier output was omitted. Read it after build_failed before changing source; scheduled runs are in function_runs_list, not here.",
+      "inputSchema": {
+        "type": "object",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "deployment_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        },
+        "required": [
+          "project_id",
+          "deployment_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
       "name": "operation_get",
       "description": "Get durable operation status and current deployment progress/reconciliation guidance. Follow progress.phase and progress.suggested_action. waiting_for_mail requires mail_domain_status now for the current verification issue and DNS records; publishing means the build completed but runtime preparation/publication is unfinished. Poll this operation after progress.next_poll_after_seconds. A queued/running operation with reconciliation.state=required needs one confirmed operation_reconcile using the same operation; pending means poll this operation after 60 seconds. Never infer deployment success from a completed reconciliation attempt or start another build to recover it.",
       "inputSchema": {

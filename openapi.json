@@ -6481,6 +6481,16 @@
             "minimum": 0,
             "maximum": 900000
           },
+          "excerpt": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16384,
+            "description": "The sanitized tail of the customer's own install/build output, newest lines last. Present only on a BUILD_FAILED diagnostic; terminal escapes and control characters are removed before storage."
+          },
+          "excerpt_truncated": {
+            "type": "boolean",
+            "description": "Whether earlier build output was omitted from excerpt. Present exactly when excerpt is present."
+          },
           "occurred_at": {
             "type": "string",
             "format": "date-time"
