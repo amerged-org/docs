@@ -2109,6 +2109,41 @@ paths:
         "503":
           $ref: "#/components/responses/Problem"
       x-ohmyhost-resource-disclosure: indistinguishable-not-found
+  /v1/projects/{project_id}/environments/{environment_id}/function-runs:
+    get:
+      operationId: listFunctionRuns
+      summary: List the newest scheduled function runs of an environment
+      description: Every declared cron produces one run per due UTC minute; the newest runs come first. A run reports its state, attempt, the status the scheduled handler returned and its timing. Values never include request or response bodies.
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/EnvironmentId"
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 50 }
+      responses:
+        "200":
+          description: The newest scheduled runs of the environment, newest first.
+          headers:
+            X-Request-Id:
+              $ref: "#/components/headers/XRequestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FunctionRunPage"
+        "400":
+          $ref: "#/components/responses/Problem"
+        "401":
+          $ref: "#/components/responses/Problem"
+        "403":
+          $ref: "#/components/responses/Problem"
+        "404":
+          $ref: "#/components/responses/ResourceNotFound"
+        "429":
+          $ref: "#/components/responses/Problem"
+        "503":
+          $ref: "#/components/responses/Problem"
+      x-ohmyhost-resource-disclosure: indistinguishable-not-found
   /v1/projects/{project_id}/environments/{environment_id}/secrets/{secret_name}:
     put:
       operationId: putEnvironmentSecret
@@ -3482,6 +3517,40 @@ components:
           type: string
           minLength: 1
           maxLength: 512
+    FunctionRun:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          deployment_id,
+          cron,
+          scheduled_at,
+          state,
+          attempt,
+          status_code,
+          started_at,
+          finished_at,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Ulid" }
+        deployment_id: { $ref: "#/components/schemas/Ulid" }
+        cron: { type: string, maxLength: 64 }
+        scheduled_at: { type: string, format: date-time }
+        state: { type: string, enum: [due, running, retry, succeeded, failed] }
+        attempt: { type: integer, minimum: 0, maximum: 3 }
+        status_code: { type: [integer, "null"], minimum: 100, maximum: 599 }
+        started_at: { type: [string, "null"], format: date-time }
+        finished_at: { type: [string, "null"], format: date-time }
+    FunctionRunPage:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items: { $ref: "#/components/schemas/FunctionRun" }
     DeploymentDiagnostic:
       type: object
       additionalProperties: false
