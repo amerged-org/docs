@@ -11,7 +11,7 @@ Use ordinary Next.js routes and configuration. The hosting service supplies its 
 
 Keep existing authentication unless you choose to replace it. Configure exact callback and logout URLs for the environment you are testing. [Application authentication](/application-auth) · [Runtime secrets](/secrets).
 
-Scheduled work is declared as `functions.crons` and runs the `scheduled` export of `src/ohmyhost/worker.ts`; see [Functions and cron](/functions).
+Scheduled work is declared as `functions.crons` and runs `scheduled` from the default export of `src/ohmyhost/worker.ts`, a module the platform bundles outside the Next.js build; see [Functions and cron](/functions).
 
 ## Verify after deployment
 

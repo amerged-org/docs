@@ -133,7 +133,13 @@ Common init recovery:
 - `framework_ambiguous`: declare exactly one supported framework/runtime.
 - `supabase-postgres-conversion` or `edge-function-conversion`: these inventory the corresponding capability; use the migration Skill only when the customer selected its migration into the managed runtime. Preserve an explicit external-service configuration. `application-auth-review` asks you to inspect the detected auth SDK and its configuration separately. SDK presence does not select a database/auth provider, and database files do not prove auth usage. Older clients may still emit `better-auth-conversion` or `supabase_migration_required`; discover the current release instead of forcing an auth change.
 - `vite-api-companion`: complete the returned same-origin companion source entry and every used `/api/*` route, then rerun init until the requirement disappears. Do not add customer Wrangler configuration.
-- Scheduled work: preserve the exact `functions.crons` values reported by init and keep the `scheduled` export in `src/ohmyhost/worker.ts` or the Vite companion. ohmyho.st owns the scheduler, retries and cleanup; the repository contains no cron trigger, Queue or Workflow.
+- Scheduled work: preserve the exact `functions.crons` values reported by init and keep `scheduled` inside the default export of `src/ohmyhost/worker.ts` or the Vite companion. `worker_module_default_export_required` means the module only has named exports; `scheduled_handler_required` means the default export lacks `scheduled`. ohmyho.st owns the scheduler, retries and cleanup; the repository contains no cron trigger, Queue or Workflow.
+
+Terminal deployment failure codes (`operation get` → `failure.code`) that need a source change, not a retry or reconciliation:
+
+- `BUILD_FAILED`: the install or build step failed; reproduce with the same package manager and build command locally, fix, push and plan the new commit.
+- `RUNTIME_CANDIDATE_REJECTED`: the runtime refused the built Worker script (startup error, invalid module graph or size limit). Check that `src/ohmyhost/worker.ts` exports the default module and imports no framework-only modules, then plan the new commit.
+- `STORAGE_JURISDICTION_CONFLICT`: `storage.jurisdiction` differs from the bucket the environment already owns. Keep the existing jurisdiction; a project cannot move its files between jurisdictions.
 - `native_addon_unsupported`, non-functional Workers Node APIs, or container-only behavior: stop with the typed blocker. Containers are deferred from the private POC; do not weaken admission or disguise the capability as edge-compatible.
 
 Provide setup/callback URLs when required for configuration. Label an application URL ready only after functional probes succeed; otherwise return its pending state, exact command, stable error code, blockers and missing customer/provider authority.

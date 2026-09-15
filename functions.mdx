@@ -27,7 +27,9 @@ functions:
     - "*/15 * * * *"
 ```
 
-Between one and eight unique five-field UTC crons; the shortest interval is five minutes. Declared crons work on every edge runtime. The functions runtime, Next.js and TanStack Start export `scheduled` from `src/ohmyhost/worker.ts`; a Vite app exports it from its companion `src/ohmyhost/companion.ts`. Init blocks a declaration without that export.
+Between one and eight unique five-field UTC crons; the shortest interval is five minutes. Declared crons work on every edge runtime. The functions runtime, Next.js and TanStack Start keep `scheduled` in the default export of `src/ohmyhost/worker.ts`; a Vite app keeps it in the default export of its companion `src/ohmyhost/companion.ts`. Named exports are never invoked. Init blocks a module without a default export (`worker_module_default_export_required`) and a declaration without the handler (`scheduled_handler_required`).
+
+The platform bundles `src/ohmyhost/worker.ts` on its own, outside the framework build. tsconfig `paths` resolve; Vite-only aliases, framework virtual modules and modules that declare TanStack Start server functions or Next.js route handlers do not. Import plain application modules and the generated runtime clients, and keep framework entry code out of the Worker module. A script the runtime cannot start fails the deployment with `RUNTIME_CANDIDATE_REJECTED`.
 
 ## How a run executes
 
