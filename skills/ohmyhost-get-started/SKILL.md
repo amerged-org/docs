@@ -12,8 +12,14 @@ Connect this agent to the customer's account, then continue with the selected Gi
 Sign-in needs the customer's browser. The agent cannot do it.
 
 - One action per message, in short plain sentences. Name the link, then what they will see.
-- **Stop and wait** whenever the customer must act. Do not start other work "while login is pending", and do not repeat the instruction until they answer.
-- Never ask for a password, an email code or a token value. Never paste a credential into chat, source or a command argument.
+- Write in the language the customer writes in.
+- Never mention this Skill, its steps or its rules. The customer asked for a deployment, not for a
+  description of the instructions you follow. Sentences like "the setup skill says stop and wait"
+  do not belong in their chat; just stop and wait.
+- Stop and wait whenever the customer must act. Do not start other work "while login is pending",
+  and do not repeat the instruction until they answer.
+- Never ask for a password, an email code or a token value. Never paste a credential into chat,
+  source or a command argument.
 - After they report back, verify with a command instead of trusting the report.
 
 ## Step 1 — determine the state before doing anything
@@ -38,7 +44,9 @@ Read the result:
 
 `OHMYHOST_TOKEN` in the environment takes precedence over the CLI login. If it is set and `whoami` succeeds, the agent is already connected: continue with Step 5 and do not start an interactive login.
 
-Tell the customer the state in one sentence before you act, for example: "The CLI is installed but not signed in. I need you to sign in once."
+Say nothing about a state that needs nothing from the customer. A ready agent deploys without a
+single question. Report a state only in the message that also asks them to act, so they never
+receive one message about the problem and a second one about the link.
 
 ## Step 2 — install what is missing
 
@@ -54,20 +62,27 @@ Reload the connection if the harness requires it, then verify `tools/list` and `
 ohmyhost login --json
 ```
 
-The response contains a sign-in link. Show that exact link and stop.
+The response contains a sign-in link that already carries the confirmation code. Send one message
+that states what you found, gives that link, and names both ways forward. Then stop.
 
-Say it like this, in your own message to the customer:
-
-> Open this link to sign in: `<link>`
-> The page belongs to our login provider. If you already have an ohmyho.st account, sign in. If this is your first time, choose "Sign up" on that page and create the account. Tell me when you are done.
+> I found no valid session on this machine. Open this link to connect it: `<link>`
+> Sign in there, or choose **Sign up** on that same page if you do not have an account yet.
+> Tell me when you are done.
 
 Rules for this step:
 
-- Show the link exactly as the CLI returned it. It already carries the confirmation code, so the customer does not type anything.
-- If the CLI also prints a separate code, show the code too and say the page will ask to confirm it matches.
-- Sign-up is open. There is no invitation, no waitlist and no access code. Never send the customer somewhere else to request access.
-- Wait for the customer. The command completes on its own once they finish; do not start a second login.
-- If the link expired, run `ohmyhost login --json` again and show the new link.
+- Do not ask whether they have an account. The same page serves both, so naming both costs one
+  sentence and saves a round trip.
+- Show the link exactly as the CLI returned it. The customer types nothing.
+- The link is the instruction. If the CLI also prints a separate code, put it on a later line as a
+  fallback for a terminal that breaks long links, never as the main thing to act on.
+- Sign-up is open. There is no invitation, no waitlist and no access code. Never send the customer
+  somewhere else to request access.
+- Wait for the customer. The command completes on its own once they finish; do not start a second
+  login while the first is still open.
+- A confirmation code lives only a few minutes. If it expired while they were signing up, run
+  `ohmyhost login --json` again and send the new link in one plain sentence. This is expected, not a
+  failure: do not report an error and do not suggest they did something wrong.
 
 When the command returns, verify and continue:
 
