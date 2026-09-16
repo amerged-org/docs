@@ -15,7 +15,11 @@ Start with `identity_get`, select the customer’s project using `projects_list`
 
 <InstallClients />
 
-MCP uses your local CLI login. Keep existing servers, models and permission settings. If a server named `ohmyho` is already configured, inspect it before changing that entry.
+The MCP server uses `OHMYHOST_TOKEN` when that variable is set in the server process, and otherwise your local `ohmyhost login`. A token on its own is enough — no login and no browser. Put it in the same `env` block as `OHMYHOST_ENVIRONMENT`; the server reads no `.env` file and never calls the CLI.
+
+With a token, every tool works except `organization_create`, `token_create`, `tokens_list` and `token_revoke`. Those need an interactive login: run the matching `ohmyhost` command in a shell without `OHMYHOST_TOKEN`.
+
+Keep existing servers, models and permission settings. If a server named `ohmyho` is already configured, inspect it before changing that entry.
 
 ## Codex
 

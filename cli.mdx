@@ -9,7 +9,18 @@ import InstallClients from '/snippets/install-clients.mdx';
 
 <InstallClients />
 
-Run `ohmyhost login --json` and open the returned sign-in URL. The link already carries its confirmation code, so you do not type one. Sign in there, or create your account on that same page if you do not have one yet; signing up is open. Your first sign-in creates **My workspace**. Use the organization returned by `whoami`; when several are available, select the one for this project. Run a token-management or organization command from your interactive login, without `OHMYHOST_TOKEN` overriding it.
+Run `ohmyhost login --json` and open the returned sign-in URL. The link already carries its confirmation code, so you do not type one. Sign in there, or create your account on that same page if you do not have one yet; signing up is open. Your first sign-in creates **My workspace**. Use the organization returned by `whoami`; when several are available, select the one for this project.
+
+## Authenticate
+
+The CLI accepts two credentials and picks in this order:
+
+1. `OHMYHOST_TOKEN` — a user API token. Set it and the CLI works immediately. No browser, no login.
+2. The session saved by `ohmyhost login` — used only when `OHMYHOST_TOKEN` is unset.
+
+`OHMYHOST_TOKEN` wins whenever it is set; the saved session is not read at all. If the value is not a valid `sk_…` token the command fails with `invalid_environment_token` and does not fall back.
+
+Four things need the interactive login and refuse a token: `login`, `logout`, `organization create`, and `token create|list|revoke`. Run those in a shell where `OHMYHOST_TOKEN` is unset. Everything else on this page runs on a token alone.
 
 ## Inspect and select a project
 

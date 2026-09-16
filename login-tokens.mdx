@@ -3,6 +3,19 @@ title: "Login and API tokens"
 description: "Create a non-expiring automation token, save it once and revoke it when finished."
 ---
 
+## What a token can do
+
+A user API token is a complete credential. Set `OHMYHOST_TOKEN` and the CLI, the MCP server and the REST API all accept it — no login, no browser, no saved session. Where the variable is set it wins over any saved login. New tokens do not expire until you revoke them.
+
+A token carries every action permission your account has, except token management. Your organization membership and role still apply.
+
+Four commands need an interactive login and will fail with a token:
+
+- `organization create` — 403 `forbidden`
+- `token create`, `token list`, `token revoke` — 403 `interactive_login_required`
+
+`ohmyhost login` and `ohmyhost logout` also refuse to run while `OHMYHOST_TOKEN` is set, and exit with `environment_token_active`. Run all of these from a shell where the variable is unset; your token file is not touched.
+
 ## Sign in interactively
 
 ```sh
@@ -10,7 +23,7 @@ ohmyhost login --json
 ohmyhost whoami --json
 ```
 
-Complete the returned link and confirm the selected organization. An eligible first browser signup creates **My workspace**. Reuse it instead of creating another. Existing customers can return through [login](https://app.ohmyho.st/login).
+Complete the returned link and confirm the selected organization. A first sign-in normally creates **My workspace**; `ohmyhost whoami --json` confirms it. Reuse it instead of creating another. Existing customers can return through [login](https://app.ohmyho.st/login).
 
 ## Create a token in the portal
 
