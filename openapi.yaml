@@ -131,61 +131,6 @@ paths:
         "413": { $ref: "#/components/responses/Problem" }
         "429": { $ref: "#/components/responses/Problem" }
         "503": { $ref: "#/components/responses/Problem" }
-  /v1/beta/eligibility:
-    get:
-      operationId: getBetaEligibility
-      summary: Check a beta invitation source
-      security: []
-      parameters:
-        - name: r
-          in: query
-          schema: { type: string, maxLength: 64 }
-      responses:
-        "200":
-          description: Eligibility only; no account or project authority is granted.
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties: false
-                required: [eligible]
-                properties:
-                  eligible: { type: boolean }
-        "429": { $ref: "#/components/responses/Problem" }
-        "503": { $ref: "#/components/responses/Problem" }
-  /v1/beta/interests:
-    post:
-      operationId: registerBetaInterest
-      summary: Register interest in the beta with explicit consent
-      security: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              additionalProperties: false
-              required: [email, consent, consent_version]
-              properties:
-                email: { type: string, format: email, maxLength: 254 }
-                consent: { type: boolean, const: true }
-                consent_version: { type: string, const: beta-interest-2026-09-13 }
-      responses:
-        "202":
-          description: Interest is stored; repeat submissions return the same acknowledgment.
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties: false
-                required: [accepted]
-                properties:
-                  accepted: { type: boolean, const: true }
-        "400": { $ref: "#/components/responses/Problem" }
-        "403": { $ref: "#/components/responses/Problem" }
-        "413": { $ref: "#/components/responses/Problem" }
-        "429": { $ref: "#/components/responses/Problem" }
-        "503": { $ref: "#/components/responses/Problem" }
   /v1/beta/feature-interests:
     parameters:
       - in: header
@@ -4248,14 +4193,14 @@ components:
     CreateOrganizationRequest:
       type: object
       additionalProperties: false
-      required: [name, signup_source]
+      required: [name]
       properties:
         signup_source:
           type: string
           pattern: "^[a-z0-9][a-z0-9_-]{0,63}$"
           minLength: 1
           maxLength: 64
-          description: Public acquisition source from the invitation URL's r parameter. Eligibility and promotional credits are server-configured; attribution is fixed for the user and rewards are never multiplied by retries or additional organizations.
+          description: Optional public acquisition source from a link's r parameter. Signup is open and this value grants nothing; omit it when the customer arrived directly. Promotional credits are server-configured, attribution is fixed for the user, and rewards are never multiplied by retries or additional organizations.
         name:
           type: string
           minLength: 1

@@ -22,7 +22,7 @@
 | `organization_credits_get` | `organization_id` | Read |
 | `project_budget_get` | `project_id` | Read |
 | `project_budget_set` | `project_id`, `amount_micros`, `idempotency_key` | Change or prepare a change |
-| `organization_create` | `name`, `signup_source`, `idempotency_key` | Change or prepare a change |
+| `organization_create` | `name`, `idempotency_key` | Change or prepare a change |
 | `database_query` | `project_id`, `environment`, `statement` | Read |
 | `database_write` | `project_id`, `environment`, `statement`, `idempotency_key`, `confirmed` | Change or prepare a change |
 | `database_access_create` | `project_id`, `environment` | Change or prepare a change |

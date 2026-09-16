@@ -1,7 +1,7 @@
 {
-  "source_commit": "f210a96876129e8b06ce4df2f6dbb5f4f19123ad",
+  "source_commit": "4e71e0384c7d942a043f1e9fa8b9dd0bdde6e65f",
   "source_dirty": false,
-  "release": "0.1.0-beta.38",
+  "release": "0.1.0-beta.39",
   "files": [
     {
       "path": "skills/ohmyhost-build-portable-app/SKILL.md",
@@ -29,7 +29,7 @@
     },
     {
       "path": "skills/ohmyhost-get-started/SKILL.md",
-      "sha256": "f99b1d9fdbc7cd81cc7748b7113aedfd44132e0807e694071b2f65013fe4f7b8"
+      "sha256": "ef196a3c56b7791acbfb4b6ff7c07ea8d716a930d31b4ba566e61b19abb8b413"
     },
     {
       "path": "skills/ohmyhost-get-started/references/harness-setup.md",
@@ -61,15 +61,15 @@
     },
     {
       "path": "openapi.yaml",
-      "sha256": "c223339651b093968aa449e54b9235316f84b4bc267b1577e017a8b1f0d63193"
+      "sha256": "0d5ddc32b6f2ffe50e0cc5460c4e8b9bacfbb44f591ca2e1de56ecf99466d2e3"
     },
     {
       "path": "openapi.json",
-      "sha256": "5df5f156c9d528b56d3a6e2bca0abca04bb5448fa1fd9f76d3baed6dde2a5c36"
+      "sha256": "9d8d2afc44e02ddbd740f8c386feb00772362d60583dd94138fe039a3a4e5c19"
     },
     {
       "path": "mcp-tools.json",
-      "sha256": "e7ca97524d4eb5f5a4fc51fd6054df044dbe10f8af4804ee0c15b949f8aef548"
+      "sha256": "a6b45858a83933c3296e86ff06e903290135b92fc53a6c2874ce0160de95be40"
     },
     {
       "path": "mcp.json",
@@ -77,19 +77,19 @@
     },
     {
       "path": "snippets/install-clients.mdx",
-      "sha256": "98bee2ba7e3f0ee350a1cf7073d69446b61a5966d96b0c1fe6dc569ce3067f7f"
+      "sha256": "3068c892b4758e7685789944ce0d4cdaf10999206cdfbfa8f3c624196f3cc275"
     },
     {
       "path": "snippets/install-sdk.mdx",
-      "sha256": "b86f063061994ca92fded321eb557f36254b8b24c3777ce4a0abc0afb5f160e0"
+      "sha256": "815709dd0fd39f7ac952217c25695262b0a3e8f3123786d7ae42a0bbb4b287e9"
     },
     {
       "path": "snippets/skill-catalog.mdx",
-      "sha256": "e4ac36ab613dbe78351173d4ccb203ceaca71d1eea1a978a8e9dc9e05e180dda"
+      "sha256": "ceaff9874fb6c97f10a102aff3ba79dcbed7bee3ca54c29d6af50fea427016af"
     },
     {
       "path": "snippets/mcp-tools.mdx",
-      "sha256": "f6fe620a694051ef2ce4e60ce7a1ecbe644b19574d9ff9463fb28cdfa774eb35"
+      "sha256": "1302eb039a6a5c894f6dd2a83f6d51146b01451a9b34109944435da483d61089"
     },
     {
       "path": "logo/light.svg",

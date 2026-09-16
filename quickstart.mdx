@@ -3,15 +3,15 @@ title: "Your first deployment"
 description: "Connect GitHub, deploy one app and verify its Dev URL."
 ---
 
-Start in the directory of the GitHub app you want to deploy. You need its pushed source and lockfile, access to authorize that repository, and your ohmyho.st invitation for first signup.
+Start in the directory of the GitHub app you want to deploy. You need its pushed source and lockfile, and access to authorize that repository. Signing up is open: your browser is needed once.
 
 ## 1. Give your agent the task
 
 > Read https://ohmyho.st/llms.txt and https://ohmyho.st/skills/ohmyhost-get-started/SKILL.md. Connect this agent to ohmyho.st and deploy this GitHub project using only the capabilities it needs. Follow the deployment Skill, keep my existing project decisions and verify the app.
 
-Your agent uses the [get-started Skill](https://ohmyho.st/skills/ohmyhost-get-started/SKILL.md). It installs the current CLI/MCP if required and gives you the login link. Complete sign-in, then confirm the workspace shown by `identity_get` or `ohmyhost whoami --json`.
+Your agent uses the [get-started Skill](https://ohmyho.st/skills/ohmyhost-get-started/SKILL.md). It first checks what is installed and whether you are signed in, installs the current CLI/MCP only if required, and then gives you one sign-in link. Open it, sign in or create your account on that page, and tell the agent when you are done. It confirms the result with `identity_get` or `ohmyhost whoami --json`.
 
-An eligible first signup creates **My workspace**. Reuse it. If you already have projects, select the existing project instead of creating another.
+Your first sign-in creates **My workspace**. Reuse it. If you already have projects, select the existing project instead of creating another.
 
 ## 2. Inspect the application
 
