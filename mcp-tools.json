@@ -725,7 +725,7 @@
     },
     {
       "name": "organization_create",
-      "description": "Create an organization owned by the signed-in user. Signup is open. signup_source is optional attribution from a link's r parameter, never a secret; omit it when the customer arrived directly. The server decides any once-per-user bonus; do not promise credits for arbitrary sources. Repeat the same name/source/key after uncertainty. After success run OHMYHOST_ENVIRONMENT=production ohmyhost login --json to select the new organization, then identity_get before creating projects.",
+      "description": "Create an organization owned by the signed-in user and select it for this machine. Signup is open. signup_source is optional attribution from a link's r parameter, never a secret; omit it when the customer arrived directly. The server decides any once-per-user bonus; do not promise credits for arbitrary sources. Repeat the same name/source/key after uncertainty. No second login is needed: selected names the workspace every later call uses, so continue with identity_get and then projects. An OHMYHOST_TOKEN process cannot do this; it needs OHMYHOST_ENVIRONMENT=production ohmyhost login --json.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -748,6 +748,43 @@
         "required": [
           "name",
           "idempotency_key"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
+      "name": "organization_list",
+      "description": "List the workspaces the signed-in user belongs to and which one this machine currently uses. selected is null while none is chosen; every project and billing call then answers resource_not_found. Ask the customer which workspace to use instead of guessing, then call organization_use.",
+      "inputSchema": {
+        "type": "object",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {}
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
+      "name": "organization_use",
+      "description": "Select one workspace for this machine's stored login, so later calls act inside it. Read organization_list first; the identifier is the platform ULID, not the provider identifier. An OHMYHOST_TOKEN process cannot select anything and needs OHMYHOST_ENVIRONMENT=production ohmyhost login --json instead.",
+      "inputSchema": {
+        "type": "object",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "organization_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "required": [
+          "organization_id"
         ]
       },
       "annotations": {

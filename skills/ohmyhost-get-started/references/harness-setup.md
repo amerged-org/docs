@@ -1,6 +1,6 @@
 # Connect the local product MCP
 
-Read https://docs.ohmyho.st/agents/mcp for current installation and full customer instructions. Install the reviewed CLI/MCP archives only when needed. Sign in with `ohmyhost login --json`; MCP reuses that local session. New user API tokens are optional, remain valid until revoked and are shown only once. Login/session lifetimes are separate.
+Read https://docs.ohmyho.st/agents/mcp for current installation and full customer instructions. Install the reviewed CLI/MCP archives only when needed. Authenticate one of two ways: set `OHMYHOST_TOKEN` in the server's `env` block, or sign in once with `ohmyhost login --json` and let MCP reuse that local session. The token wins wherever it is set, and needs no browser. New user API tokens are optional, remain valid until revoked and are shown only once. Login and token lifetimes are separate.
 
 Inspect existing configuration before adding the one server. Preserve unrelated servers, models, environment values and approval settings. Check installed help when an executable or flag differs.
 

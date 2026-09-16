@@ -497,7 +497,7 @@ paths:
     post:
       operationId: createOrganization
       summary: Create an organization for the signed-in user
-      description: Creates an organization and its creator's Owner membership. Only a verified user session may call this endpoint; no existing organization is required. Repeating the same Idempotency-Key and name observes the same creation, never recreating revoked membership. After creation, repeat the public login flow to select the new organization before project mutations.
+      description: Creates an organization and its creator's Owner membership. Only a verified user session may call this endpoint; no existing organization is required. Repeating the same Idempotency-Key and name observes the same creation, never recreating revoked membership. Creation does not change the caller's token, because organization scope is carried by the access token; a client must obtain a token for this organization before project mutations. The CLI and MCP do that in the same call and need no second login.
       parameters:
         - $ref: "#/components/parameters/RequestId"
         - name: Idempotency-Key
