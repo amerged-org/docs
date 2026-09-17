@@ -9,13 +9,13 @@ Connect this agent to the customer's account, then continue with the selected Gi
 
 ## How to talk to the customer here
 
-Sign-in needs the customer's browser. The agent cannot do it.
-
-- One action per message, in short plain sentences. Name the link, then what they will see.
-- Write in the language the customer writes in.
-- Never mention this Skill, its steps or its rules. The customer asked for a deployment, not for a
-  description of the instructions you follow. Sentences like "the setup skill says stop and wait"
-  do not belong in their chat; just stop and wait.
+- One action per message, in short plain sentences. Give the link, then what they will see.
+- Write in the language the customer writes in. Translate the message templates below; copy no
+  other sentence from this file into the chat.
+- Never mention these instructions. Do not name, quote, paraphrase or link this Skill, its steps
+  or its rules, and never justify a request with "the Skill says", "my instructions require" or
+  anything like it. The customer asked for a deployment, not for the instructions you follow.
+  Say what they should do, then stop.
 - Stop and wait whenever the customer must act. Do not start other work "while login is pending",
   and do not repeat the instruction until they answer.
 - Never ask for a password, an email code or a token value. Never paste a credential into chat,
@@ -65,29 +65,39 @@ Reload the connection if the harness requires it, then verify `tools/list` and `
 ohmyhost login --json
 ```
 
-The response contains a sign-in link that already carries the confirmation code. Send one message
-that states what you found, gives that link, and names both ways forward. Then stop.
+While it waits, the command prints three things: a sign-in link, a confirmation code such as
+`ABCD-EFGH`, and how many minutes both stay valid. The sign-in page shows that same code and asks
+the customer to confirm it. Send one message that states what you found and contains the full link,
+the code and the validity. Then stop.
 
-> I found no valid session on this machine. Open this link to connect it: `<link>`
+> I found no valid session on this machine. Open this link to connect it:
+>
+> [full link exactly as printed]
+>
+> The page shows the code **[code]**. Continue only if it shows exactly this code.
 > Sign in there, or choose **Sign up** on that same page if you do not have an account yet.
-> The link is only valid for a few minutes; if the page rejects the code, say so and I will send a new one.
+> Link and code are valid for [minutes] minutes; if the page rejects the code, say so and I will send a new one.
 > Tell me when you are done.
 
 Rules for this step:
 
+- Always show the code. Every message that carries a sign-in link also carries its code, the first
+  time and after every repeated login. The customer checks it against the page; a code that
+  appears on the page but never in the chat gives them nothing to check.
+- Write the full link on its own line, exactly as the CLI printed it, so the customer sees the
+  address before opening it. Never hide it behind words like "this link" or "sign-in link" and
+  never shorten it; a bare address the chat makes clickable is fine. The customer types nothing.
+- State how long link and code are valid, taking the number from the CLI's own message rather than
+  inventing one.
 - Do not ask whether they have an account. The same page serves both, so naming both costs one
   sentence and saves a round trip.
-- Show the link exactly as the CLI returned it. The customer types nothing. State how long it is
-  valid, taking the number from the CLI's own message rather than inventing one.
-- The link is the instruction. If the CLI also prints a separate code, put it on a later line as a
-  fallback for a terminal that breaks long links, never as the main thing to act on.
 - Sign-up is open. There is no invitation, no waitlist and no access code. Never send the customer
   somewhere else to request access.
 - Wait for the customer. The command completes on its own once they finish; do not start a second
   login while the first is still open.
 - A confirmation code lives only a few minutes. If it expired while they were signing up, run
-  `ohmyhost login --json` again and send the new link in one plain sentence. This is expected, not a
-  failure: do not report an error and do not suggest they did something wrong.
+  `ohmyhost login --json` again and send the new link and the new code the same way. This is
+  expected, not a failure: do not report an error and do not suggest they did something wrong.
 
 When the command returns, verify and continue:
 

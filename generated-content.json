@@ -1,5 +1,5 @@
 {
-  "source_commit": "0fa4374a48b9807f91e3f47f7b40d4a03a29fc67",
+  "source_commit": "d1eafa1ae1f47fd9c5e153cc0a588daffbef1259",
   "source_dirty": false,
   "release": "0.1.0",
   "files": [
@@ -17,7 +17,7 @@
     },
     {
       "path": "skills/ohmyhost-deploy-github/SKILL.md",
-      "sha256": "5fb9f488063ae02efc4dc748f20864056580a6c9a5675645a71f03b2711d5897"
+      "sha256": "2db530d5cb9c009fa4efe59c90de748cd6fdb452fd2813fce3f2da2dcce27251"
     },
     {
       "path": "skills/ohmyhost-domains-and-mail/SKILL.md",
@@ -29,7 +29,7 @@
     },
     {
       "path": "skills/ohmyhost-get-started/SKILL.md",
-      "sha256": "80b8ee9bfffff3d56b545667ef37851c9560cbe40dcf91ee42c75afa073afc27"
+      "sha256": "51ede66b073dd3ba774bbf196254d3ae47649d992335118fbf85edcc8af0c823"
     },
     {
       "path": "skills/ohmyhost-get-started/references/harness-setup.md",
