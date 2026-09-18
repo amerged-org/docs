@@ -39,7 +39,7 @@ Provider background: [Cloudflare Hyperdrive](https://developers.cloudflare.com/h
 
 ## Files, mail, functions, and secrets
 
-- Import the storage client from `@ohmyhost/customer-runtime/storage`. The Storage Gateway owns raw R2 bindings, signed operations, quotas, receipts, and cleanup. Files are offered in the US jurisdiction only: `storage.jurisdiction: us` is the sole admitted value and init rejects any other.
+- Import the storage client from `@ohmyhost/customer-runtime/storage`. The Storage Gateway owns raw R2 bindings, signed operations, quotas, receipts, and cleanup. Files live in the project's hosting region: `storage.jurisdiction` accepts `us` or `eu` and must equal the region chosen when the project was created (`--region`, default `us`); a mismatch fails the plan with `storage_jurisdiction_conflict`. `ohmyhost init` writes the project's region when it knows the project, otherwise `us`.
 - `@ohmyhost/customer-runtime` is private and resolves from no registry. Install the release tarball `https://ohmyho.st/releases/<version>/ohmyhost-customer-runtime-<version>.tgz`; init reports the exact URL for the installed client under `companion.packages.customerRuntime`. A bare package name fails the platform build.
 - A storage-enabled deployment receives exactly five runtime values and **no** `FILES` bucket binding: the private `OHMYHOST_STORAGE_GATEWAY` Service Binding, the plain values `OHMYHOST_STORAGE_GATEWAY_URL`, `OHMYHOST_PROJECT_ID`, `OHMYHOST_ENVIRONMENT_ID`, and the secret `OHMYHOST_STORAGE_KEY`. Build the client with `fetch: (request) => env.OHMYHOST_STORAGE_GATEWAY.fetch(request)` and keep the global `fetch` for `capabilityFetch`.
 - The gateway hop travels over that Service Binding. `OHMYHOST_STORAGE_GATEWAY_URL` only supplies the origin the client builds its request URLs from; it is not a public endpoint. Only the sandbox gateway also answers on that hostname, so never call it with an ordinary outbound `fetch`. Outbound `fetch` is for the short-lived signed R2 object URL alone.
@@ -55,7 +55,7 @@ Provider background: [Cloudflare Hyperdrive](https://developers.cloudflare.com/h
 - The functions runtime is a plain Worker module without a framework: `runtime.mode: functions`, `build.install` only, no `build.command` or `build.output`, HTTP through `fetch` and schedules through `scheduled`. Do not add customer Wrangler configuration.
 - TanStack Start uses its native server routes/functions. Keep an active TanStack Start Vite plugin; do not add a customer Wrangler file or platform base path.
 - Next.js Workers builds use the platform OpenNext 1.20.6 overlay and Webpack, including `proxy.ts` Node middleware. The service supplies `--webpack` to the admitted build script; customers do not need to rename middleware or add platform tools/configuration. Custom loaders must support Webpack; a Turbopack-only configuration is not evidence of a compatible Workers build. Keep route handlers, RSC/SSR, assets and images framework-native.
-- Containers remain deferred. Customer-owned custom domains use the normal Paid-domain flow. Native addons and non-functional Workers Node APIs remain typed blockers; the Node proxy filename alone is not a blocker.
+- Customer-owned custom domains use the normal Paid-domain flow. Native addons and non-functional Workers Node APIs remain typed blockers; the Node proxy filename alone is not a blocker.
 
 ## Completion
 

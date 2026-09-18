@@ -543,7 +543,7 @@ paths:
     post:
       operationId: createBillingCheckout
       summary: Create or resume an owner's hosted Stripe Checkout
-      description: Returns a human payment URL, never charges a saved card. Paid is USD 10/month; each top-up pack is USD 10 for 1000 credits, before tax. Retry the same offer, packs and Idempotency-Key after uncertainty. Browser return is not payment proof; read this checkout and the organization balance. A conflicting or existing subscription returns billing_purchase_conflict (409); read the original checkout or request an owner billing portal URL instead of another purchase. Works at zero credits.
+      description: Returns a human payment URL, never charges a saved card. Paid is USD 10/month; each top-up pack is USD 10 before tax; a purchase grants 100 credits per dollar up to USD 100 and 125 credits per dollar for the part above, so 10 packs grant 10000 and 20 packs grant 22500 non-expiring credits. Retry the same offer, packs and Idempotency-Key after uncertainty. Browser return is not payment proof; read this checkout and the organization balance. A conflicting or existing subscription returns billing_purchase_conflict (409); read the original checkout or request an owner billing portal URL instead of another purchase. Works at zero credits.
       parameters:
         - $ref: "#/components/parameters/RequestId"
         - $ref: "#/components/parameters/IdempotencyKey"
@@ -899,7 +899,7 @@ paths:
     get:
       operationId: listProjects
       summary: List projects visible to the current authenticated identity
-      description: Returns a stable ULID-ordered page across only the caller's authorized organizations.
+      description: Returns a stable ULID-ordered page across only the caller's authorized organizations. A session that selected no workspace can see nothing and returns organization_required (409) instead of an empty page; select a workspace and repeat.
       parameters:
         - $ref: "#/components/parameters/RequestId"
         - $ref: "#/components/parameters/ProjectCursor"
@@ -919,6 +919,8 @@ paths:
         "401":
           $ref: "#/components/responses/Problem"
         "403":
+          $ref: "#/components/responses/Problem"
+        "409":
           $ref: "#/components/responses/Problem"
         "429":
           $ref: "#/components/responses/Problem"
@@ -3332,7 +3334,7 @@ components:
           enum: [not_deployed, pending, ready, failed]
         runtime_provider:
           type: [string, "null"]
-          enum: [wfp, container, null]
+          enum: [wfp, null]
         applied_secret_count:
           type: integer
           minimum: 0
@@ -3368,7 +3370,7 @@ components:
           enum: [not_deployed, pending, ready, failed]
         runtime_provider:
           type: [string, "null"]
-          enum: [wfp, container, null]
+          enum: [wfp, null]
         applied_secret_count:
           type: integer
           minimum: 0
@@ -3408,7 +3410,7 @@ components:
           enum: [not_deployed, pending, ready, failed]
         runtime_provider:
           type: [string, "null"]
-          enum: [wfp, container, null]
+          enum: [wfp, null]
         applied_secret_count:
           type: integer
           minimum: 0
@@ -3868,7 +3870,6 @@ components:
           enum:
             - cloudflare_workers_static_assets
             - cloudflare_workers_edge_ssr
-            - cloudflare_containers
         route:
           type: string
           description: Server-derived project-isolated public deployment URL; clients cannot select its gateway host or target Worker.
@@ -3914,7 +3915,7 @@ components:
           format: date-time
     CostEstimate:
       type: object
-      description: Build-compute reservation quote, not the lifetime cost of the application. amount_micros is the customer USD equivalent of credit_micros; provider_cost_micros is the corresponding published provider-list basis. The versioned price is fixed by this immutable deployment plan. Actual measured usage settles the reservation and unused credits are released. Storage, mail and runtime costs are separate.
+      description: Build-compute reservation quote, not the lifetime cost of the application. amount_micros is the customer USD equivalent of credit_micros; provider_cost_micros is the corresponding published provider-list basis. The versioned price is fixed by this immutable deployment plan. reserved_seconds is the reserved build time in seconds. The measured build seconds settle the reservation and unused credits are released. Storage, mail and runtime costs are separate.
       additionalProperties: false
       required:
         - amount_micros
@@ -3923,7 +3924,7 @@ components:
         - credit_micros
         - provider_cost_micros
         - scope
-        - reserved_minutes
+        - reserved_seconds
       properties:
         amount_micros:
           type: string
@@ -3944,7 +3945,7 @@ components:
         scope:
           type: string
           const: build_compute
-        reserved_minutes:
+        reserved_seconds:
           type: string
           pattern: ^[1-9][0-9]*$
     Deployment:
@@ -4124,6 +4125,11 @@ components:
       enum: [shared, isolated]
       default: shared
       description: Chosen when the project is created. shared uses one database and a shared file namespace across Dev/Prod; isolated keeps their database/Auth records and files separate. Skills recommend isolated development, but the customer chooses the additional measured database consumption. Promotion applies pending schema migrations to an isolated Prod database without copying Dev data. Changing an established mode requires an explicit data migration.
+    HostingRegion:
+      type: string
+      enum: [us, eu]
+      default: us
+      description: Chosen when the project is created and immutable afterwards. us (default) places the project's database, files, build sandbox and build objects in the US; eu places them in the EU. Prices are identical. ohmyhost.yaml storage.jurisdiction must equal this value.
     FeedbackSubmission:
       type: object
       additionalProperties: false
@@ -4185,6 +4191,8 @@ components:
           $ref: "#/components/schemas/Ulid"
         data_mode:
           $ref: "#/components/schemas/ProjectDataMode"
+        region:
+          $ref: "#/components/schemas/HostingRegion"
         name:
           type: string
           minLength: 1
@@ -4308,6 +4316,7 @@ components:
         - name
         - handle
         - data_mode
+        - region
         - created_at
       properties:
         id:
@@ -4326,6 +4335,8 @@ components:
           pattern: ^[a-z]+-[a-z]+-[a-z]+$
         data_mode:
           $ref: "#/components/schemas/ProjectDataMode"
+        region:
+          $ref: "#/components/schemas/HostingRegion"
         created_at:
           type: string
           format: date-time
@@ -4363,6 +4374,7 @@ components:
       required:
         - project_id
         - handle
+        - region
         - lifecycle
         - source
         - default_environment
@@ -4379,6 +4391,8 @@ components:
           minLength: 5
           maxLength: 59
           pattern: ^[a-z]+-[a-z]+-[a-z]+$
+        region:
+          $ref: "#/components/schemas/HostingRegion"
         lifecycle:
           type: string
           enum:
@@ -4460,6 +4474,7 @@ components:
             - invalid_request
             - unauthenticated
             - forbidden
+            - organization_required
             - resource_not_found
             - idempotency_key_reused
             - project_handle_unavailable
@@ -4474,10 +4489,11 @@ components:
             - promotion_invalid_target
             - mail_domain_conflict
             - mail_domain_required
+            - storage_jurisdiction_conflict
             - framework_conversion_required
             - migration_filename_noncanonical
             - environment_secret_mutation_blocked
-            - container_runtime_required
+            - workers_runtime_incompatible
             - payload_too_large
             - rate_limited
             - insufficient_organization_credits
@@ -4558,7 +4574,7 @@ components:
         build_completed_at:
           type: string
           format: date-time
-          description: Actual successful CodeBuild completion time when this operation ran a build; omitted for reused artifacts without a current build.
+          description: Actual successful build completion time when this operation ran a build; omitted for reused artifacts without a current build.
         phase:
           type: string
           enum: [queued, building, publishing, waiting_for_mail, mail_status_unavailable]
@@ -4805,7 +4821,6 @@ components:
             - runtime_candidate_failed
             - runtime_candidate_rejected
             - storage_jurisdiction_conflict
-            - container_runtime_secrets_unsupported
             - provider_state_absent
         message:
           type: string

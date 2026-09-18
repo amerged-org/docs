@@ -35,12 +35,17 @@ Also list the MCP tools of the `ohmyho` server. A saved configuration alone is n
 
 Read the result:
 
-| Observation                                             | State                   | Continue with |
-| ------------------------------------------------------- | ----------------------- | ------------- |
-| `ohmyhost` missing, or the MCP server exposes no tools  | not installed           | Step 2        |
-| CLI runs, `whoami` fails with `authentication_required` | installed, signed out   | Step 3        |
-| `whoami` returns an identity with an organization       | ready                   | Step 5        |
-| `whoami` returns an identity without an organization    | signed in, no workspace | Step 4        |
+| Observation                                               | State                   | Continue with |
+| --------------------------------------------------------- | ----------------------- | ------------- |
+| `ohmyhost` missing, or the MCP server exposes no tools    | not installed           | Step 2        |
+| `--version` is older than the published release           | outdated                | Step 2        |
+| CLI runs, `whoami` fails with `authentication_required`   | installed, signed out   | Step 3        |
+| `whoami` returns an identity with an organization         | ready                   | Step 5        |
+| `whoami` returns `next_action` instead of an organization | signed in, no workspace | Step 4        |
+
+`whoami` selects the workspace itself when the customer has exactly one, so an identity that
+arrives with an organization needs nothing further. It reports `next_action` only when the choice
+would be a guess or when no workspace exists yet.
 
 If `OHMYHOST_TOKEN` is set in this process, that token is the credential: the CLI and MCP ignore any
 saved login. If `whoami` then succeeds, the agent is connected — go to Step 5 and never start an
@@ -53,11 +58,11 @@ receive one message about the problem and a second one about the link.
 
 ## Step 2 — install what is missing
 
-Read <https://ohmyho.st/llms.txt> and the [CLI/MCP installation guide](https://docs.ohmyho.st/agents/mcp). Check the installed Node.js, CLI and MCP versions and install the published packages only when they are missing, using the current archive URLs from that guide.
+Read <https://ohmyho.st/llms.txt> and the [CLI/MCP installation guide](https://docs.ohmyho.st/agents/mcp). Compare the installed CLI and MCP versions with the published one in <https://ohmyho.st/client-release.json> and install the published packages when they are missing or older, using the current archive URLs from that guide. An older client lacks commands the later steps use, and its failures look like platform faults.
 
 Read [harness setup](references/harness-setup.md) and register the local `ohmyhost-mcp` command with this harness's documented settings. Preserve other MCP servers, model choices and permission settings. Use `OHMYHOST_ENVIRONMENT=production` for CLI and MCP unless the customer explicitly selected the development platform.
 
-Reload the connection if the harness requires it, then verify `tools/list` and `resources/list`. Repeat Step 1 afterwards.
+Reload the MCP connection after every install or upgrade, then verify `tools/list` and `resources/list`. A running server keeps the tool list it started with, so a freshly installed version is invisible until it restarts. Repeat Step 1 afterwards.
 
 ## Step 3 — the customer signs in once
 
@@ -107,30 +112,31 @@ ohmyhost whoami --json
 
 ## Step 4 — make sure a workspace is selected
 
-`login` selects the workspace itself when the customer has exactly one, and its response names the
-selected organization. When it reports `organization: null` with several choices, ask the customer
-which one and select it. When it reports no organizations at all, create the first one.
+`login` and `whoami` select the workspace themselves when the customer has exactly one, and their
+response names the selected organization. They report `next_action` with several choices, and then
+the customer decides; with no workspace at all, create the first one.
 
-Create a workspace once, with a name the customer gave you:
-
-```sh
-ohmyhost organization create --name "$ORGANIZATION_NAME" --source "$SIGNUP_SOURCE" --idempotency-key "$ORGANIZATION_REQUEST_KEY" --json
-ohmyhost whoami --json
-```
-
-Select between existing workspaces:
+Always look before creating. The customer may already have a workspace from an earlier session:
 
 ```sh
 ohmyhost organization list --json
 ohmyhost organization use --organization "$ORGANIZATION_ID" --json
 ```
 
+Create a workspace only when that list is empty, with a name the customer gave you:
+
+```sh
+ohmyhost organization create --name "$ORGANIZATION_NAME" --source "$SIGNUP_SOURCE" --idempotency-key "$ORGANIZATION_REQUEST_KEY" --json
+ohmyhost whoami --json
+```
+
 - `--source` is optional and is only where the customer came from. If the task mentioned a link like `https://ohmyho.st/?r=hostmebaby`, pass that single `r` value. Otherwise omit the flag. It grants nothing and is never a secret.
 - Reuse the same name, source and idempotency key after an interrupted response instead of creating a second organization.
 - Creating a workspace selects it immediately. There is no second login; `whoami` or `identity_get` confirms the selection before you create a project.
 - Over MCP, `organization_create`, `organization_list` and `organization_use` do the same and report the same `selected` workspace.
-- Creating or selecting a workspace needs the interactive login. An API token can do neither, and says so.
+- Creating, listing and selecting a workspace need the interactive login. An API token can do none of them, and says so.
 - Never create another workspace on your own when the customer already has one.
+- A session that selected none lists no projects: `projects_list` and `ohmyhost project list` answer `organization_required` instead of an empty page. Select a workspace, then read the list again.
 
 ## Step 5 — keep access for later
 
@@ -139,9 +145,9 @@ The current CLI login is enough to continue; MCP uses it.
 For an automation platform the customer can create a user token: `token_create`, or `ohmyhost token create`. The full value appears exactly once. Save it once to the private env file the customer chooses, mode `600`, and configure the process to load that file. Preserve existing credentials and never put the value in chat, source or a command argument.
 
 `OHMYHOST_TOKEN` overrides the saved login in any process where it is set. A token alone runs every
-command in these Skills except four, which need the interactive login: `login`, `logout` (including
-`logout --revoke`), `organization create`, and `token create|list|revoke`. Run those in a process
-without the variable. Never delete a saved token file.
+command in these Skills except these, which need the interactive login: `login`, `logout` (including
+`logout --revoke`), `organization create|list|use`, and `token create|list|revoke`. Run those in a
+process without the variable. Never delete a saved token file.
 
 ## Step 6 — continue with the app
 

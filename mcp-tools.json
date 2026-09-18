@@ -334,7 +334,7 @@
     },
     {
       "name": "billing_checkout_create",
-      "description": "Owner-only: create or resume a hosted Checkout. Paid is USD 10/month; each topup pack is USD 10 for 1000 non-expiring credits, before tax. Return the URL to the human to review/pay; never auto-pay or treat browser return as confirmation. Preserve the same offer/packs/idempotency key after uncertainty. An existing active, overdue, unpaid or paused subscription must be managed through billing_portal_create, not replaced with another Paid purchase. Then read checkout status and organization credits. Works at zero credit.",
+      "description": "Owner-only: create or resume a hosted Checkout. Paid is USD 10/month; each top-up pack is USD 10 before tax; a purchase grants 100 credits per dollar up to USD 100 and 125 credits per dollar for the part above, so 10 packs grant 10000 and 20 packs grant 22500 non-expiring credits. Return the URL to the human to review/pay; never auto-pay or treat browser return as confirmation. Preserve the same offer/packs/idempotency key after uncertainty. An existing active, overdue, unpaid or paused subscription must be managed through billing_portal_create, not replaced with another Paid purchase. Then read checkout status and organization credits. Works at zero credit.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -1321,7 +1321,7 @@
     },
     {
       "name": "project_create",
-      "description": "Create an ohmyho.st project. Recommend isolated Dev/Prod data, but respect the customer's choice and added database consumption. shared is the default and uses one database/file namespace; isolated separates database/Auth records and files. Choose before provisioning; changing the established mode requires a data migration.",
+      "description": "Create an ohmyho.st project. Recommend isolated Dev/Prod data, but respect the customer's choice and added database consumption. shared is the default and uses one database/file namespace; isolated separates database/Auth records and files. Choose before provisioning; changing the established mode requires a data migration. region defaults to us; eu places the project's database, files and builds in the EU at the same prices. The region cannot be changed later, and ohmyhost.yaml storage.jurisdiction must equal it.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -1341,6 +1341,13 @@
             "enum": [
               "shared",
               "isolated"
+            ]
+          },
+          "region": {
+            "type": "string",
+            "enum": [
+              "us",
+              "eu"
             ]
           },
           "idempotency_key": {
