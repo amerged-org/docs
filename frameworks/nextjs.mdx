@@ -11,6 +11,10 @@ Use ordinary Next.js routes and configuration. The hosting service supplies its 
 
 Keep existing authentication unless you choose to replace it. Configure exact callback and logout URLs for the environment you are testing. [Application authentication](/application-auth) · [Runtime secrets](/secrets).
 
+Hosted server code reads private bindings through `getCloudflareContext({ async: true }).env`. A localhost-only runtime factory is a test adapter, not a production backend. Preserve ordinary route handlers and use the [application database client](/database) and [private file client](/files) from that context.
+
+For a library that uses WebAssembly, prefer a runtime-specific package export: a `workerd` entry can statically import the pinned `.wasm` modules, while a separate Node entry loads the same bytes locally. Preserve the library's license and real validation. The platform carries these modules with the deployment artifact; a successful Node build alone does not prove the Worker module can start.
+
 Scheduled work is declared as `functions.crons` and runs `scheduled` from the default export of `src/ohmyhost/worker.ts`, a module the platform bundles outside the Next.js build; see [Functions and cron](/functions).
 
 ## Verify after deployment

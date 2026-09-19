@@ -1,17 +1,30 @@
 ---
 title: "Connect GitHub"
-description: "Authorize one repository and deploy the pushed commit you selected."
+description: "Connect a GitHub installation once per workspace, then link its repositories."
 ---
 
-Push your application, lockfile and configuration to the repository you want to host. Run these commands from that application directory after selecting its `PROJECT_ID`:
+Push your application, lockfile and configuration to the repository you want to host. Use the selected workspace and the GitHub account that has access to this repository.
+
+## Connect the workspace once
+
+```sh
+ohmyhost github status --organization "$ORGANIZATION_ID" --json
+ohmyhost github connect --organization "$ORGANIZATION_ID" --idempotency-key "$GITHUB_CONNECT_KEY" --json
+```
+
+If status is already connected, reuse it. Otherwise an Owner or Admin opens the one `authorization_url` returned by connect. It handles the required installation/user authorization. After the browser completes, repeat the same connect request/key until its status is `connected`; do not replay callback codes or assemble separate installation and OAuth links.
+
+In CLI JSON, the browser URL is `authorization.authorization_url`; the status command returns `github.connection.settings_url`. MCP and REST return the authorization/status objects directly. If an attempt is failed or expired, resolve `last_failure` and start a fresh connect key for the same workspace.
+
+## Link a covered repository
+
+Select the existing or newly created `PROJECT_ID`, then run:
 
 ```sh
 ohmyhost link --project "$PROJECT_ID" --repository-owner "$GITHUB_OWNER" --repository-name "$GITHUB_REPOSITORY" --idempotency-key "$SOURCE_REQUEST_KEY" --json
 ```
 
-Open the returned GitHub authorization URL. If the App is not installed for the repository, complete the supplied installation link first. Use the GitHub account that actually has access to this repository.
-
-After consent, repeat the same arguments and key. Wait for the connection to complete. Do not create another project or replay the callback code.
+Observe the returned source-link operation before planning a deployment. A covered repository needs no further browser consent. If access is missing, read GitHub status, open `connection.settings_url`, add the repository to that installation and repeat the original link arguments/key. Do not create another project or request a provider token.
 
 ## Deploy the intended revision
 

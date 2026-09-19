@@ -13,12 +13,22 @@ Better Auth and customer-owned WorkOS are the verified integration targets. Any 
 - **WorkOS:** use your application's own client ID, private server key where needed, callback URL and logout URL.
 - **Other providers:** use the application type matching your architecture; public clients cannot hold a client secret, and server SDKs read their private values from runtime secrets.
 
+For application-owned Better Auth, use an application secret such as `APP_AUTH_SECRET` and pass it explicitly to Better Auth's `secret` option. `BETTER_AUTH_SECRET` is reserved for the optional platform-managed integration; the customer secret command intentionally rejects that name. Keeping your own auth does not require enabling the managed integration.
+
 ## Set up an environment
 
 1. Select Dev or Prod and read its actual URL.
 2. Configure the exact callback, logout and allowed origins in your auth provider.
 3. Deliver private values with [runtime secrets](/secrets). Keep public identifiers separate from server credentials.
 4. Test login, callback, a protected page, reload and logout. Confirm protected access is denied after logout.
+
+Use the hosted framework context for bindings and private configuration. A factory restricted to test mode or localhost cannot provide a production session. For Next.js, resolve `getCloudflareContext({ async: true }).env`; keep local test configuration separate. Route health and application session repositories through the same supported database adapter.
+
+## Bootstrap the first application user
+
+An isolated Prod database receives schema migrations, not Dev users or tenant configuration. If the application needs a first administrator or tenant, run its existing, authorized bootstrap script or private administrative workflow with the auth library's real password hashing and membership rules. Do not create a public bootstrap endpoint or enable test mode in production. Keep credentials out of source, logs and project notes.
+
+A health response can succeed while no application user can sign in. Verify the first login and one protected business action on the final application origin before handing over access.
 
 The provider may send its own account-verification email; this does not automatically require managed ohmyho.st mail. Keep existing auth unless you explicitly decide to change it.
 

@@ -20,6 +20,10 @@ Do not recreate the sender or repeat correct records because DKIM is still propa
 
 ## Verify application delivery
 
+Use `createTransactionalMailClient` from `@ohmyhost/customer-runtime/mail` in server-side application code. Pass the supplied `OHMYHOST_MAIL_GATEWAY_URL`, `OHMYHOST_MAIL_KEY`, `OHMYHOST_PROJECT_ID` and `globalThis.fetch`. The platform's outbound worker forwards the permitted send through a private service binding; the application does not need its own mail service binding or a publicly reachable gateway.
+
+Keep the idempotency key and message unchanged when checking or retrying an uncertain send. `accepted` means accepted for sending; it does not establish inbox delivery. Project permissions, sending limits and credit checks still apply.
+
 Sender verification, account sending availability and deployment completion are separate checks. Send a real transactional message through your application's supported runtime and verify receipt before claiming email works.
 
 If `verification_issue` reports a missing tenant association, report the operation through [feedback](/feedback); that is platform provisioning, not a request for the customer to guess new DNS records. Respect suppression and sending limits returned by the service.

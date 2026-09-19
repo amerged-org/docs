@@ -5,12 +5,18 @@ description: "Choose isolated or shared data and promote without copying product
 
 Each project has Dev and Prod under one organization credit balance. Choose `isolated` or `shared` data when creating the project.
 
-| Mode | Databases and files | Implication |
-| --- | --- | --- |
+| Mode     | Databases and files             | Implication                                                  |
+| -------- | ------------------------------- | ------------------------------------------------------------ |
 | Isolated | Separate Dev and Prod resources | Safer testing; each database consumes credits independently. |
-| Shared | One physical data set | Writes or schema changes can affect both environments. |
+| Shared   | One physical data set           | Writes or schema changes can affect both environments.       |
 
 Skills recommend isolation and explain the credit difference. An explicit customer choice to share is supported.
+
+## Choose a hosting region once
+
+New projects choose US or EU. An explicit choice wins over any browser-location suggestion; with neither, the agent asks once and sends the chosen region explicitly. An existing project's region is preserved. The API default remains US, and the agent's own server IP is not the customer's location.
+
+The choice places the project's database, files and builds, with the application next to its database. It cannot be changed later and consumption prices are identical. Transactional mail uses the platform's mail region. `storage.jurisdiction` must match the project's region.
 
 ## Read the actual environment
 

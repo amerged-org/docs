@@ -1,0 +1,39 @@
+---
+title: "Credit prices"
+description: "The measured quantities that use credits, purchase rules and billing timing."
+---
+
+import CreditPricingTable from '/snippets/credit-pricing-table.mdx';
+
+One credit has a nominal value of **USD 0.01**. At the standard purchase rate, 100 credits represent USD 1. All projects in a workspace use one balance. Prices are identical in the US and EU hosting regions.
+
+## Buying credits
+
+| Purchase | Before tax | Credits | Expiry |
+| --- | --- | --- | --- |
+| Free | USD 0 | 200 per UTC month | End of that month |
+| Paid | USD 10/month | 1,000 per paid period | End of that period |
+| One-time top-up | USD 10 per pack | 100 per dollar through USD 100; 125 per dollar for the part above USD 100 | Never |
+| Optional automatic recharge | USD 9 per refill | 1,000 when the available balance falls below 100 | Never |
+
+Monthly grants do not roll over, and Free and Paid monthly grants do not stack. Monthly credits are spent before non-expiring credits. Automatic recharge requires the workspace Owner's consent and a monthly spending limit. A larger top-up changes how many credits you receive; it does not change consumption rates. [Purchases and recharge](/billing).
+
+## Usage rates
+
+The table is generated from the same price contract as the website. Credits are the charge for the stated quantity, not a flat charge every time a feature is enabled. Usage is valued at the rate in effect when it happened. Your account reports active meters and their versioned rate cards; historical published cards can include meters that no longer charge usage.
+
+<CreditPricingTable />
+
+Builds use the measured seconds of the current build sandbox. The historical CodeBuild minute rate is no longer used. A deployment reserves 16.86912 credits for 840 build seconds; after the build, only measured seconds are charged and unused reserved credits are released. Starting the sandbox is not billed.
+
+Database CU-hours measure compute size multiplied by active time. Paid standard uses 0.5 CU and Performance uses 1 CU; Performance therefore costs 2.5 times Paid standard per equal active duration. Idle compute can suspend, but database storage, retained history and deployed resources still use credits. Isolated Dev/Prod databases are metered independently. [Inspect or change database capacity](/database).
+
+Functions and crons use the Worker request and CPU meters. Workers bandwidth and SQL exports have no separate charge. Each deployment retains an immutable script for rollback until it is cleaned up. Mail prices depend on the platform's active regional tariff; the two recipient rows describe different configurations, not two charges for one recipient.
+
+## Read charges correctly
+
+One credit is 1,000,000 microcredits. Charges round up to the next microcredit with no minimum charge. Displayed rounding never changes the deduction. A zero-provider-cost unit has no credit charge; shared provider allowances do not create a separate customer allowance.
+
+Build and mail settlement is usually immediate or within minutes. Worker usage arrives about two to three minutes later, database usage about an hour later, file operation usage about one to two hours later, and retained-resource charges can arrive after the UTC day closes. A current balance is not a final invoice for work that is still running.
+
+A balance never becomes customer debt. A zero balance starts one seven-day grace period; refill to keep funded services running. [Read measured usage](/usage) and set [project budgets](/budgets).

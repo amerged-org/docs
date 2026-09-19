@@ -11,9 +11,13 @@ Start with `project_context_get`, `domain_paid_status` and, when email is releva
 
 Use `domain_paid_plan` for the requested hostname, review its effects, then `domain_paid_apply` with confirmation and a saved idempotency key. Keep that key for uncertain responses and the same hostname reconciliation.
 
+The complete Cloudflare sequence is **Paid plan → Paid apply → Cloudflare authorize → Cloudflare status → repeat the same Paid apply → Paid status**. The initial apply establishes the project's hostname/zone and may return manual records. Authorization before a matching domain is declared returns `cloudflare_zone_not_bound`; this needs the missing domain step, not another OAuth attempt.
+
 We prefer Cloudflare-hosted DNS. If the customer uses it, offer `domain_cloudflare_authorize` for the actual zone. The customer opens the returned authorization link; read `domain_cloudflare_status` afterward, then repeat the original apply to set the records. Do not move the customer's DNS provider merely to connect a domain.
 
 For another DNS provider, present the exact returned record type, name, value and TTL as a table. Explain where to enter them. Preserve unrelated records and mailbox MX. Use `domain_paid_status` to check HTTPS and routing; authorization alone does not mean the hostname is ready.
+
+Once the final hostname is ready, update the application's trusted public origin and provider callback/logout URLs through its normal configuration. Check login and one protected action at that hostname; working DNS does not establish working sessions. Host-only cookies may require a fresh login after the domain changes. Do not broaden cookie domains or trust arbitrary request hosts to hide an origin mismatch.
 
 ## Transactional email
 

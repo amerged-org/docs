@@ -119,6 +119,128 @@
         }
       }
     },
+    "/v1/organizations/{organization_id}/github:connect": {
+      "post": {
+        "operationId": "connectGithubOrganization",
+        "summary": "Connect a GitHub installation to the workspace",
+        "description": "Owner or Admin connects once through one GitHub browser link. The original user session or user API key is bound to the thirty-minute authorization. Repeat the same request and key to observe its result. No provider credential is returned or retained.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectGithubOrganizationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Bound authorization handoff, replay status, or the existing connection.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GithubConnectionAuthorization"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/ResourceNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-ohmyhost-idempotency": {
+          "canonicalRequestVersion": "v1",
+          "identicalRequest": "replay-stored-response",
+          "changedRequest": "409-idempotency-key-reused"
+        },
+        "x-ohmyhost-resource-disclosure": "indistinguishable-not-found"
+      }
+    },
+    "/v1/organizations/{organization_id}/github": {
+      "get": {
+        "operationId": "getGithubOrganizationConnection",
+        "summary": "Read the workspace GitHub connection",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current workspace connection status.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GithubOrganizationConnectionStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/ResourceNotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-ohmyhost-resource-disclosure": "indistinguishable-not-found"
+      }
+    },
     "/v1/organizations/{organization_id}/account": {
       "get": {
         "operationId": "getOrganizationAccount",
@@ -689,7 +811,7 @@
       "get": {
         "operationId": "completeGithubSourceAuthorization",
         "summary": "Complete the bound GitHub browser authorization",
-        "description": "Browser callback only. Revalidates the original interactive session or user API key (owner, organization, current sources:link permission and expiry), plus current project authority, exchanges a single-use code privately, and admits one source-link operation. It never starts a build or returns provider credentials.",
+        "description": "Browser callback only. Revalidates the original user session or user API key, workspace Owner/Admin authority and authorization expiry, then privately verifies the GitHub account and installation. A valid installation callback without an OAuth code continues automatically through OAuth. Completion records the workspace connection without building or returning provider credentials. Previously issued project authorizations remain supported during rollout.",
         "security": [],
         "parameters": [
           {
@@ -735,6 +857,26 @@
                 "https://github.com/login/oauth"
               ]
             }
+          },
+          {
+            "name": "installation_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,19}$"
+            }
+          },
+          {
+            "name": "setup_action",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "install",
+                "update",
+                "request"
+              ]
+            }
           }
         ],
         "responses": {
@@ -752,7 +894,7 @@
             "$ref": "#/components/responses/Problem"
           },
           "403": {
-            "description": "The authorizing GitHub account does not have verified read access to the selected repository through the installed app.",
+            "description": "The authorizing GitHub account lacks the required installation access or account authority.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -2210,7 +2352,7 @@
       "post": {
         "operationId": "linkProjectSource",
         "summary": "Link a GitHub source repository",
-        "description": "Starts customer GitHub authorization using the current interactive user session or user-owned API key with sources:link permission. The original credential is bound to the ten-minute consent; switching credentials requires a new Idempotency-Key. No raw deployment token is stored or placed in the browser URL. Install the App for the selected repository if needed, then open authorization_url. The callback admits one source-link operation without building. Repeat the identical request/key to observe authorization and operation status; caller installation IDs are never accepted.",
+        "description": "Uses the workspace GitHub connection to admit a source-link operation without another browser authorization or a build. The caller must have current sources:link permission and the connected installation must cover the repository. If the workspace is not connected, run github connect first; if repository access is missing, update the installation through its settings URL. Repeat identical arguments and key after uncertainty.",
         "parameters": [
           {
             "$ref": "#/components/parameters/RequestId"
@@ -2233,15 +2375,8 @@
           }
         },
         "responses": {
-          "201": {
-            "description": "Bound GitHub authorization handoff or its current replay status.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GithubSourceAuthorization"
-                }
-              }
-            }
+          "202": {
+            "$ref": "#/components/responses/AcceptedOperation"
           },
           "400": {
             "$ref": "#/components/responses/Problem"
@@ -6273,6 +6408,181 @@
           }
         }
       },
+      "ConnectGithubOrganizationRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GithubOrganizationConnection": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "connection_id",
+          "organization_id",
+          "installation_id",
+          "account_id",
+          "account_login",
+          "account_type",
+          "github_user_id",
+          "github_user_login",
+          "connected_at",
+          "revoked_at",
+          "settings_url"
+        ],
+        "properties": {
+          "connection_id": {
+            "$ref": "#/components/schemas/Ulid"
+          },
+          "organization_id": {
+            "$ref": "#/components/schemas/Ulid"
+          },
+          "installation_id": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,19}$"
+          },
+          "account_id": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,19}$"
+          },
+          "account_login": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 39
+          },
+          "account_type": {
+            "type": "string",
+            "enum": [
+              "User",
+              "Organization"
+            ]
+          },
+          "github_user_id": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,19}$"
+          },
+          "github_user_login": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 39
+          },
+          "connected_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "revoked_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "settings_url": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "GithubOrganizationConnectionStatus": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "connection"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "not_connected",
+              "connected",
+              "revoked"
+            ]
+          },
+          "connection": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/GithubOrganizationConnection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "GithubConnectionAuthorization": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "authorization_id",
+          "status",
+          "last_failure",
+          "authorization_url",
+          "expires_at",
+          "connection"
+        ],
+        "properties": {
+          "authorization_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "authorizing",
+              "connected",
+              "failed",
+              "expired"
+            ]
+          },
+          "last_failure": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "installation_access_required",
+              "account_admin_required",
+              "authorization_code_rejected",
+              "provider_unavailable",
+              "expired",
+              "session_inactive",
+              "denied",
+              "code_spent",
+              "state_unknown",
+              null
+            ]
+          },
+          "authorization_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uri",
+            "description": "One GitHub browser authorization link when pending; contains only the bound single-use state, never a provider credential."
+          },
+          "expires_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "connection": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/GithubOrganizationConnection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
       "GithubSourceAuthorization": {
         "type": "object",
         "additionalProperties": false,
@@ -8050,6 +8360,10 @@
               "compute_change_conflict",
               "billing_purchase_conflict",
               "billing_recharge_conflict",
+              "github_connection_required",
+              "github_connection_revoked",
+              "repository_not_installed",
+              "cloudflare_zone_not_bound",
               "cloudflare_authorization_closed",
               "project_notes_conflict",
               "project_export_not_ready",

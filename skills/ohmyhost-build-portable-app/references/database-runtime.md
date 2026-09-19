@@ -38,6 +38,17 @@ const results = await database.transaction([
   callback's `connection.query({ text, values })`; the client closes the connection in `finally`.
   Limits are two held connections per project environment, 100 statements, 30 seconds total and
   five seconds idle; closing rolls back an uncommitted transaction.
+- **Keep provider work outside that scope.** Finish a small database claim, close its connection,
+  transfer/process the bounded file or call the provider, then open a fresh short transaction to
+  persist the outcome. Waiting for an upload or AI response consumes the connection's idle lease.
+- **Keep calendar days as calendar days.** SQL `DATE` returns a `YYYY-MM-DD` string, without a
+  timezone conversion. Timestamp values keep their existing decoding; do not convert every date
+  field to midnight or slice an arbitrary timestamp to repair an application type mismatch.
+- **Handle database conflicts by SQLSTATE.** A verified statement failure exposes its five-character
+  PostgreSQL code on `error.code`, such as `23505` for a duplicate or `23P01` for an exclusion conflict.
+  SQL text, row values and provider messages are not returned. Only serialization failure `40001`
+  and deadlock `40P01` are marked retryable; retry the whole transaction within a bound. Transport
+  failures remain `database_unavailable` and must not be mistaken for a rejected business action.
 - **Never detect the platform by probing a method.** A Workers service binding is a proxy, so
   `typeof binding.anything === "function"` is true for every name, including methods the receiver
   does not implement. The call then fails at runtime with an unimplemented-method error. Detect the

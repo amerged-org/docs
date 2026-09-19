@@ -11,7 +11,7 @@ Start in the directory of the GitHub app you want to deploy. You need its pushed
 
 Your agent uses the [get-started Skill](https://ohmyho.st/skills/ohmyhost-get-started/SKILL.md). It first checks what is installed and whether you are signed in, installs the current CLI/MCP only if required, and then gives you one sign-in link. Open it, sign in or create your account on that page, and tell the agent when you are done. It confirms the result with `identity_get` or `ohmyhost whoami --json`.
 
-Your first sign-in creates **My workspace**. Reuse it. If you already have projects, select the existing project instead of creating another.
+Read the organizations returned by `whoami` and reuse the workspace for this app. If none exists, create one through the get-started Skill. If you already have projects, select the existing project instead of creating another.
 
 ## 2. Inspect the application
 
@@ -23,15 +23,17 @@ The result identifies the framework, requirements and concrete blockers. Resolve
 
 For data-backed apps, choose isolated Dev/Prod databases and files or explicitly shared data. Isolation is recommended; two databases consume credits independently. [How environments work](/environments).
 
+For a new project, choose **US or EU** before creation. An explicit choice overrides any browser-location suggestion; an existing project's region is preserved. US is the API default when no region is supplied. EU places the project's database, files and builds in the EU, with the application next to its database. The region cannot be changed later and prices are identical. Transactional mail uses the platform's mail region. A cloud agent's own IP address does not establish your preferred hosting region.
+
 ## 3. Connect the selected GitHub repository
 
-The agent creates or selects the project, then uses `source_link`. Open its GitHub authorization link and allow the selected repository. When requested, install the GitHub App for that repository first.
+The agent reads the selected workspace's `github_status`. If needed, `github_connect` provides one browser link for the installation/user authorization. Open it in the GitHub account that has repository access. The agent repeats that same connect request/key after consent until the connection is confirmed.
 
-After consent, the agent repeats the original link request and key. This confirms access; it does not start a build. [Exact CLI sequence](/cli#connect-and-deploy).
+It then creates or selects the project and uses `source_link` for a covered repository. This returns a normal operation without another browser authorization and does not start a build. If the repository is missing, add it through `connection.settings_url` from GitHub status and repeat the same source-link request/key. [Exact CLI sequence](/cli#connect-and-deploy).
 
 ## 4. Review and deploy
 
-The agent plans the exact pushed commit and shows the required services, estimated credit effects and missing configuration. It sets needed private application secrets through the supported stdin flow, then executes that plan with one saved idempotency key.
+The agent plans the exact pushed commit and shows the required services, estimated credit effects and missing configuration. It sets needed private application secrets through the supported stdin flow, then executes that plan with one saved idempotency key. [Published usage rates](/pricing) explain what each measured resource costs.
 
 The response supplies an operation ID. The agent observes that operation until it succeeds or returns an actionable error. A network timeout does not cancel it and is not a reason to create another project or deployment.
 

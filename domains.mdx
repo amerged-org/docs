@@ -11,6 +11,12 @@ ohmyhost domain paid plan --project "$PROJECT_ID" --hostname app.example.com --j
 
 Review the plan, then apply it through `domain_paid_apply` or its CLI command. Keep the same hostname and idempotency key when an interrupted apply needs replay.
 
+```sh
+ohmyhost domain paid apply --project "$PROJECT_ID" --hostname app.example.com --idempotency-key "$DOMAIN_REQUEST_KEY" --yes --json
+```
+
+This first apply establishes the project's hostname and can return manual records while DNS authorization is missing. Asking for Cloudflare authorization before the project has a matching domain returns `cloudflare_zone_not_bound`; complete this domain step rather than retrying OAuth.
+
 ## Cloudflare-hosted DNS
 
 We prefer Cloudflare because the supported authorization flow can apply the required records:
@@ -20,7 +26,14 @@ ohmyhost domain cloudflare authorize --project "$PROJECT_ID" --zone example.com 
 ohmyhost domain cloudflare status --project "$PROJECT_ID" --json
 ```
 
-Open the private authorization URL in the Cloudflare account that owns the zone. Read back the authorized zone and expiry, then apply the requested records through the normal project operation. Authorization alone does not make DNS or HTTPS ready.
+Open the private authorization URL in the Cloudflare account that owns the zone. Read back the authorized zone and expiry, then repeat the original apply with exactly the same hostname and key:
+
+```sh
+ohmyhost domain paid apply --project "$PROJECT_ID" --hostname app.example.com --idempotency-key "$DOMAIN_REQUEST_KEY" --yes --json
+ohmyhost domain paid status --project "$PROJECT_ID" --json
+```
+
+The sequence is plan, apply, authorize, authorization status, the same apply, then domain status. Authorization alone does not make DNS or HTTPS ready.
 
 ## Other DNS providers
 
@@ -34,3 +47,5 @@ ohmyhost mail domain status --project "$PROJECT_ID" --json
 ```
 
 DNS, HTTPS and sender DKIM have separate statuses. Follow the returned next-check time; while pending, ask your agent to check again after 60 minutes. Keep the original deployment and do not rebuild to poll DNS. [Email](/email) · [Project context](/project-context).
+
+When the final hostname is ready, configure it as the application's trusted public origin and update its auth callback/logout URLs. Verify login and one protected action there. A host-only session cookie may require a fresh login after changing domains; do not widen cookie domains or trust arbitrary request hosts to mask incorrect configuration.

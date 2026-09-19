@@ -3,13 +3,13 @@ title: "CLI"
 description: "Install the public clients and deploy a GitHub commit with real commands."
 ---
 
-import InstallClients from '/snippets/install-clients.mdx';
+import InstallClients from "/snippets/install-clients.mdx";
 
 ## Install and sign in
 
 <InstallClients />
 
-Run `ohmyhost login --json` and open the returned sign-in URL. The link already carries its confirmation code, so you do not type one. Sign in there, or create your account on that same page if you do not have one yet; signing up is open. Your first sign-in creates **My workspace**. Use the organization returned by `whoami`; when several are available, select the one for this project.
+Run `ohmyhost login --json` and open the returned sign-in URL. The link already carries its confirmation code, so you do not type one. Sign in there, or create your account on that same page if you do not have one yet; signing up is open. Use the organizations returned by `whoami`; when several are available, select the one for this project. If none exists, create one through the get-started Skill.
 
 ## Authenticate
 
@@ -20,7 +20,7 @@ The CLI accepts two credentials and picks in this order:
 
 `OHMYHOST_TOKEN` wins whenever it is set; the saved session is not read at all. If the value is not a valid `sk_…` token the command fails with `invalid_environment_token` and does not fall back.
 
-Four things need the interactive login and refuse a token: `login`, `logout`, `organization create`, and `token create|list|revoke`. Run those in a shell where `OHMYHOST_TOKEN` is unset. Everything else on this page runs on a token alone.
+These commands need the interactive login and refuse a token: `login`, `logout`, `organization create|list|use`, and `token create|list|revoke`. Run those in a process without `OHMYHOST_TOKEN`; preserve the existing private token file. Other commands use the token's current permissions and workspace role.
 
 ## Inspect and select a project
 
@@ -31,10 +31,10 @@ ohmyhost init --dry-run --json
 ohmyhost project list --json
 ```
 
-Resolve actual blockers. Reuse an existing project, or create one after choosing isolated or shared data:
+Resolve actual blockers. Reuse an existing project, or create one after choosing isolated or shared data and setting `HOSTING_REGION` to the chosen `us` or `eu`:
 
 ```sh
-ohmyhost project create --organization "$ORGANIZATION_ID" --name "My app" --data-mode isolated --idempotency-key "$PROJECT_REQUEST_KEY" --json
+ohmyhost project create --organization "$ORGANIZATION_ID" --name "My app" --data-mode isolated --region "$HOSTING_REGION" --idempotency-key "$PROJECT_REQUEST_KEY" --json
 ohmyhost operation get "$PROJECT_OPERATION_ID" --json
 ohmyhost project list --json
 ```
@@ -43,13 +43,22 @@ ohmyhost project list --json
 
 ## Connect and deploy
 
-Set `GITHUB_OWNER` and `GITHUB_REPOSITORY` to the repository you selected. Retain one unique `SOURCE_REQUEST_KEY` for this connection:
+Read the workspace's GitHub connection first. If it is not connected, an Owner or Admin runs connect:
+
+```sh
+ohmyhost github status --organization "$ORGANIZATION_ID" --json
+ohmyhost github connect --organization "$ORGANIZATION_ID" --idempotency-key "$GITHUB_CONNECT_KEY" --json
+```
+
+Open its single `authorization.authorization_url`, then repeat the same connect request/key after browser confirmation until status is `connected`. This link handles installation/user authorization when needed. A failed or expired attempt needs the reported `last_failure` resolved and a new connect key for the same workspace.
+
+Set `GITHUB_OWNER` and `GITHUB_REPOSITORY` to a repository covered by that installation. Retain one unique `SOURCE_REQUEST_KEY` for this source link:
 
 ```sh
 ohmyhost link --project "$PROJECT_ID" --repository-owner "$GITHUB_OWNER" --repository-name "$GITHUB_REPOSITORY" --idempotency-key "$SOURCE_REQUEST_KEY" --json
 ```
 
-If the result is `authorization_required`, open `authorization.installation_url` if installation is needed and then `authorization.authorization_url`. After consent, repeat the exact command/key. Wait for `completed`.
+Observe the returned source-link operation; it needs no second browser authorization for a covered repository. Missing access is repaired through `github.connection.settings_url` returned by GitHub status, then the same link command/key. No build starts until you deploy a plan.
 
 Use the full SHA of the pushed commit as `COMMIT_SHA`:
 

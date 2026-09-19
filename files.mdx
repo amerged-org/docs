@@ -1,0 +1,35 @@
+---
+title: "Private application files"
+description: "Upload, inspect, read and clean up files through the managed storage client."
+---
+
+Declare private storage only when the application needs it. `storage.jurisdiction` in `ohmyhost.yaml` must match the project's chosen US or EU region. Run `ohmyhost init --dry-run --json` after adding the capability; the inspection reports a missing runtime client instead of treating configuration alone as a working upload.
+
+## Use the private runtime client
+
+Import `createPrivateStorageClient` from `@ohmyhost/customer-runtime/storage` and configure it from the hosted environment:
+
+```ts
+const files = createPrivateStorageClient({
+  endpoint: env.OHMYHOST_STORAGE_GATEWAY_URL,
+  key: env.OHMYHOST_STORAGE_KEY,
+  projectId: env.OHMYHOST_PROJECT_ID,
+  environmentId: env.OHMYHOST_ENVIRONMENT_ID,
+  fetch: (request) => env.OHMYHOST_STORAGE_GATEWAY.fetch(request),
+  capabilityFetch: (request) => fetch(request),
+});
+```
+
+The gateway URL supplies the request origin for its private Service Binding; it is not a public endpoint to fetch directly. The platform supplies the binding and storage key. There is no raw `FILES` bucket or customer-managed R2 credential to copy into the app.
+
+Use `upload`, or `reserveUpload` followed by its signed PUT and `completeUpload`. A pending completion still needs observation. `createSignedRead` provides a short-lived read capability; `deleteObject` releases stored quota. Keep signed URLs and keys out of source, logs and project notes.
+
+## Browser uploads and inspection
+
+If the application's browser policy permits only same-origin requests, use a bounded application upload route. Bind an opaque capability to an authorized reservation, tenant, expected MIME, size and expiry. The route forwards bytes through the private storage client; provider URLs and keys stay on the server. Replaying the same completed upload can confirm success without writing again; different bytes must not replace it.
+
+For files that require inspection, use a separate staging key for each upload capability. Read the staged ETag conditionally, inspect the bytes, write a distinct final object and verify its metadata before committing the application record. Retain staging until the commit is durable. A bounded [scheduled cleanup](/functions) removes abandoned or completed staging objects and preserves final originals.
+
+Keep the file limit consistent across the browser, route, storage adapter, decoder and downstream service. The smallest limit in that processing chain governs acceptance. Close database connections before file transfers or provider calls. Private original downloads remain authorized and bounded; use conditional reads and validate byte ranges where supported. A signed GET capability must not be reused as an unsigned HEAD request.
+
+Verify one real upload, the resulting private read and any required processing. A healthy homepage or a stored file alone does not prove the complete feature works. [Usage rates](/pricing) · [Runtime secrets](/secrets).

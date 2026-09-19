@@ -10,11 +10,19 @@ ohmyhost database compute get --project "$PROJECT_ID" --environment dev --json
 ohmyhost database compute get --project "$PROJECT_ID" --environment prod --json
 ```
 
-| Profile | Compute | Memory | Idle suspension |
-| --- | --- | --- | --- |
-| Free standard | 0.25 CU | 1 GB | 60 seconds |
-| Paid standard | 0.5 CU | 2 GB | 60 seconds |
-| Paid performance | 1 CU | 4 GB | 300 seconds |
+Application requests use `createPrivateDatabaseClient` from `@ohmyhost/customer-runtime/database`. Use `withConnection` for a read-decide-write transaction; one scope permits 100 statements, 30 seconds total and five seconds idle, with two held connections per project environment. Complete a short claim and close the connection before a file transfer, email or AI call, then open a new short transaction to store the result.
+
+SQL `DATE` values are `YYYY-MM-DD` strings. Keep calendar days free of timezone conversion; timestamp values retain their existing decoding. [Application database examples](https://ohmyho.st/skills/ohmyhost-build-portable-app/references/database-runtime.md).
+
+Verified statement failures expose their five-character PostgreSQL SQLSTATE on `error.code`, so applications can distinguish duplicate (`23505`) and exclusion (`23P01`) conflicts. SQL, row values and provider messages stay private. Only serialization failures (`40001`) and deadlocks (`40P01`) are marked retryable; retry the whole transaction within a bound. Transport failures remain `database_unavailable` and do not prove that a write was rejected.
+
+The offline `init` scan can also report socket drivers or database URLs in tests and bootstrap tools. Inspect each reported file and the actual hosted entrypoint before changing it: offline tools may use temporary direct credentials, while hosted requests must use the private binding. A local development adapter needs an explicit local-only mode and validated loopback configuration. An RPC import alone does not establish that another driver is unreachable; verify the built artifact and the real hosted request. Do not remove required bootstrap or tests merely to silence the source scan.
+
+| Profile          | Compute | Memory | Idle suspension |
+| ---------------- | ------- | ------ | --------------- |
+| Free standard    | 0.25 CU | 1 GB   | 60 seconds      |
+| Paid standard    | 0.5 CU  | 2 GB   | 60 seconds      |
+| Paid performance | 1 CU    | 4 GB   | 300 seconds     |
 
 Performance costs 2.5 times Paid standard database-compute credits for equal active duration. Its longer idle window can also add active minutes. Storage and retained history consume credits independently of suspended compute.
 
@@ -89,12 +97,12 @@ ohmyhost database psql --project "$PROJECT_ID" --environment dev --mode write
 
 MCP exposes `database_access_create` (`mode: "write"` requires `confirmed: true`), `database_access_list` and `database_access_revoke`; REST uses `POST`/`GET /v1/projects/{project_id}/database/access` and `DELETE /v1/projects/{project_id}/database/access/{access_id}`.
 
-| Setting | Values |
-| --- | --- |
-| Mode | `read` (default, read-only session) or `write` (the application's own INSERT/UPDATE/DELETE rights) |
-| Lifetime | `--ttl` 5 minutes to 24 hours, one hour by default |
-| Active credentials | at most three per project environment |
-| Database | `neondb`, TLS required (`sslmode=require`) |
+| Setting            | Values                                                                                             |
+| ------------------ | -------------------------------------------------------------------------------------------------- |
+| Mode               | `read` (default, read-only session) or `write` (the application's own INSERT/UPDATE/DELETE rights) |
+| Lifetime           | `--ttl` 5 minutes to 24 hours, one hour by default                                                 |
+| Active credentials | at most three per project environment                                                              |
+| Database           | `neondb`, TLS required (`sslmode=require`)                                                         |
 
 No mode can change schema or roles: schema changes remain versioned [GitHub migrations](/migrations), and application row-level security applies to these sessions exactly as it does to `database query` and `database write`. After expiry PostgreSQL refuses new logins and the platform ends remaining sessions and removes the role within 15 minutes. An open session wakes compute and is metered like any other database use, under the same credit grace and project Stop budgets. Revoke as soon as you are finished instead of waiting for expiry.
 

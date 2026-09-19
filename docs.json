@@ -49,11 +49,13 @@
             "group": "Operate",
             "pages": [
               "database",
+              "files",
               "domains",
               "email",
               "status",
               "troubleshooting",
               "usage",
+              "pricing",
               "budgets",
               "billing",
               "backups"
@@ -61,12 +63,7 @@
           },
           {
             "group": "Agent reference",
-            "pages": [
-              "project-context",
-              "feedback",
-              "limits",
-              "changelog"
-            ]
+            "pages": ["project-context", "feedback", "limits", "changelog"]
           },
           {
             "group": "Legal",
@@ -86,9 +83,7 @@
         "groups": [
           {
             "group": "Overview",
-            "pages": [
-              "api"
-            ]
+            "pages": ["api"]
           },
           {
             "group": "Endpoints",
@@ -115,15 +110,7 @@
     }
   },
   "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "cursor",
-      "vscode",
-      "download-spec"
-    ]
+    "options": ["copy", "view", "chatgpt", "claude", "cursor", "vscode", "download-spec"]
   },
   "footer": {
     "socials": {
