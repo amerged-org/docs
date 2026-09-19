@@ -33,8 +33,11 @@ const results = await database.transaction([
   and cannot open a socket: outbound `connect()` is disabled. Reading `HYPERDRIVE.connectionString`
   or constructing a `pg` `Pool` builds green, deploys, and then fails its health check with nothing
   to show for it.
-- **No read-then-decide-then-write in one transaction yet.** `transaction` takes statements decided
-  up front. A transaction whose later statements depend on earlier results is not available.
+- **Interactive transactions are bounded.** Use `database.withConnection(callback)` for read-decide-write
+  flows, sending `BEGIN`, your parameterized statements and `COMMIT` or `ROLLBACK` through the
+  callback's `connection.query({ text, values })`; the client closes the connection in `finally`.
+  Limits are two held connections per project environment, 100 statements, 30 seconds total and
+  five seconds idle; closing rolls back an uncommitted transaction.
 - **Never detect the platform by probing a method.** A Workers service binding is a proxy, so
   `typeof binding.anything === "function"` is true for every name, including methods the receiver
   does not implement. The call then fails at runtime with an unimplemented-method error. Detect the

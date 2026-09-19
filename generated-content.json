@@ -1,7 +1,7 @@
 {
-  "source_commit": "243fb01ada91d5d005686256a9a6a66bbab1fe43",
+  "source_commit": "a7b9e84f8aa524e2f19753e67571b518620740fc",
   "source_dirty": false,
-  "release": "0.1.4",
+  "release": "0.1.5",
   "files": [
     {
       "path": "skills/ohmyhost-build-portable-app/SKILL.md",
@@ -13,11 +13,11 @@
     },
     {
       "path": "skills/ohmyhost-build-portable-app/references/database-runtime.md",
-      "sha256": "6e188b033576a39367fdab9340578ccc8957ff2bd9d197c5d98e9a7dcc09a82d"
+      "sha256": "5bf3c3420f24fdb5f7a1db90d8fec387989d40f70cfb6a7c7b402b4ddae87937"
     },
     {
       "path": "skills/ohmyhost-build-portable-app/references/stack-contracts.md",
-      "sha256": "2c66c3ba68978c0edc96201b136de845048dfc4c712fa024f850a2f5bb5f1a5c"
+      "sha256": "ec6f0db131fce3f707b2495cb8bf5129ba1a113d8134d8594dc2dd79f19aebb2"
     },
     {
       "path": "skills/ohmyhost-deploy-github/SKILL.md",
@@ -65,11 +65,11 @@
     },
     {
       "path": "openapi.yaml",
-      "sha256": "c74a82deec5bec92d0718621236b7ced0832a1cc4438700c83f2eb0993730189"
+      "sha256": "b8bdf2a468fd05b2584028b03a1bcf47d4fe127e1f38fbd1e3dffeb8296fadcd"
     },
     {
       "path": "openapi.json",
-      "sha256": "85a8071b56abcccc433f9e71a659cad401ca9e22b57f42c864af428b0fcb3987"
+      "sha256": "4a1fb6d9555a08c382f19067aaedc341c282a65c35a4354689b2f37c5b3ffc9f"
     },
     {
       "path": "mcp-tools.json",
@@ -81,11 +81,11 @@
     },
     {
       "path": "snippets/install-clients.mdx",
-      "sha256": "a439fa5bb2132e6bbc3a03f67ba68064f14e95c481cb3711db9f27808eda4eea"
+      "sha256": "fc7ebf645d872ecf6103977042f0be5f391a3948dd63337f1fd482335371d615"
     },
     {
       "path": "snippets/install-sdk.mdx",
-      "sha256": "8eecc70792fb4319c3d15d9215f1d7ca4b172be9bb060f9ae1908497589376f2"
+      "sha256": "507e8a16293b68b2c6b4dc7896348408b4c9244b9edb4b9bccc22f57073f640f"
     },
     {
       "path": "snippets/skill-catalog.mdx",

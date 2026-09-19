@@ -4553,6 +4553,9 @@ components:
         - created_at
         - updated_at
       properties:
+        blocking_operation_id:
+          description: The active operation holding this queued operation's project mutation claim.
+          $ref: "#/components/schemas/Ulid"
         id:
           $ref: "#/components/schemas/Ulid"
         state:
@@ -4814,6 +4817,7 @@ components:
           type: string
           enum:
             - operation_failed
+            - operation_abandoned
             - recovery_dispatch_failed
             - recovery_job_failed
             - recovery_input_expired
