@@ -6314,6 +6314,10 @@
               "repository_access_required",
               "authorization_code_rejected",
               "provider_unavailable",
+              "expired",
+              "session_inactive",
+              "denied",
+              "code_spent",
               null
             ]
           },
