@@ -1,7 +1,7 @@
 {
-  "source_commit": "86eff9854d33e531aa75fc392002bd6a2ae181dd",
+  "source_commit": "9db5b880368c271663c97b6829e76a6388d5a643",
   "source_dirty": false,
-  "release": "0.1.1",
+  "release": "0.1.2",
   "files": [
     {
       "path": "skills/ohmyhost-build-portable-app/SKILL.md",
@@ -61,11 +61,11 @@
     },
     {
       "path": "openapi.yaml",
-      "sha256": "6316228a163c55e4a2b13317a04d361274f65bd3c294bed726e07cfe27cd476d"
+      "sha256": "9bf255f6198587205a3c1810bb9555a528ed0b2ff5848c1eb8c06b97bec8a4ea"
     },
     {
       "path": "openapi.json",
-      "sha256": "d0db046a4e580ad10b3a31e0d92247797f188f95ebc46c3a07a0c8956b4fb3ce"
+      "sha256": "6739e7e60ef9092d933e8ef4084e5157a5ba87fb1c3fc6a3f8c12ceb9f1420d6"
     },
     {
       "path": "mcp-tools.json",
@@ -77,11 +77,11 @@
     },
     {
       "path": "snippets/install-clients.mdx",
-      "sha256": "09306481fc9701e1f111502cd0b1144e84ebb778ab01048255a52bbb4f01493a"
+      "sha256": "de15d960034a0757e3dea8c1c64fcae0147393d6db1ac32f95ff90b898220b69"
     },
     {
       "path": "snippets/install-sdk.mdx",
-      "sha256": "d64b2b5011a24ca03a3228ed3b11247c4cb20dcf18e6d44169a5ed72e1a9f42f"
+      "sha256": "ae86a1702f97adea32535372e5df94f611c5f923a0d118d088c928bb2e2f619c"
     },
     {
       "path": "snippets/skill-catalog.mdx",

@@ -3479,6 +3479,7 @@ components:
         [
           authorization_id,
           status,
+          last_failure,
           authorization_url,
           installation_url,
           expires_at,
@@ -3494,6 +3495,15 @@ components:
         status:
           type: string
           enum: [pending, authorizing, authorized, failed, expired]
+        last_failure:
+          type: [string, "null"]
+          description: Why the last callback did not finish. A pending authorization that carries one is resumable; resolve the named cause, then open authorization_url again without a new key.
+          enum:
+            - repository_not_installed
+            - repository_access_required
+            - authorization_code_rejected
+            - provider_unavailable
+            - null
         authorization_url:
           type: [string, "null"]
           format: uri
