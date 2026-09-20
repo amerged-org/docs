@@ -10,6 +10,8 @@ ohmyhost database compute get --project "$PROJECT_ID" --environment dev --json
 ohmyhost database compute get --project "$PROJECT_ID" --environment prod --json
 ```
 
+Use customer-runtime **0.1.8 or newer** for nested JSON results: depth is measured from each row, while the response envelope and all rows still share the same total budgets.
+
 Application requests use `createPrivateDatabaseClient` from `@ohmyhost/customer-runtime/database`. Use `withConnection` for a read-decide-write transaction; one scope permits 100 statements, 30 seconds total and five seconds idle, with two active database transactions per project environment. Standalone statements commit before their response; use explicit `BEGIN` and `COMMIT` for an atomic sequence. Closing rolls back an unfinished transaction, and transaction-local server timeouts release its slot if the caller disappears. Complete a short claim and close the connection before a file transfer, email or AI call, then open a new short transaction to store the result.
 
 JSON/JSONB object parameters work with customer-runtime **0.1.7 or newer**. Pass ordinary JavaScript objects, including nested objects and arrays, as parameters:

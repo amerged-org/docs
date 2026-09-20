@@ -1,7 +1,7 @@
 {
-  "source_commit": "98ceb7ad8af4ebafd6c6e2576f992ace951bc0c8",
+  "source_commit": "2606136c5bc7c56282a44eaa8bcdd579bc2a6939",
   "source_dirty": false,
-  "release": "0.1.7",
+  "release": "0.1.8",
   "files": [
     {
       "path": "snippets/credit-pricing-table.mdx",
@@ -17,7 +17,7 @@
     },
     {
       "path": "skills/ohmyhost-build-portable-app/references/database-runtime.md",
-      "sha256": "568f69f5f2080bb292c913726aa9315751de47c23d84ae42559f3c1bb0b5ab1d"
+      "sha256": "69a0bf60df7d20f8fb03222ba9d6e682bdfd524e3a59ec2bf39de7422d6de61c"
     },
     {
       "path": "skills/ohmyhost-build-portable-app/references/stack-contracts.md",
@@ -85,11 +85,11 @@
     },
     {
       "path": "snippets/install-clients.mdx",
-      "sha256": "13caf10b9af429228ea81cc5be772c019356be2122b26d44ebc5b40e0cb169df"
+      "sha256": "1c1f8e8ff47f9bb971a882e4b7fc705428f27ccac6be7296b03c94a5d47ac0e9"
     },
     {
       "path": "snippets/install-sdk.mdx",
-      "sha256": "75e101cedd004143579695c903b44b68de510d11b7dd8b47338d0644bad8c308"
+      "sha256": "3958d20531ec1ff690b5254b2096553d58bcd250e23b8de4590f9f7848ff4e40"
     },
     {
       "path": "snippets/skill-catalog.mdx",

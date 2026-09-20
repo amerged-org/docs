@@ -42,6 +42,9 @@ created null-prototype objects that Workers RPC rejected. Upgrade the pinned run
 lockfile when repairing that failure; keep the application's ordinary JSON parameter contract.
 When an app stores JSON, verify an actual JSON write/read through its hosted route as well as
 its health query. A scalar-only health query does not exercise object serialization.
+Use runtime **0.1.8 or newer** for nested JSON results: result depth starts at each row, matching
+the database Worker; the response envelope does not consume the row's depth allowance. Total
+response budgets and parameter limits remain unchanged.
 
 ## What you cannot do, and why
 
