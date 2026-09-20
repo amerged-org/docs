@@ -27,6 +27,22 @@ const results = await database.transaction([
 ]);
 ```
 
+For JSON/JSONB object parameters, use customer-runtime **0.1.7 or newer** and pass ordinary
+JavaScript objects, including nested objects and arrays:
+
+```ts
+const { rows } = await database.query({
+  text: "SELECT $1::jsonb AS settings",
+  values: [{ notifications: { channels: ["email"] } }],
+});
+```
+
+The client validates keys and size, then creates RPC-compatible plain objects. Version 0.1.6
+created null-prototype objects that Workers RPC rejected. Upgrade the pinned runtime URL and
+lockfile when repairing that failure; keep the application's ordinary JSON parameter contract.
+When an app stores JSON, verify an actual JSON write/read through its hosted route as well as
+its health query. A scalar-only health query does not exercise object serialization.
+
 ## What you cannot do, and why
 
 - **No connection string, no `pg`, no Hyperdrive.** A customer Worker never receives a database URL
@@ -36,8 +52,10 @@ const results = await database.transaction([
 - **Interactive transactions are bounded.** Use `database.withConnection(callback)` for read-decide-write
   flows, sending `BEGIN`, your parameterized statements and `COMMIT` or `ROLLBACK` through the
   callback's `connection.query({ text, values })`; the client closes the connection in `finally`.
-  Limits are two held connections per project environment, 100 statements, 30 seconds total and
-  five seconds idle; closing rolls back an uncommitted transaction.
+  Limits are two active database transactions per project environment, 100 statements, 30 seconds
+  total and five seconds idle; closing rolls back an uncommitted transaction. Standalone statements
+  commit before their response; use explicit `BEGIN` and `COMMIT` when several calls must be atomic.
+  Transaction-local timeouts release database slots even if the callback stops making requests.
 - **Keep provider work outside that scope.** Finish a small database claim, close its connection,
   transfer/process the bounded file or call the provider, then open a fresh short transaction to
   persist the outcome. Waiting for an upload or AI response consumes the connection's idle lease.

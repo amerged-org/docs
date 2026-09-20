@@ -10,7 +10,18 @@ ohmyhost database compute get --project "$PROJECT_ID" --environment dev --json
 ohmyhost database compute get --project "$PROJECT_ID" --environment prod --json
 ```
 
-Application requests use `createPrivateDatabaseClient` from `@ohmyhost/customer-runtime/database`. Use `withConnection` for a read-decide-write transaction; one scope permits 100 statements, 30 seconds total and five seconds idle, with two held connections per project environment. Complete a short claim and close the connection before a file transfer, email or AI call, then open a new short transaction to store the result.
+Application requests use `createPrivateDatabaseClient` from `@ohmyhost/customer-runtime/database`. Use `withConnection` for a read-decide-write transaction; one scope permits 100 statements, 30 seconds total and five seconds idle, with two active database transactions per project environment. Standalone statements commit before their response; use explicit `BEGIN` and `COMMIT` for an atomic sequence. Closing rolls back an unfinished transaction, and transaction-local server timeouts release its slot if the caller disappears. Complete a short claim and close the connection before a file transfer, email or AI call, then open a new short transaction to store the result.
+
+JSON/JSONB object parameters work with customer-runtime **0.1.7 or newer**. Pass ordinary JavaScript objects, including nested objects and arrays, as parameters:
+
+```ts
+const { rows } = await database.query({
+  text: "SELECT $1::jsonb AS settings",
+  values: [{ notifications: { channels: ["email"] } }],
+});
+```
+
+The client creates validated plain objects for Workers RPC. Runtime 0.1.6 instead created null-prototype objects that RPC rejected; update the pinned runtime package and lockfile to correct this. For an application that stores JSON, verify a JSON write/read through the hosted application, since a scalar-only health query does not exercise that path.
 
 SQL `DATE` values are `YYYY-MM-DD` strings. Keep calendar days free of timezone conversion; timestamp values retain their existing decoding. [Application database examples](https://ohmyho.st/skills/ohmyhost-build-portable-app/references/database-runtime.md).
 
