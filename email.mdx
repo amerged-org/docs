@@ -20,7 +20,20 @@ Do not recreate the sender or repeat correct records because DKIM is still propa
 
 ## Verify application delivery
 
-Use `createTransactionalMailClient` from `@ohmyhost/customer-runtime/mail` in server-side application code. Pass the supplied `OHMYHOST_MAIL_GATEWAY_URL`, `OHMYHOST_MAIL_KEY`, `OHMYHOST_PROJECT_ID` and `globalThis.fetch`. The platform's outbound worker forwards the permitted send through a private service binding; the application does not need its own mail service binding or a publicly reachable gateway.
+Use `createTransactionalMailClient` from `@ohmyhost/customer-runtime/mail` in server-side application code. A mail-enabled deployment supplies a private `OHMYHOST_MAIL_GATEWAY` Service Binding alongside the gateway URL, project ID and secret key. Resolve these values from your hosted framework request context or Worker `env`:
+
+```ts
+import { createTransactionalMailClient } from "@ohmyhost/customer-runtime/mail";
+
+const mail = createTransactionalMailClient({
+  endpoint: env.OHMYHOST_MAIL_GATEWAY_URL,
+  key: env.OHMYHOST_MAIL_KEY,
+  projectId: env.OHMYHOST_PROJECT_ID,
+  fetch: (request) => env.OHMYHOST_MAIL_GATEWAY.fetch(request),
+});
+```
+
+The Service Binding is an object, not a `process.env` string. The gateway URL supplies the request origin; it is not a public endpoint. Missing bindings are configuration errors. Do not retry through a different transport, disable placement or loosen egress rules to hide the failure. Managed mail works independently of your application's auth provider or database.
 
 Keep the idempotency key and message unchanged when checking or retrying an uncertain send. `accepted` means accepted for sending; it does not establish inbox delivery. Project permissions, sending limits and credit checks still apply.
 

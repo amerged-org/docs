@@ -25,6 +25,8 @@ Use `mail_domain_set` for the customer's chosen sender domain. Present the retur
 
 Read `mail_domain_status`: use `observed_at` and `verification_issue` to distinguish pending verification from an incorrect configuration. If it reports a missing tenant association, inspect the existing operation rather than editing DNS. Sender verification alone does not prove successful email delivery; verify a real application send and receipt when mail is required.
 
+For application sends, use the runtime mail client with its project ID, gateway URL and key, and route the client Fetch port through `env.OHMYHOST_MAIL_GATEWAY.fetch(request)`. Resolve this private Service Binding from the hosted request context; do not treat the gateway URL as a public endpoint or fall back to another transport after a failed send. Preserve the exact message and idempotency key when resolving an uncertain outcome. This transport is independent of the application's auth provider or database.
+
 ## Waiting and resuming
 
 Follow `next_check_after_seconds`; while DNS/DKIM/TLS is pending, tell the customer to ask their agent to check again after 60 minutes. This instruction does not schedule an automatic wake-up. If the customer already authorized a supported scheduler, it may perform the check.
