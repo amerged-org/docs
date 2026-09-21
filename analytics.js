@@ -8,7 +8,7 @@
   let loaded = false, lastPage = '', granted = consent() === 'v1.granted', footerButton;
   const placeSettings = () => {
     if (!footerButton) return;
-    const footer = document.querySelector('footer .fbot') || document.querySelector('footer, #footer');
+    const footer = document.querySelector('footer .fbot') || document.querySelector('#footer button[aria-label="Switch to system theme"]')?.parentElement || document.querySelector('#footer > div') || document.querySelector('footer, #footer');
     if (footer && footerButton.parentElement !== footer) footer.appendChild(footerButton);
   };
   globalThis['ga-disable-' + id] = !granted;
