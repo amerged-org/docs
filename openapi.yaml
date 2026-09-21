@@ -189,7 +189,7 @@ paths:
         "413": { $ref: "#/components/responses/Problem" }
         "429": { $ref: "#/components/responses/Problem" }
         "503": { $ref: "#/components/responses/Problem" }
-  /v1/beta/feature-interests:
+  /v1/site/feature-interests:
     parameters:
       - in: header
         name: X-Ohmyho-Voter
@@ -249,7 +249,7 @@ paths:
         "413": { $ref: "#/components/responses/Problem" }
         "429": { $ref: "#/components/responses/Problem" }
         "503": { $ref: "#/components/responses/Problem" }
-  /v1/beta/stats:
+  /v1/site/stats:
     get:
       operationId: getPublicDeploymentStats
       summary: Read distinct active projects successfully deployed in the past seven days
@@ -1170,6 +1170,41 @@ paths:
         "503":
           $ref: "#/components/responses/Problem"
       x-ohmyhost-resource-disclosure: indistinguishable-not-found
+  /v1/project-handles/{handle}:
+    get:
+      operationId: getProjectHandleAvailability
+      summary: Check whether a project handle is free
+      description: Reports whether a handle can be used for a project and why not when it cannot, with free alternatives an agent can offer. A handle is one to five lowercase words of letters and digits separated by single hyphens, three to fifty-nine characters, and never one of the reserved words. Availability is answered across all projects without revealing which organization holds a taken handle.
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+        - name: handle
+          in: path
+          required: true
+          description: The handle a customer would like to use.
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 120
+      responses:
+        "200":
+          description: Whether the handle is usable, and alternatives when it is not.
+          headers:
+            X-Request-Id:
+              $ref: "#/components/headers/XRequestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectHandleAvailability"
+        "400":
+          $ref: "#/components/responses/Problem"
+        "401":
+          $ref: "#/components/responses/Problem"
+        "403":
+          $ref: "#/components/responses/Problem"
+        "429":
+          $ref: "#/components/responses/Problem"
+        "503":
+          $ref: "#/components/responses/Problem"
   /v1/projects/{project_id}/dev-access-tickets:
     post:
       operationId: createProjectDevAccessTicket
@@ -4429,7 +4464,7 @@ components:
         name: { type: string }
         workos_organization_id: { type: string }
         plan: { type: string, enum: [free, paid] }
-        plan_source: { type: string, enum: [free, stripe, beta, manual] }
+        plan_source: { type: string, enum: [free, stripe, granted, manual] }
         paid_until: { type: [string, "null"], format: date-time }
         available_micros: { $ref: "#/components/schemas/CreditMicros" }
         monthly_micros: { $ref: "#/components/schemas/CreditMicros" }
@@ -4515,6 +4550,35 @@ components:
           type: string
           minLength: 1
           maxLength: 128
+    ProjectHandleAvailability:
+      type: object
+      additionalProperties: false
+      required:
+        - handle
+        - available
+        - alternatives
+      properties:
+        handle:
+          type: string
+          description: The handle exactly as it was asked about.
+        available:
+          type: boolean
+          description: True when a project may take this handle now.
+        reason:
+          type: string
+          description: Why the handle cannot be used. Absent when it is available.
+          enum:
+            - taken
+            - too_short
+            - too_long
+            - invalid_shape
+            - prohibited_word
+        alternatives:
+          type: array
+          description: Free handles to offer instead, empty when the handle is available.
+          maxItems: 5
+          items:
+            type: string
     ProjectStatus:
       type: object
       additionalProperties: false

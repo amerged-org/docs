@@ -3,7 +3,15 @@ title: "Connect a domain"
 description: "Use Cloudflare authorization or add the exact DNS records manually."
 ---
 
-Every project has a hosting address. A custom hostname requires Paid access. Use the real hostname you want to publish:
+Every project has a hosting address that the platform picks: a three-word handle served as `HANDLE.check.omh.st` for Prod and `dev-HANDLE.check.omh.st` for Dev. `ohmyhost project status` reports both. Before you name a specific address to someone, ask whether it is free:
+
+```sh
+ohmyhost project handle check --handle quiet-otter-waves --json
+```
+
+The answer says whether the handle is available, why it cannot be used (`taken`, `too_short`, `too_long`, `invalid_shape` or `prohibited_word`) and returns up to five free alternatives. Agents reach the same answer through MCP `project_handle_check` or `GET /v1/project-handles/{handle}`. Taking a chosen handle is not available yet — a project keeps the address it was given, so treat the check as a question about a name, not a reservation.
+
+A custom hostname requires Paid access. Use the real hostname you want to publish:
 
 ```sh
 ohmyhost domain paid plan --project "$PROJECT_ID" --hostname app.example.com --json

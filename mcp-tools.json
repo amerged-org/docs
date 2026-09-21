@@ -725,7 +725,7 @@
     },
     {
       "name": "organization_create",
-      "description": "Create an organization owned by the signed-in user and select it for this machine. Signup is open. signup_source is optional attribution from a link's r parameter, never a secret; omit it when the customer arrived directly. The server decides any once-per-user bonus; do not promise credits for arbitrary sources. Repeat the same name/source/key after uncertainty. No second login is needed: selected names the workspace every later call uses, so continue with identity_get and then projects. An OHMYHOST_TOKEN process cannot do this; it needs OHMYHOST_ENVIRONMENT=production ohmyhost login --json.",
+      "description": "Create an organization owned by the signed-in user and select it for this machine. Signup is open. signup_source is optional attribution from a link's r parameter, never a secret; omit it when the customer arrived directly. The server decides any once-per-user bonus; do not promise credits for arbitrary sources. Repeat the same name/source/key after uncertainty. No second login is needed: selected names the workspace every later call uses, so continue with identity_get, github_status and github_connect if needed, then projects. An OHMYHOST_TOKEN process cannot do this; it needs OHMYHOST_ENVIRONMENT=production ohmyhost login --json.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -772,7 +772,7 @@
     },
     {
       "name": "organization_use",
-      "description": "Select one workspace for this machine's stored login, so later calls act inside it. Read organization_list first; the identifier is the platform ULID, not the provider identifier. An OHMYHOST_TOKEN process cannot select anything and needs OHMYHOST_ENVIRONMENT=production ohmyhost login --json instead.",
+      "description": "Select one workspace for this machine's stored login, so later calls act inside it. Read organization_list first, then github_status for the selected workspace and github_connect if needed; the identifier is the platform ULID, not the provider identifier. An OHMYHOST_TOKEN process cannot select anything and needs OHMYHOST_ENVIRONMENT=production ohmyhost login --json instead.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -1221,6 +1221,29 @@
       }
     },
     {
+      "name": "project_handle_check",
+      "description": "Check whether a project address is free before offering it to the customer. A handle is one to five lowercase words of letters and digits joined by single hyphens, three to fifty-nine characters, and never a reserved word such as admin, api, dev or www; it becomes <handle>.check.omh.st for Prod and dev-<handle>.check.omh.st for Dev. The answer names why a handle cannot be used and returns free alternatives, so offer one of those instead of guessing again. Renaming an existing project is not available yet; this checks a name before you propose it.",
+      "inputSchema": {
+        "type": "object",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "handle": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "handle"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
       "name": "projects_list",
       "description": "List projects visible to the current identity",
       "inputSchema": {
@@ -1438,8 +1461,60 @@
       }
     },
     {
+      "name": "github_connect",
+      "description": "Owner or Admin: connect GitHub once for this workspace. Give authorization_url to the customer and repeat identical arguments and key to observe completion. One connection covers subsequent source_link calls; no provider token is returned. Failed or expired attempts require a fresh key for this same workspace, never a new project.",
+      "inputSchema": {
+        "type": "object",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "organization_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "required": [
+          "organization_id",
+          "idempotency_key"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
+      "name": "github_status",
+      "description": "Read this workspace's GitHub connection. If not_connected or revoked, an Owner or Admin must run github_connect. A connected installation covers only repositories selected in its settings.",
+      "inputSchema": {
+        "type": "object",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "organization_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "required": [
+          "organization_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
       "name": "source_link",
-      "description": "Authorize one GitHub repository for this project. If pending, show installation_url when the App is not installed for the repository, then authorization_url for customer consent. Repeat the identical arguments/key afterward to read the source-link operation_id. Wait for that operation before planning a deploy. This never starts a build; never ask the customer for an installation ID or GitHub token. Failed/expired authorization needs a fresh key, not a new project.",
+      "description": "Link a repository covered by the workspace GitHub connection. Call github_status first and github_connect once if needed. This returns an operation without another browser consent and never starts a build. Wait for that operation before planning a deploy. If repository access is missing, update the installation using the returned settings action, then retry the same project and key. Never ask for an installation ID or provider token.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",

@@ -3,7 +3,7 @@ title: "Purchases, invoices and auto-recharge"
 description: "See the real plan and credit buckets, then manage explicitly authorized payments."
 ---
 
-[Billing](https://app.ohmyho.st/billing) shows effective Free/Paid access, monthly credits with their expiry and non-expiring one-time credits. A Beta badge means Paid features were granted; it does not represent a Stripe subscription or add another monthly Paid allowance.
+[Billing](https://app.ohmyho.st/billing) shows effective Free/Paid access, monthly credits with their expiry and non-expiring one-time credits. A Granted badge means Paid features were granted; it does not represent a Stripe subscription or add another monthly Paid allowance.
 
 ## Make a purchase
 
@@ -58,7 +58,7 @@ Do not disable tax, discard the invoice, create another subscription/top-up or r
 
 ## Manage payment details
 
-The recharge response includes `portal_available`. When it is `true`, the workspace has a Stripe customer and Billing shows **Manage in Stripe**; Beta access alone does not create a Stripe customer.
+The recharge response includes `portal_available`. When it is `true`, the workspace has a Stripe customer and Billing shows **Manage in Stripe**; A granted entitlement alone does not create a Stripe customer.
 
 ```sh
 ohmyhost billing portal --organization "$ORGANIZATION_ID" --json

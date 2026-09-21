@@ -63,6 +63,8 @@ Read <https://ohmyho.st/llms.txt> and the [CLI/MCP installation guide](https://d
 
 Read [harness setup](references/harness-setup.md) and register the local `ohmyhost-mcp` command with this harness's documented settings. Preserve other MCP servers, model choices and permission settings. Use `OHMYHOST_ENVIRONMENT=production` for CLI and MCP unless the customer explicitly selected the development platform.
 
+Every CLI command and MCP tool is listed in [surfaces](references/surfaces.md); use it to find the exact name of a capability a customer asks for instead of guessing or assuming it is missing.
+
 Reload the MCP connection after every install or upgrade, then verify `tools/list` and `resources/list`. A running server keeps the tool list it started with, so a freshly installed version is invisible until it restarts. Repeat Step 1 afterwards.
 
 ## Step 3 — the customer signs in once
