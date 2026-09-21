@@ -9,7 +9,18 @@ Every project has a hosting address that the platform picks: a three-word handle
 ohmyhost project handle check --handle quiet-otter-waves --json
 ```
 
-The answer says whether the handle is available, why it cannot be used (`taken`, `too_short`, `too_long`, `invalid_shape` or `prohibited_word`) and returns up to five free alternatives. Agents reach the same answer through MCP `project_handle_check` or `GET /v1/project-handles/{handle}`. Taking a chosen handle is not available yet — a project keeps the address it was given, so treat the check as a question about a name, not a reservation.
+The answer says whether the handle is available, why it cannot be used (`taken`, `too_short`, `too_long`, `invalid_shape` or `prohibited_word`) and returns up to five free alternatives. Agents reach the same answer through MCP `project_handle_check` or `GET /v1/project-handles/{handle}`.
+
+Once a handle is free, move the project onto it:
+
+```sh
+ohmyhost project handle set --project "$PROJECT_ID" --handle quiet-otter-waves \
+  --if-match "$PROJECT_ETAG" --idempotency-key rename-1 --json
+```
+
+`$PROJECT_ETAG` is the `etag` from `ohmyhost project status`. The command returns an operation: both gateways are re-published at the new address, and the new handle is stored only once Dev and Prod serve it. Follow it with `ohmyhost operation get` and wait for success before you quote the new URL. Agents use MCP `project_handle_set` or `PUT /v1/projects/{project_id}/handle`.
+
+The old address stops answering as soon as the rename succeeds, and the name returns to the pool for any project to claim — links you already shared with it break, so rename before you publish an address, not after. A rename is refused while another operation is running for the project, for an address that is taken or unusable, and for the address the project already has. A Dev access link created before the rename points at the old Dev address and stops working with it; create a new one afterwards.
 
 A custom hostname requires Paid access. Use the real hostname you want to publish:
 

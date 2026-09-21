@@ -87,6 +87,7 @@ ohmyhost project dev-access create --project "$PROJECT_ID" --json
 ```sh
 ohmyhost project context --project "$PROJECT_ID" --json
 ohmyhost project handle check --handle quiet-otter-waves --json
+ohmyhost project handle set --project "$PROJECT_ID" --handle quiet-otter-waves --if-match "$PROJECT_ETAG" --idempotency-key rename-1 --json
 ohmyhost credits account --organization "$ORGANIZATION_ID" --json
 ohmyhost budget get --project "$PROJECT_ID" --json
 ```
