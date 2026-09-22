@@ -4754,6 +4754,7 @@ components:
             - mail_domain_required
             - storage_jurisdiction_conflict
             - framework_conversion_required
+            - repository_configuration_missing
             - migration_filename_noncanonical
             - environment_secret_mutation_blocked
             - workers_runtime_incompatible

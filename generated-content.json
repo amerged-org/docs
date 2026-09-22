@@ -1,5 +1,5 @@
 {
-  "source_commit": "dc2bd45a281cc2d73ad058f2e472e71bdc4b4879",
+  "source_commit": "f820b8790872a654d7c56a26442e5475c0449f46",
   "source_dirty": false,
   "release": "0.1.13",
   "files": [
@@ -13,7 +13,7 @@
     },
     {
       "path": "skills/ohmyhost-build-portable-app/references/cli-deploy.md",
-      "sha256": "bef07b50e1f1ef350d1bde1b17f79b9c9ea778d888da14b3ed668f94e6b18ef7"
+      "sha256": "ffdd5d231011d7220c33a8b63aa8d19d1c39dcfbdc76e1cc1c2dd8c0002b624f"
     },
     {
       "path": "skills/ohmyhost-build-portable-app/references/database-runtime.md",
@@ -73,11 +73,11 @@
     },
     {
       "path": "openapi.yaml",
-      "sha256": "4f7508271f9b76e4cf3e891f91c91dc6de581d3665da1849ed3946331849fbff"
+      "sha256": "a87a082a705fff03df03a0da822a09a13e19300bbd964eacda3fd1643e669c5e"
     },
     {
       "path": "openapi.json",
-      "sha256": "9f614441ec18b5b0723e55eec4022782add142216bd82606f7dcb92529e07510"
+      "sha256": "9c7958e25e2aea2e0d05bd64630f9e130e6b7b1f82f3216fa739b482a39387fc"
     },
     {
       "path": "mcp-tools.json",
