@@ -2742,6 +2742,82 @@
         "x-ohmyhost-resource-disclosure": "indistinguishable-not-found"
       }
     },
+    "/v1/projects/{project_id}/handle": {
+      "put": {
+        "operationId": "changeProjectHandle",
+        "summary": "Move a project to a chosen address",
+        "description": "Starts a durable operation that re-publishes the project's Dev and Prod gateways at the chosen address and stores it only once both serve it. The previous address stops answering and returns to the pool for any project to claim. Ask GET /v1/project-handles/{handle} first; a taken, unusable or unchanged address is refused before any gateway moves, and a project with an operation in flight is refused until it finishes.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/ProjectId"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/IfMatch"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "handle"
+                ],
+                "properties": {
+                  "handle": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 59,
+                    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+){0,4}$",
+                    "description": "One to five lowercase words of letters and digits."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/AcceptedOperation"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/ResourceNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/IdempotencyConflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-ohmyhost-idempotency": {
+          "canonicalRequestVersion": "v1",
+          "identicalRequest": "replay-stored-response",
+          "changedRequest": "409-idempotency-key-reused"
+        },
+        "x-ohmyhost-resource-disclosure": "indistinguishable-not-found"
+      }
+    },
     "/v1/projects/{project_id}/domains": {
       "put": {
         "operationId": "configureProjectDomains",
@@ -7342,12 +7418,12 @@
           "origin": {
             "type": "string",
             "format": "uri",
-            "pattern": "^https://dev-[a-z]+-[a-z]+-[a-z]+\\.(?:dev\\.)?check\\.omh\\.st$"
+            "pattern": "^https://dev-[a-z0-9]+(?:-[a-z0-9]+){0,4}\\.(?:dev\\.)?check\\.omh\\.st$"
           },
           "redeem_url": {
             "type": "string",
             "format": "uri",
-            "pattern": "^https://dev-[a-z]+-[a-z]+-[a-z]+\\.(?:dev\\.)?check\\.omh\\.st/\\.ohmyhost/dev-access/redeem\\?stage=dev&ticket=[A-Za-z0-9_-]{43}$"
+            "pattern": "^https://dev-[a-z0-9]+(?:-[a-z0-9]+){0,4}\\.(?:dev\\.)?check\\.omh\\.st/\\.ohmyhost/dev-access/redeem\\?stage=dev&ticket=[A-Za-z0-9_-]{43}$"
           },
           "expires_at": {
             "type": "string",
@@ -8166,9 +8242,9 @@
           },
           "handle": {
             "type": "string",
-            "minLength": 5,
+            "minLength": 3,
             "maxLength": 59,
-            "pattern": "^[a-z]+-[a-z]+-[a-z]+$"
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+){0,4}$"
           },
           "data_mode": {
             "$ref": "#/components/schemas/ProjectDataMode"
@@ -8265,6 +8341,7 @@
         "additionalProperties": false,
         "required": [
           "project_id",
+          "etag",
           "handle",
           "region",
           "lifecycle",
@@ -8277,14 +8354,19 @@
           "cleanup_state"
         ],
         "properties": {
+          "etag": {
+            "type": "string",
+            "pattern": "^\"sha256-[a-f0-9]{64}\"$",
+            "description": "Optimistic-concurrency token for changing this project address; use it as If-Match on the handle endpoint."
+          },
           "project_id": {
             "$ref": "#/components/schemas/Ulid"
           },
           "handle": {
             "type": "string",
-            "minLength": 5,
+            "minLength": 3,
             "maxLength": 59,
-            "pattern": "^[a-z]+-[a-z]+-[a-z]+$"
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+){0,4}$"
           },
           "region": {
             "$ref": "#/components/schemas/HostingRegion"
@@ -8340,7 +8422,7 @@
               {
                 "type": "string",
                 "format": "uri",
-                "pattern": "^https://dev-[a-z]+-[a-z]+-[a-z]+\\.(?:dev\\.)?check\\.omh\\.st$"
+                "pattern": "^https://dev-[a-z0-9]+(?:-[a-z0-9]+){0,4}\\.(?:dev\\.)?check\\.omh\\.st$"
               },
               {
                 "type": "null"
@@ -8352,7 +8434,7 @@
               {
                 "type": "string",
                 "format": "uri",
-                "pattern": "^https://[a-z]+-[a-z]+-[a-z]+\\.(?:dev\\.)?check\\.omh\\.st$"
+                "pattern": "^https://[a-z0-9]+(?:-[a-z0-9]+){0,4}\\.(?:dev\\.)?check\\.omh\\.st$"
               },
               {
                 "type": "null"
@@ -8440,6 +8522,10 @@
               "migration_filename_noncanonical",
               "environment_secret_mutation_blocked",
               "workers_runtime_incompatible",
+              "project_handle_invalid",
+              "project_handle_taken",
+              "project_handle_unchanged",
+              "project_rename_blocked",
               "payload_too_large",
               "rate_limited",
               "insufficient_organization_credits",

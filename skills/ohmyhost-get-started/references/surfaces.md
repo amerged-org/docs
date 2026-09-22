@@ -41,6 +41,7 @@ and follow the returned schema rather than guessing arguments.
 - `ohmyhost project status` — ohmyhost project status --project ULID --json
 - `ohmyhost project dev-access create` — ohmyhost project dev-access create --project ULID --json
 - `ohmyhost project handle check` — ohmyhost project handle check --handle HANDLE --json (is this address free? answers with a reason and free alternatives; the address becomes HANDLE.check.omh.st)
+- `ohmyhost project handle set` — ohmyhost project handle set --project ULID --handle HANDLE --if-match ETAG --idempotency-key KEY --json (moves the project to a free address; the old one stops working and anyone may claim it)
 - `ohmyhost database compute set` — ohmyhost database compute set --project ULID --environment dev|prod --profile standard|performance --idempotency-key KEY --yes [--wait] --json
 
 - `ohmyhost database compute get` — ohmyhost database compute get --project ULID [--environment dev|prod] --json
@@ -98,7 +99,7 @@ and follow the returned schema rather than guessing arguments.
 - `project_export_create` — Owner-only: request an asynchronous password-encrypted SQL ZIP, including at zero credits.
 - `project_export_get` — Owner-only: read the original SQL ZIP export's progress/error and verified download URL.
 - `organization_usage_get` — Read posted UTC-month usage by project, environment and published meter/rate.
-- `organization_account_get` — Owner-only: read the effective Free/Paid plan, its Stripe/Beta/manual source, available monthly and non-expiring one-time credits, reservations and next expiry.
+- `organization_account_get` — Owner-only: read the effective Free/Paid plan, its Stripe or granted source, available monthly and non-expiring one-time credits, reservations and next expiry.
 - `organization_credits_get` — Read the owner's shared organization credit pool, seven-day grace_started_at/grace_expires_at and published rate_cards.
 - `project_budget_get` — Read the owner's project UTC-month budget, measured usage and open reservations.
 - `project_budget_set` — Set an owner's optional monthly project budget in microcredits (1000000 = one credit).
@@ -117,6 +118,7 @@ and follow the returned schema rather than guessing arguments.
 - `token_revoke` — Revoke one of your own API tokens after explicit confirmation and interactive login.
 - `identity_get` — Get the current ohmyho.st customer/agent identity.
 - `project_handle_check` — Check whether a project address is free before offering it to the customer.
+- `project_handle_set` — Move a project to an address the customer chose, after project_handle_check said it is free.
 - `projects_list` — List projects visible to the current identity
 - `feedback_submit` — Report a bug, suspected issue or feature request to ohmyho.st.
 - `project_create` — Create an ohmyho.st project.

@@ -607,7 +607,7 @@
     },
     {
       "name": "organization_account_get",
-      "description": "Owner-only: read the effective Free/Paid plan, its Stripe/Beta/manual source, available monthly and non-expiring one-time credits, reservations and next expiry. Beta/manual Paid features do not imply a Stripe subscription or extra monthly Paid allowance. This read grants no access or credits.",
+      "description": "Owner-only: read the effective Free/Paid plan, its Stripe or granted source, available monthly and non-expiring one-time credits, reservations and next expiry. Granted Paid features do not imply a Stripe subscription or extra monthly Paid allowance. This read grants no access or credits.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -1222,7 +1222,7 @@
     },
     {
       "name": "project_handle_check",
-      "description": "Check whether a project address is free before offering it to the customer. A handle is one to five lowercase words of letters and digits joined by single hyphens, three to fifty-nine characters, and never a reserved word such as admin, api, dev or www; it becomes <handle>.check.omh.st for Prod and dev-<handle>.check.omh.st for Dev. The answer names why a handle cannot be used and returns free alternatives, so offer one of those instead of guessing again. Renaming an existing project is not available yet; this checks a name before you propose it.",
+      "description": "Check whether a project address is free before offering it to the customer. A handle is one to five lowercase words of letters and digits joined by single hyphens, three to fifty-nine characters, and never a reserved word such as admin, api, dev or www; it becomes <handle>.check.omh.st for Prod and dev-<handle>.check.omh.st for Dev. The answer names why a handle cannot be used and returns free alternatives, so offer one of those instead of guessing again. Check the name here first, then move an existing project onto it with project_handle_set.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -1235,6 +1235,47 @@
         },
         "required": [
           "handle"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
+      "name": "project_handle_set",
+      "description": "Move a project to an address the customer chose, after project_handle_check said it is free. The Dev and Prod gateways are re-published at the new address and it is stored only once both serve it; the previous address stops answering and anyone may claim it, so a link already shared stops working. Needs the project's current ETag from project_status and one idempotency key; reuse the same key after an uncertain answer. Refused while another operation is running for the project, and refused for an address that is taken, unusable, or the one the project already has. Returns an operation to follow with operation_get.",
+      "inputSchema": {
+        "type": "object",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "handle": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 59
+          },
+          "if_match": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 128
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "required": [
+          "project_id",
+          "handle",
+          "if_match",
+          "idempotency_key"
         ]
       },
       "annotations": {
@@ -1859,7 +1900,7 @@
     },
     {
       "name": "mail_domain_set",
-      "description": "Configure the canonical transactional-mail sender domain. Requires effective Paid access. Read organization_account_get first: Stripe, Beta and manual grants all qualify; credit balance alone is not feature access. Only suggest a Paid Checkout when the account is Free and the owner wants to purchase. Reading existing configuration remains available.",
+      "description": "Configure the canonical transactional-mail sender domain. Requires effective Paid access. Read organization_account_get first: a Stripe subscription and a granted entitlement both qualify; credit balance alone is not feature access. Only suggest a Paid Checkout when the account is Free and the owner wants to purchase. Reading existing configuration remains available.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
