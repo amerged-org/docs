@@ -18,6 +18,12 @@ export default {
 
 `fetch` answers every request of the environment. The module receives the same bindings as a framework app: the application database, files, mail, [runtime secrets](/secrets) and the declared egress origins. There is no `build.command` and no `build.output`; `ohmyhost init --dry-run --json` reports a missing module as a blocker.
 
+## Returning HTML
+
+The gateway applies a strict Content Security Policy and supplies a fresh request nonce in `x-nonce`. Use that nonce on inline `<script>` and `<style>` elements in your own trusted templates. Inline `style` attributes and event-handler attributes are blocked: move them into nonced stylesheets and script listeners. Keep fonts, scripts and styles on the same origin; an external font link is not permitted by the browser policy. Never add a nonce to untrusted user markup or relax CSP to make a page render.
+
+Validate the rendered page in a real browser after deployment: styles, one interactive action, native form submission and session persistence after reload. An HTTP `200` alone does not prove any of these. Application login handlers must still validate the request origin, and session cookies should remain host-only, `Secure` and `HttpOnly`. After an address change, test a fresh login on the returned URL.
+
 ## Declare schedules
 
 ```yaml
