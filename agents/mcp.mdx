@@ -11,6 +11,8 @@ Use this server when the customer wants to deploy or update an authorized GitHub
 
 Start with `identity_get`, select the customer’s project using `projects_list`, then read `project_context_get` before acting. Configure only the capabilities the application needs and keep its chosen authentication provider. Use the matching [task Skill](/skills) for the workflow.
 
+For a new project, ask whether Dev should be protected or public before `project_create`; protected is the default. `project_dev_share_link_get` returns the Owner's reusable protected link. `project_dev_access_mode_set` changes the choice, while `project_dev_share_link_rotate` and `project_dev_share_link_revoke` immediately invalidate old protected access. [Dev access details](/environments#choose-who-can-open-dev).
+
 ## Install and sign in
 
 <InstallClients />

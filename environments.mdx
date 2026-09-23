@@ -12,6 +12,14 @@ Each project has Dev and Prod under one organization credit balance. Choose `iso
 
 Skills recommend isolation and explain the credit difference. An explicit customer choice to share is supported.
 
+## Choose who can open Dev
+
+Before creating a project, your agent asks whether Dev should be **protected** or **public**. Protected is the default. Public lets anyone with the clean Dev URL open it without a platform token, even when Dev and Prod use shared data. Your application's own login remains separate.
+
+For protected Dev, the Owner gets one reusable bearer link with `ohmyhost project dev-share link --project "$PROJECT_ID" --json` or MCP `project_dev_share_link_get`. The same `share_url` works for multiple visitors and has no automatic expiry. Opening it starts a 12-hour browser session and redirects to the clean Dev URL; the link can be opened again after that session ends. Keep it with the people you intend to admit, and do not put it in source, logs or project notes.
+
+The Owner can change the mode with `ohmyhost project dev-access mode --project "$PROJECT_ID" --mode public|protected --idempotency-key "$KEY" --yes --json` (MCP `project_dev_access_mode_set`). `ohmyhost project dev-share rotate` (MCP `project_dev_share_link_rotate`) replaces the link; `ohmyhost project dev-share revoke` (MCP `project_dev_share_link_revoke`) removes access until a new link is obtained. Both actions block old links and browser sessions on their next request. A revoked browser navigation goes to ohmyho.st without forwarding its path or token. The link never grants Prod or account administration access.
+
 ## Choose a hosting region once
 
 New projects choose US or EU. An explicit choice wins over any browser-location suggestion; with neither, the agent asks once and sends the chosen region explicitly. An existing project's region is preserved. The API default remains US, and the agent's own server IP is not the customer's location.
@@ -37,4 +45,4 @@ Review the result, including migration effects, then use the returned ETag and c
 
 Promotion reuses the verified artifact and applies versioned migrations. It does not copy Dev records or secrets into an isolated Prod database. Keep app secrets and callback URLs appropriate for each environment and verify existing Prod records after the change.
 
-[Schema migrations](/migrations) · [Database profiles](/database) · [Private Dev access](/cli#verify-progress-and-the-application).
+[Schema migrations](/migrations) · [Database profiles](/database) · [Dev access](/cli#verify-progress-and-the-application).

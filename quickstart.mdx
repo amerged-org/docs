@@ -23,6 +23,8 @@ The result identifies the framework, requirements and concrete blockers. Resolve
 
 For data-backed apps, choose isolated Dev/Prod databases and files or explicitly shared data. Isolation is recommended; two databases consume credits independently. [How environments work](/environments).
 
+Choose whether the Dev URL should be protected by a reusable share link (the default) or public without a platform token. The agent asks before creating a project and records the choice.
+
 For a new project, choose **US or EU** before creation. An explicit choice overrides any browser-location suggestion; an existing project's region is preserved. US is the API default when no region is supplied. EU places the project's database, files and builds in the EU, with the application next to its database. The region cannot be changed later and prices are identical. Transactional mail uses the platform's mail region. A cloud agent's own IP address does not establish your preferred hosting region.
 
 ## 3. Connect the selected GitHub repository
@@ -39,7 +41,7 @@ The response supplies an operation ID. The agent observes that operation until i
 
 ## 5. Verify the app
 
-The agent reads the URL from project status and obtains a private single-use Dev access link. Check navigation and, where used, application login and a real data read/write. A successful build alone is not the finished app.
+The agent reads `dev_access_mode` and the URL from project status. For protected Dev it obtains the persistent owner-only share link; for public Dev it opens the clean URL directly. Check navigation and, where used, application login and a real data read/write. A successful build alone is not the finished app.
 
 When you request publication, the agent creates a promotion plan and publishes the verified artifact to Prod. Isolated promotion applies migrations without copying Dev records into Prod.
 
