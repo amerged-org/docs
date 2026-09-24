@@ -8,9 +8,10 @@ and follow the returned schema rather than guessing arguments.
 ## CLI commands
 
 - `ohmyhost init` — ohmyhost init [--directory PATH] [--root PATH] [--project SLUG] [--region us|eu] [--dry-run] --json (pass the project's hosting region so storage.jurisdiction matches it; us when omitted)
-- `ohmyhost login` — ohmyhost login [--organization ULID] --json
-- `ohmyhost logout` — ohmyhost logout [--revoke] --json
-- `ohmyhost whoami` — ohmyhost whoami --json
+- `ohmyhost login` — ohmyhost login [--organization ULID] [--user USER_ID] [--profile-name NAME] --json (adds one saved login; nothing is saved unless the browser signed in as that user and organization)
+- `ohmyhost logout` — ohmyhost logout [--profile-name NAME] [--revoke] --json (removes only the selected saved login)
+- `ohmyhost whoami` — ohmyhost whoami [--profile-name NAME] --json (the effective user, organization and saved login)
+- `ohmyhost profile list` — ohmyhost profile list --json (saved logins on this computer: name, user and organization, never a token; pass --profile-name NAME or set OHMYHOST_PROFILE to choose one)
 - `ohmyhost github connect` — ohmyhost github connect --organization ULID --idempotency-key KEY --json (connect once, then link covered repositories without another browser consent)
 - `ohmyhost github status` — ohmyhost github status --organization ULID --json
 - `ohmyhost export create` — ohmyhost export create --project ULID --idempotency-key KEY --stdin --json (password on stdin only; one accepted SQL ZIP per project per 24 hours)
@@ -25,9 +26,9 @@ and follow the returned schema rather than guessing arguments.
 - `ohmyhost credits usage` — ohmyhost credits usage --organization ULID --month YYYY-MM [--cursor ULID] --json
 - `ohmyhost budget get` — ohmyhost budget get --project ULID --json
 - `ohmyhost budget set` — ohmyhost budget set --project ULID --credits NUMBER|none [--mode continue|stop] --idempotency-key KEY --json
-- `ohmyhost organization create` — ohmyhost organization create --name NAME --idempotency-key KEY [--source SOURCE] --json (SOURCE is optional attribution from a link's r value; the new workspace is selected immediately)
-- `ohmyhost organization list` — ohmyhost organization list --json (the workspaces you belong to and the selected one)
-- `ohmyhost organization use` — ohmyhost organization use --organization ULID --json
+- `ohmyhost organization create` — ohmyhost organization create --name NAME --idempotency-key KEY [--source SOURCE] --json (SOURCE is optional attribution from a link's r value; a login without organization is bound to the new workspace, another login keeps its own)
+- `ohmyhost organization list` — ohmyhost organization list [--profile-name NAME] --json (the workspaces of the chosen login's user and the one that login is scoped to)
+- `ohmyhost organization use` — ohmyhost organization use --organization ULID [--profile-name NAME] --json (binds a login that has no organization yet; another organization needs its own login)
 - `ohmyhost operation get` — ohmyhost operation get OPERATION_ULID --json
 - `ohmyhost operation reconcile` — ohmyhost operation reconcile OPERATION_ULID --idempotency-key KEY --yes --json
 - `ohmyhost token create` — ohmyhost token create --organization ULID --name NAME --idempotency-key KEY --out .env.local --json
@@ -117,9 +118,10 @@ and follow the returned schema rather than guessing arguments.
 - `organization_credits_get` — Read the owner's shared organization credit pool, seven-day grace_started_at/grace_expires_at and published rate_cards.
 - `project_budget_get` — Read the owner's project UTC-month budget, measured usage and open reservations.
 - `project_budget_set` — Set an owner's optional monthly project budget in microcredits (1000000 = one credit).
-- `organization_create` — Create an organization owned by the signed-in user and select it for this machine.
-- `organization_list` — List the workspaces the signed-in user belongs to and which one this machine currently uses.
-- `organization_use` — Select one workspace for this machine's stored login, so later calls act inside it.
+- `organization_create` — Create an organization owned by the signed-in user.
+- `organization_list` — List the workspaces the chosen login's user belongs to and which one that login is scoped to.
+- `organization_use` — Bind a saved login that has no organization yet to one workspace, so later calls act inside it.
+- `profile_list` — List the saved ohmyho.st logins on this computer: each has a name, a user and an organization, never a token.
 - `database_query` — Read one owner-authorized Dev or Prod database query (at most 100 rows, five-second timeout).
 - `database_write` — Execute one explicitly authorized INSERT, UPDATE or DELETE/upsert in the chosen Dev or Prod database.
 - `database_access_create` — Issue a time-bound PostgreSQL credential for this project's own Dev or Prod database.
@@ -130,7 +132,7 @@ and follow the returned schema rather than guessing arguments.
 - `token_create` — Create your own non-expiring API token after interactive login and save it to the selected private env file.
 - `tokens_list` — List your token metadata after interactive login.
 - `token_revoke` — Revoke one of your own API tokens after explicit confirmation and interactive login.
-- `identity_get` — Get the current ohmyho.st customer/agent identity.
+- `identity_get` — Get the ohmyho.st customer/agent identity this call acts as: user, organization and, in context, the saved login or OHMYHOST_TOKEN that supplied it.
 - `project_handle_check` — Check whether a project address is free before offering it to the customer.
 - `project_handle_set` — Move a project to an address the customer chose, after project_handle_check said it is free.
 - `projects_list` — List projects visible to the current identity

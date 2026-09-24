@@ -7,6 +7,6 @@ The API, CLI and MCP return `resource_not_found` with HTTP 404. Retrying the sam
 
 ## What to do
 
-Check the resource identifier.
+Check the resource identifier and the account: a project is visible only to its own organization, and error.acting_as names the login this ran as. Use the login of the account that owns it.
 
 Keep the `request_id` from the error when you [report the problem](/feedback).

@@ -7,6 +7,6 @@ The API, CLI and MCP return `github_connection_required` with HTTP 409. Retrying
 
 ## What to do
 
-Run 'ohmyhost github connect --organization ULID --idempotency-key KEY --json' for this workspace, complete its browser link, then repeat the original source link.
+This workspace has no GitHub connection yet. Run 'ohmyhost github connect --organization ULID --idempotency-key KEY --json' for it, complete its browser link, then repeat the original source link. If the project belongs to another account, use that account's login instead; error.acting_as names the login this ran as.
 
 Keep the `request_id` from the error when you [report the problem](/feedback).
