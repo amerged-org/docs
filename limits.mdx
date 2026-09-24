@@ -14,7 +14,7 @@ description: "Understand bounded requests, permissions and long-running operatio
 | Saved project notes | At most 250 lines / 16 KiB. |
 | SQL export | One accepted request per project per rolling 24 hours; 256 MiB plaintext maximum. |
 | Export download | Signed URL valid 24 hours; encrypted ZIP retained seven days. |
-| Private Dev access | Ten-minute single-use link; request only when needed. |
+| Protected Dev access | One persistent owner-managed share link without automatic expiry; each opening starts a browser session of at most 12 hours. Rotation or revocation blocks old links and sessions on their next request. Public Dev needs no link. |
 | Standard database compute | Free 0.25 CU / 1 GB / 60 s; Paid 0.5 CU / 2 GB / 60 s. |
 | Performance database compute | Paid 1 CU / 4 GB / 300 s; 2.5× compute credits per equal active duration. |
 
@@ -22,7 +22,7 @@ description: "Understand bounded requests, permissions and long-running operatio
 
 Product endpoints use the `/v1` route family. The CLI, SDK and MCP are released together under one version; `/v1` does not yet promise a stable interface.
 
-While the interface is young, request fields, commands and supported behavior can change without a guaranteed deprecation or sunset notice period. Pin the client release used by an automation, and review the [changelog](/changelog), [current release](https://ohmyho.st/client-release.json) and [OpenAPI contract](/api) before updating. A retained release archive keeps its original bytes and checksum; that does not freeze the server contract or guarantee that every older client remains compatible.
+While the interface is young, request fields, commands and supported behavior can change without a guaranteed deprecation or sunset notice period. Pin the client release used by an automation, and review the [changelog](/changelog), [current release](https://ohmyho.st/client-release.json) and [OpenAPI contract](/api) before updating. Only the current release is published; older release URLs return 404, so keep your own copy and checksum of an archive you pin. A pinned client does not freeze the server contract or guarantee that every older client remains compatible.
 
 ## Request failures
 
@@ -36,6 +36,6 @@ A `billing_issue` refers to an existing invoice. Follow its address-correction o
 
 The original operation is the source of progress. CLI `--wait` has a bounded local wait; the operation can continue afterward. MCP status tools return current observations. Follow the response's polling interval and stop on terminal state.
 
-For pending DNS/DKIM, the next check is normally after 60 minutes. A Skill instruction to poll does not schedule a future agent run. Arrange your harness's supported scheduler when authorized, or keep the operation ID and return the next command to the user.
+For pending mail verification, follow the returned `next_check_after_seconds`, currently 60 seconds. Custom-domain status returns no interval: check it again after DNS changes have had time to propagate rather than rebuilding. A Skill instruction to poll does not schedule a future agent run. Arrange your harness's supported scheduler when authorized, or keep the operation ID and return the next command to the user.
 
 [OpenAPI schemas](/api) contain the exact field, request and endpoint limits. [Status](/status) · [Export](/backups).

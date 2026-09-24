@@ -18,7 +18,7 @@ Read the stable error code, suggested action and any retry interval. Keep source
 | Result | Next action |
 | --- | --- |
 | Source blocker or conversion requirement | Inspect the exact source file/capability, fix it, push and plan that commit. |
-| `waiting_for_mail` | Read `mail_domain_status`; finish its required records or provisioning action. |
+| `waiting_for_mail` | Read `mail_status` (same as `mail_domain_status`) with the Prod environment ID; apply its required records. |
 | `reconciliation.required` | Review the operation and perform one confirmed reconciliation. |
 | `reconciliation.pending` | Wait and inspect the existing operation; do not submit another attempt. |
 | `error.code: build_failed` | Read the failed deployment's diagnostics: `ohmyhost deployment logs --project "$PROJECT_ID" --deployment "$DEPLOYMENT_ID" --json` or MCP `deployment_logs`. The `BUILD_FAILED` item carries `excerpt`, the sanitized tail of your own install/build output (newest lines last; `excerpt_truncated` means earlier output was omitted). Fix that cause, push and create a new plan for the same project. |

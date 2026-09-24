@@ -31,10 +31,10 @@ ohmyhost init --dry-run --json
 ohmyhost project list --json
 ```
 
-Resolve actual blockers. Reuse an existing project, or create one after choosing isolated or shared data and setting `HOSTING_REGION` to the chosen `us` or `eu`:
+Resolve actual blockers. Reuse an existing project, or create one after choosing isolated or shared data, protected or public Dev access, and setting `HOSTING_REGION` to the chosen `us` or `eu`:
 
 ```sh
-ohmyhost project create --organization "$ORGANIZATION_ID" --name "My app" --data-mode isolated --region "$HOSTING_REGION" --idempotency-key "$PROJECT_REQUEST_KEY" --json
+ohmyhost project create --organization "$ORGANIZATION_ID" --name "My app" --data-mode isolated --dev-access-mode protected --region "$HOSTING_REGION" --idempotency-key "$PROJECT_REQUEST_KEY" --json
 ohmyhost operation get "$PROJECT_OPERATION_ID" --json
 ohmyhost project list --json
 ```
@@ -77,10 +77,10 @@ ohmyhost deploy --project "$PROJECT_ID" --plan-id "$PLAN_ID" --idempotency-key "
 ```sh
 ohmyhost operation get "$OPERATION_ID" --json
 ohmyhost project status --project "$PROJECT_ID" --json
-ohmyhost project dev-access create --project "$PROJECT_ID" --json
+ohmyhost project dev-share link --project "$PROJECT_ID" --json
 ```
 
-`OPERATION_ID` is the deploy response's `operation.id`. A wait timeout leaves the accepted operation running; inspect it without submitting another deployment. Follow returned polling guidance. Open the private `redeem_url` once, then test the clean Dev URL; keep access links out of logs and project notes.
+`OPERATION_ID` is the deploy response's `operation.id`. A wait timeout leaves the accepted operation running; inspect it without submitting another deployment. Follow returned polling guidance. If `dev_access_mode` is `protected`, open the reusable `share_url` and then test the clean Dev URL. If it is `public`, open the clean Dev URL directly. Keep the share link out of logs and project notes. The Owner can change the mode with `ohmyhost project dev-access mode`, replace the link with `ohmyhost project dev-share rotate`, or revoke it with `ohmyhost project dev-share revoke`.
 
 ## Common follow-ups
 

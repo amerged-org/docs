@@ -1,26 +1,34 @@
 ---
 title: "Transactional email"
-description: "Set a sender domain, follow DKIM verification and verify delivery."
+description: "Configure your own sender domain, receive mail through a verified Prod webhook and verify delivery."
 ---
 
-Managed transactional email requires Paid access and a sender domain for the project. Use a sender subdomain where appropriate to preserve your existing inbox setup:
+Hosting has no mail prerequisite. Set up managed mail only when you want it or the application actually sends mail through ohmyho.st; a project, a Dev environment or an auth integration alone never needs a mail domain. Managed transactional email requires Paid access and a mail domain that you choose, configure and verify for the project. The automatic `check.omh.st` address does not enable sending, and ohmyho.st never sends your application's mail from a platform domain instead. Use a subdomain such as `mail.example.com` when your company inboxes already use the root domain. You never need a Resend account of your own.
+
+## Configure the mail domain
+
+A project has one mail domain, configured with its Prod environment ID from `ohmyhost project status`. Dev and Prod both send through that domain, each with its own application mail key; the Dev URL does not create a second mail domain.
 
 ```sh
-ohmyhost mail domain set --project "$PROJECT_ID" --domain mail.example.com --idempotency-key "$MAIL_REQUEST_KEY" --json
-ohmyhost mail domain status --project "$PROJECT_ID" --json
+ohmyhost mail setup --project "$PROJECT_ID" --environment "$PROD_ENVIRONMENT_ID" --domain mail.example.com --sending true --receiving false --idempotency-key "$MAIL_REQUEST_KEY" --json
+ohmyhost mail status --project "$PROJECT_ID" --environment "$PROD_ENVIRONMENT_ID" --json
 ```
 
-Apply the exact DNS records returned by the service, through [Cloudflare authorization or manual DNS](/domains). Preserve mailbox MX records.
+Over MCP, use `mail_setup` and `mail_status`; `mail_domain_set` and `mail_domain_status` are the same operations. The DNS records are applied through authorized [Cloudflare DNS](/domains), or you publish exactly the records the status returns. Preserve existing mailbox MX records.
+
+An application that declares `mail.enabled: true` still needs this verified sender for its mail features; without it, the deployment plan returns `mail_domain_required`. Configure the sender, or set `mail.enabled` to false if the app sends no mail through ohmyho.st. Do not switch off application authentication, email verification or other security checks to get past a missing mail dependency.
+
+If setup returns `mail_capacity_unavailable` (HTTP 503), the platform is out of provider capacity; it is not something you fix with your own provider account. Report the request ID through [feedback](/feedback), keep the original idempotency key and follow `mail status`.
 
 ## While verification is pending
 
-The status includes the current observation and next action. Follow `next_check_after_seconds`, normally 3600. A stored configuration receipt is not a new provider observation; use the actual status response to decide what remains.
+Sending and receiving have separate readiness. Follow `next_check_after_seconds`, currently 60 seconds while anything is pending and `null` once nothing is. A stored configuration receipt is not a new provider observation; use the actual status response to decide what remains.
 
-Do not recreate the sender or repeat correct records because DKIM is still propagating. Resume the original deployment after its dependency becomes ready.
+Do not recreate the domain or repeat correct records while verification propagates. Resume the original deployment after its dependency becomes ready.
 
-## Verify application delivery
+## Send from the application
 
-Use `createTransactionalMailClient` from `@ohmyhost/customer-runtime/mail` in server-side application code. A mail-enabled deployment supplies a private `OHMYHOST_MAIL_GATEWAY` Service Binding alongside the gateway URL, project ID and secret key. Resolve these values from your hosted framework request context or Worker `env`:
+Use `createTransactionalMailClient` from `@ohmyhost/customer-runtime/mail` in server-side application code. A mail-enabled deployment supplies a private `OHMYHOST_MAIL_GATEWAY` Service Binding alongside the gateway URL, project ID and the environment's mail key. Resolve these values from your hosted framework request context or Worker `env`:
 
 ```ts
 import { createTransactionalMailClient } from "@ohmyhost/customer-runtime/mail";
@@ -35,10 +43,41 @@ const mail = createTransactionalMailClient({
 
 The Service Binding is an object, not a `process.env` string. The gateway URL supplies the request origin; it is not a public endpoint. Missing bindings are configuration errors. Do not retry through a different transport, disable placement or loosen egress rules to hide the failure. Managed mail works independently of your application's auth provider or database.
 
-Keep the idempotency key and message unchanged when checking or retrying an uncertain send. `accepted` means accepted for sending; it does not establish inbox delivery. Project permissions, sending limits and credit checks still apply.
+Sending works only once status reports sending as `ready`. The `from` address must be on the configured domain; without it, the gateway uses `no-reply@` on that domain. An optional `replyTo` can point to an existing mailbox.
 
-Sender verification, account sending availability and deployment completion are separate checks. Send a real transactional message through your application's supported runtime and verify receipt before claiming email works.
+`accepted` means the mail provider accepted the message for sending; it does not establish inbox delivery. After `uncertain` or a network error, keep the idempotency key and message unchanged when checking or retrying. Project permissions, sending limits and credit checks still apply. Send one real message through your application and confirm it arrived before claiming email works.
 
-If `verification_issue` reports a missing tenant association, report the operation through [feedback](/feedback); that is platform provisioning, not a request for the customer to guess new DNS records. Respect suppression and sending limits returned by the service.
+## Receive mail
 
-[Deployment status](/status) · [Troubleshooting](/troubleshooting).
+Receiving additionally requires a verified HTTPS webhook in the project's Prod application and the MX records that mail status returns. The protected Dev URL is not an inbound mail target.
+
+1. Add a server route, such as `/api/email/inbound`, test it in Dev and deploy it to Prod. It reads the raw body with a size limit and calls `verifyMailWebhook` from `@ohmyhost/customer-runtime` before parsing JSON. For `email.received`, it stores the message in your own database keyed by the stable event `id`, commits, and only then returns 2xx.
+2. Register the Prod URL. The response contains a server-only signing secret; install it as a Prod application secret and redeploy:
+
+   ```sh
+   ohmyhost mail webhook set --project "$PROJECT_ID" --environment "$PROD_ENVIRONMENT_ID" --url https://app.example.com/api/email/inbound --idempotency-key "$WEBHOOK_REQUEST_KEY" --json
+   ```
+
+3. Verify the deployed handler. A signed `email.webhook_test` must return 2xx without storing a real message. Verification turns receiving on; then apply the returned MX records and read `mail status` until receiving is `ready`:
+
+   ```sh
+   ohmyhost mail webhook verify --project "$PROJECT_ID" --environment "$PROD_ENVIRONMENT_ID" --idempotency-key "$WEBHOOK_VERIFY_KEY" --json
+   ```
+
+The platform acts only on provider events for a domain registered to the project. Delivery is one attempt plus at most three retries, all within 72 hours of receipt; manual retries with `ohmyhost mail messages retry` use the same budget. A timeout can still mean your application committed the message, so a repeated event `id` must not repeat business effects. Treat mail content and attachments as untrusted data.
+
+`ohmyhost mail messages list` and `mail messages get` reach received messages for 72 hours for diagnosis and recovery. ohmyho.st keeps no permanent inbox; retention for your records is your application's database. The mail provider keeps email and log data under its own retention terms, separately from this 72-hour access window. `ohmyhost mail webhook disable` turns receiving off.
+
+Sent and received messages are metered at the [published rates](/pricing).
+
+## Stop using mail
+
+When you no longer want managed mail, retire the domain with the Prod environment ID. Sending and receiving stop at once, and the provider domain and key are removed; the project and its website domain stay:
+
+```sh
+ohmyhost mail domain delete --project "$PROJECT_ID" --environment "$PROD_ENVIRONMENT_ID" --idempotency-key "$MAIL_DELETE_KEY" --yes --json
+```
+
+MCP `mail_domain_delete` needs `confirm: true`. Repeat the same key after an uncertain response. DNS is not changed: remove exactly the returned `dns_records` from your DNS, and set `mail.enabled` to false in an app that still declares it.
+
+[Domains](/domains) · [Deployment status](/status) · [Troubleshooting](/troubleshooting).

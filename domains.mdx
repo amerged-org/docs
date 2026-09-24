@@ -28,7 +28,7 @@ ohmyhost project handle set --project "$PROJECT_ID" --handle quiet-otter-waves \
 
 The old address stops answering as soon as the rename succeeds, and the name returns to the pool for any project to claim — links you already shared with it break, so rename before you publish an address, not after. A rename is refused while another operation is running for the project, for an address that is taken or unusable, and for the address the project already has. A Dev access link created before the rename points at the old Dev address and stops working with it; create a new one afterwards.
 
-A custom hostname requires Paid access. Use the real hostname you want to publish:
+A custom hostname requires Paid access and serves the project's Prod deployment. Use the real hostname you want to publish:
 
 ```sh
 ohmyhost domain paid plan --project "$PROJECT_ID" --hostname app.example.com --json
@@ -39,6 +39,8 @@ Review the plan, then apply it through `domain_paid_apply` or its CLI command. K
 ```sh
 ohmyhost domain paid apply --project "$PROJECT_ID" --hostname app.example.com --idempotency-key "$DOMAIN_REQUEST_KEY" --yes --json
 ```
+
+If plan or apply returns `production_deployment_required` (HTTP 409), Prod has no active deployment yet and nothing was changed. [Deploy to Prod](/environments#deploy-to-prod) or promote the current Dev deployment, then plan again and repeat the apply with the same hostname and key.
 
 This first apply establishes the project's hostname and can return manual records while DNS authorization is missing. Asking for Cloudflare authorization before the project has a matching domain returns `cloudflare_zone_not_bound`; complete this domain step rather than retrying OAuth.
 
@@ -68,9 +70,9 @@ Your agent returns the exact type, name, value and TTL from the API. Add those r
 
 ```sh
 ohmyhost domain paid status --project "$PROJECT_ID" --json
-ohmyhost mail domain status --project "$PROJECT_ID" --json
+ohmyhost mail status --project "$PROJECT_ID" --environment "$PROD_ENVIRONMENT_ID" --json
 ```
 
-DNS, HTTPS and sender DKIM have separate statuses. Follow the returned next-check time; while pending, ask your agent to check again after 60 minutes. Keep the original deployment and do not rebuild to poll DNS. [Email](/email) · [Project context](/project-context).
+DNS, HTTPS and mail verification have separate statuses. Mail status returns `next_check_after_seconds` (currently 60 seconds while pending); domain status returns no interval, so ask your agent to check again once DNS changes have had time to propagate. Keep the original deployment and do not rebuild to poll DNS. [Email](/email) · [Project context](/project-context).
 
 When the final hostname is ready, configure it as the application's trusted public origin and update its auth callback/logout URLs. Verify login and one protected action there. A host-only session cookie may require a fresh login after changing domains; do not widen cookie domains or trust arbitrary request hosts to mask incorrect configuration.
