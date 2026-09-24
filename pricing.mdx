@@ -28,7 +28,7 @@ Builds use the measured seconds of the current build sandbox. The historical Cod
 
 Database CU-hours measure compute size multiplied by active time. Paid standard uses 0.5 CU and Performance uses 1 CU; Performance therefore costs 2.5 times Paid standard per equal active duration. Idle compute can suspend, but database storage, retained history and deployed resources still use credits. Isolated Dev/Prod databases are metered independently. [Inspect or change database capacity](/database).
 
-Functions and crons use the Worker request and CPU meters. Workers bandwidth and SQL exports have no separate charge. Each deployment retains an immutable script for rollback until it is cleaned up. Mail prices depend on the platform's active regional tariff; the two recipient rows describe different configurations, not two charges for one recipient.
+Functions and crons use the Worker request and CPU meters. Workers bandwidth and SQL exports have no separate charge. Each deployment retains an immutable script for rollback until it is cleaned up. `mail.sent` is charged per sent recipient and `mail.received` per received message; webhook retries do not add another mail charge.
 
 ## Read charges correctly
 

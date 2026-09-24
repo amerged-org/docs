@@ -23,7 +23,9 @@ The result identifies the framework, requirements and concrete blockers. Resolve
 
 For data-backed apps, choose isolated Dev/Prod databases and files or explicitly shared data. Isolation is recommended; two databases consume credits independently. [How environments work](/environments).
 
-For a new project, choose **US or EU** before creation. An explicit choice overrides any browser-location suggestion; an existing project's region is preserved. US is the API default when no region is supplied. EU places the project's database, files and builds in the EU, with the application next to its database. The region cannot be changed later and prices are identical. Transactional mail uses the platform's mail region. A cloud agent's own IP address does not establish your preferred hosting region.
+Choose whether the Dev URL should be protected by a reusable share link (the default) or public without a platform token. The agent asks before creating a project and records the choice.
+
+For a new project, choose **US or EU** before creation. An explicit choice overrides any browser-location suggestion; an existing project's region is preserved. US is the API default when no region is supplied. EU places the project's database, files and builds in the EU, with the application next to its database. The region cannot be changed later and prices are identical. Transactional mail is processed in the US by the platform's mail provider, whatever the project's region. A cloud agent's own IP address does not establish your preferred hosting region.
 
 ## 3. Connect the selected GitHub repository
 
@@ -33,20 +35,20 @@ It then creates or selects the project and uses `source_link` for a covered repo
 
 ## 4. Review and deploy
 
-The agent plans the exact pushed commit and shows the required services, estimated credit effects and missing configuration. It sets needed private application secrets through the supported stdin flow, then executes that plan with one saved idempotency key. [Published usage rates](/pricing) explain what each measured resource costs.
+The agent plans the exact pushed commit and shows the required services, estimated credit effects and missing configuration. It sets needed private application secrets through the supported stdin flow, then executes that plan with one saved idempotency key. Hosting needs no mail domain; if the plan returns `mail_domain_required`, the app declares `mail.enabled`, so either set up [your own sender domain](/email) or set it to false when the app sends no mail through ohmyho.st. [Published usage rates](/pricing) explain what each measured resource costs.
 
 The response supplies an operation ID. The agent observes that operation until it succeeds or returns an actionable error. A network timeout does not cancel it and is not a reason to create another project or deployment.
 
 ## 5. Verify the app
 
-The agent reads the URL from project status and obtains a private single-use Dev access link. Check navigation and, where used, application login and a real data read/write. A successful build alone is not the finished app.
+The agent reads `dev_access_mode` and the URL from project status. For protected Dev it obtains the persistent owner-only share link; for public Dev it opens the clean URL directly. Check navigation and, where used, application login and a real data read/write. A successful build alone is not the finished app.
 
-When you request publication, the agent creates a promotion plan and publishes the verified artifact to Prod. Isolated promotion applies migrations without copying Dev records into Prod.
+When you request publication, the agent creates a promotion plan and publishes the verified artifact to Prod. Isolated promotion applies migrations without copying Dev records into Prod. With isolated data, the agent can also build a commit straight into Prod; a project whose Dev and Prod share a database always deploys to Dev and promotes. [Deploy to Prod](/environments#deploy-to-prod).
 
 ## If something needs time
 
 - Build or deployment pending: follow the operation's returned polling interval.
-- DNS/DKIM pending: apply the exact records and check again after the supplied interval, usually 60 minutes.
+- DNS or mail verification pending: apply the exact records and check again after the returned interval; mail status currently returns 60 seconds.
 - An error without a useful next action: use the [troubleshooting Skill](/troubleshooting) and report the operation through [feedback](/feedback).
 
 You finish with a verified application URL, deployed commit and any clearly stated pending action.

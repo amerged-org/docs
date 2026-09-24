@@ -205,7 +205,7 @@
     },
     {
       "name": "domain_paid_plan",
-      "description": "Plan a customer-owned production hostname and return the manual CNAME/validation instructions. This does not activate or change DNS. Free projects use their platform domain without customer DNS authorization.",
+      "description": "Plan a customer-owned production hostname and return the manual CNAME/validation instructions. This does not activate or change DNS. Free projects use their platform domain without customer DNS authorization. production_deployment_required means Prod has no active deployment: deploy to Prod or promote the current Dev deployment, then plan again.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -233,7 +233,7 @@
     },
     {
       "name": "domain_paid_apply",
-      "description": "Activate the explicitly requested customer hostname. Requires Paid; the backend may reuse only its scoped customer OAuth grant. After domain_cloudflare_status is authorized, replay the original hostname/key to reconcile its exact DNS records. Otherwise return the manual DNS records to the human. Preserve the original hostname/key after uncertainty; no arbitrary DNS or provider credentials are accepted.",
+      "description": "Activate the explicitly requested customer hostname. Requires Paid; the backend may reuse only its scoped customer OAuth grant. After domain_cloudflare_status is authorized, replay the original hostname/key to reconcile its exact DNS records. Otherwise return the manual DNS records to the human. Preserve the original hostname/key after uncertainty; no arbitrary DNS or provider credentials are accepted. production_deployment_required changed nothing: deploy to Prod or promote Dev first, then repeat the same hostname/key.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -1744,7 +1744,7 @@
     },
     {
       "name": "deployment_plan",
-      "description": "Plan an immutable deployment. Preserve the customer's existing authentication integration, such as Better Auth or WorkOS, and use the same generic Next.js/Vite/TanStack runtime contract. ohmyho.st login is separate. Read the app Skill's auth guidance and report actual plan blockers, required secret names/callback configuration and unverified runtime compatibility. Never assume a working platform login proves application login or silently replace its auth provider. The plan builds into Dev unless environment is prod; prod builds straight into Prod without a Dev deployment (a project with shared data and a database must deploy to Dev and promote instead). The plan stays valid for 24 hours.",
+      "description": "Plan an immutable deployment. Preserve the customer's existing authentication integration, such as Better Auth or WorkOS, and use the same generic Next.js/Vite/TanStack runtime contract. ohmyho.st login is separate. Read the app Skill's auth guidance and report actual plan blockers, required secret names/callback configuration and unverified runtime compatibility. Hosting, including Better Auth, needs no mail domain unless the app declares mail.enabled. Never assume a working platform login proves application login or silently replace its auth provider. The plan builds into Dev unless environment is prod; prod builds straight into Prod without a Dev deployment (a project with shared data and a database must deploy to Dev and promote instead). The plan stays valid for 24 hours.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2032,7 +2032,7 @@
     },
     {
       "name": "mail_setup",
-      "description": "Configure the customer's one production mail domain using the project Prod environment ID. The Dev and Prod application URLs do not create separate mail domains. Ask whether they want sending and receiving. Configure sending first; receiving requires mail_webhook_set, application signature verification and mail_webhook_verify. Preserve existing mailbox MX records. No Resend account or key is needed.",
+      "description": "Configure the customer's one production mail domain using the project Prod environment ID, only when the customer wants mail or the app declares mail.enabled; hosting needs no mail domain and none is registered automatically. The Dev and Prod application URLs do not create separate mail domains. Ask whether they want sending and receiving. Configure sending first; receiving requires mail_webhook_set, application signature verification and mail_webhook_verify. Preserve existing mailbox MX records. No Resend account or key is needed.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2390,6 +2390,46 @@
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
+      "name": "mail_domain_delete",
+      "description": "Retire the project's mail domain while the project stays active; use its Prod environment ID. Sending and receiving stop at once, then its provider domain and key are removed. DNS is not changed: remove the returned dns_records from the domain's DNS. Only when the customer no longer wants mail. Requires explicit confirmation; repeat the same key after uncertainty.",
+      "inputSchema": {
+        "type": "object",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "environment_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "confirm": {
+            "type": "boolean",
+            "const": true
+          }
+        },
+        "required": [
+          "project_id",
+          "environment_id",
+          "idempotency_key",
+          "confirm"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
         "idempotentHint": true
       }
     },

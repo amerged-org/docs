@@ -30,6 +30,6 @@ An isolated Prod database receives schema migrations, not Dev users or tenant co
 
 A health response can succeed while no application user can sign in. Verify the first login and one protected business action on the final application origin before handing over access.
 
-The provider may send its own account-verification email; this does not automatically require managed ohmyho.st mail. Keep existing auth unless you explicitly decide to change it.
+The provider may send its own account-verification email; this does not automatically require managed ohmyho.st mail. The managed Better Auth integration needs its database, not mail. Only an app that sends its verification or reset email through ohmyho.st declares `mail.enabled`, and then it needs your own [verified sender domain](/email); otherwise the plan returns `mail_domain_required`. Report that dependency instead of turning off email verification or other security checks. Keep existing auth unless you explicitly decide to change it.
 
 [Next.js](/frameworks/nextjs) · [Vite](/frameworks/vite) · [TanStack](/frameworks/tanstack).

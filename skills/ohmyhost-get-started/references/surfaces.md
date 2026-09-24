@@ -90,6 +90,7 @@ and follow the returned schema rather than guessing arguments.
 - `ohmyhost mail messages retry` — ohmyhost mail messages retry --project ULID --environment ULID --message ULID --idempotency-key KEY --json
 - `ohmyhost mail domain set` — ohmyhost mail domain set --project ULID --environment ULID --domain DOMAIN --sending true --receiving false --idempotency-key KEY --json
 - `ohmyhost mail domain status` — ohmyhost mail domain status --project ULID --environment ULID --json
+- `ohmyhost mail domain delete` — ohmyhost mail domain delete --project ULID --environment ULID --idempotency-key KEY --yes --json
 
 ## MCP tools
 
@@ -154,7 +155,7 @@ and follow the returned schema rather than guessing arguments.
 - `operation_logs` — Read available operation events for at most ten seconds, stopping earlier at max_events or a terminal event.
 - `function_runs_list` — List the newest scheduled function runs (functions.crons) of an environment: one run per due UTC minute with state, attempt, the status the scheduled handler returned and timing.
 - `operation_reconcile` — Start an explicitly confirmed provider reconciliation attempt
-- `mail_setup` — Configure the customer's one production mail domain using the project Prod environment ID.
+- `mail_setup` — Configure the customer's one production mail domain using the project Prod environment ID, only when the customer wants mail or the app declares mail.enabled; hosting needs no mail domain and none is registered automatically.
 - `mail_status` — Read sending and receiving readiness and exact DNS records for the project’s one production mail domain.
 - `mail_webhook_set` — Set the required HTTPS endpoint on the project's Prod application using its Prod environment ID.
 - `mail_webhook_verify` — Send a signed test to the Prod application endpoint and enable receiving after it accepts the event.
@@ -164,6 +165,7 @@ and follow the returned schema rather than guessing arguments.
 - `mail_message_retry` — Retry the Prod customer webhook within its shared budget: initial attempt plus at most three retries, all before 72 hours from receipt.
 - `mail_domain_set` — Configure the project's one production mail domain using its Prod environment ID.
 - `mail_domain_status` — Read separate sending and receiving readiness and exact DNS records for the project’s production mail domain.
+- `mail_domain_delete` — Retire the project's mail domain while the project stays active; use its Prod environment ID.
 - `secrets_list` — List secret metadata without values
 - `secret_delete` — Delete an environment secret
 - `secret_set_command` — Return the stdin-only CLI command for setting a secret; the value never enters MCP.
