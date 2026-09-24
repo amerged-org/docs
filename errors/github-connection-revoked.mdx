@@ -1,0 +1,12 @@
+---
+title: "Github connection revoked"
+description: "What the `github_connection_revoked` error means and what to do next."
+---
+
+The API, CLI and MCP return `github_connection_revoked` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Run 'ohmyhost github connect --organization ULID --idempotency-key KEY --json' to restore this workspace's GitHub connection, then repeat the original source link.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

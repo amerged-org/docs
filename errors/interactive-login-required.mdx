@@ -1,0 +1,12 @@
+---
+title: "Interactive login required"
+description: "What the `interactive_login_required` error means and what to do next."
+---
+
+The API, CLI and MCP return `interactive_login_required` with HTTP 403. Retrying the same request unchanged does not help.
+
+## What to do
+
+Unset OHMYHOST_TOKEN and run ohmyhost login before managing tokens. Existing token files remain unchanged.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

@@ -1,0 +1,12 @@
+---
+title: "Framework conversion required"
+description: "What the `framework_conversion_required` error means and what to do next."
+---
+
+The API, CLI and MCP return `framework_conversion_required` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Run 'ohmyhost init', apply the matching ohmyhost framework skill, then plan the new commit.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

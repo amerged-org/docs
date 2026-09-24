@@ -1,0 +1,12 @@
+---
+title: "Promotion target stale"
+description: "What the `promotion_target_stale` error means and what to do next."
+---
+
+The API, CLI and MCP return `promotion_target_stale` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Read the current prod status, then plan promotion again.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

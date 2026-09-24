@@ -20,6 +20,8 @@ Read `project_context_get`, `project_status` and `operation_get` for the origina
 
 A completed reconciliation receipt is not the application result. Verify the original operation and the actual app. Distinguish a private Dev 404 from an application failure: obtain `project_dev_access_create` and open its single-use link before checking the clean Dev origin.
 
+A video that will not play or a denied microphone is not a platform bug: add the media opt-in from the portable-app Skill's [runtime contracts](../ohmyhost-build-portable-app/references/stack-contracts.md) and redeploy.
+
 ## Report a bug or feature request
 
 Use `feedback_submit` for `bug`, `issue` or `feature_request`. Include expected and actual behavior, a minimal reproduction, the organization and relevant project/operation IDs. `error_code` and `client_version` are compact identifiers without spaces. Omit credentials, raw logs and customer records.

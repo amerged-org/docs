@@ -43,6 +43,10 @@
 | `project_create` | `organization_id`, `name`, `idempotency_key` | Change or prepare a change |
 | `project_get` | `project_id` | Read |
 | `project_status` | `project_id` | Read |
+| `project_dev_share_link_get` | `project_id` | Change or prepare a change |
+| `project_dev_access_mode_set` | `project_id`, `mode`, `idempotency_key` | Change or prepare a change |
+| `project_dev_share_link_rotate` | `project_id`, `idempotency_key` | Change or prepare a change |
+| `project_dev_share_link_revoke` | `project_id`, `idempotency_key` | Change or prepare a change |
 | `project_dev_access_create` | `project_id` | Change or prepare a change |
 | `github_connect` | `organization_id`, `idempotency_key` | Change or prepare a change |
 | `github_status` | `organization_id` | Read |
@@ -57,8 +61,16 @@
 | `operation_logs` | `operation_id` | Read |
 | `function_runs_list` | `project_id`, `environment_id` | Read |
 | `operation_reconcile` | `operation_id`, `idempotency_key`, `confirmed` | Change or prepare a change |
-| `mail_domain_set` | `project_id`, `domain`, `idempotency_key` | Change or prepare a change |
-| `mail_domain_status` | `project_id` | Read |
+| `mail_setup` | `project_id`, `environment_id`, `domain`, `sending`, `receiving`, `idempotency_key` | Change or prepare a change |
+| `mail_status` | `project_id`, `environment_id` | Read |
+| `mail_webhook_set` | `project_id`, `environment_id`, `url`, `idempotency_key` | Change or prepare a change |
+| `mail_webhook_verify` | `project_id`, `environment_id`, `idempotency_key` | Change or prepare a change |
+| `mail_webhook_disable` | `project_id`, `environment_id`, `idempotency_key` | Change or prepare a change |
+| `mail_messages_list` | `project_id`, `environment_id` | Read |
+| `mail_message_get` | `project_id`, `environment_id`, `message_id` | Read |
+| `mail_message_retry` | `project_id`, `environment_id`, `message_id`, `idempotency_key` | Change or prepare a change |
+| `mail_domain_set` | `project_id`, `environment_id`, `domain`, `sending`, `receiving`, `idempotency_key` | Change or prepare a change |
+| `mail_domain_status` | `project_id`, `environment_id` | Read |
 | `secrets_list` | `project_id`, `environment_id` | Read |
 | `secret_delete` | `project_id`, `environment_id`, `name`, `idempotency_key` | Change or prepare a change |
 | `secret_set_command` | `project_id`, `environment_id`, `name`, `idempotency_key` | Read |

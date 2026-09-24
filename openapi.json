@@ -2289,11 +2289,218 @@
         }
       }
     },
+    "/v1/projects/{project_id}/dev-share-link": {
+      "post": {
+        "operationId": "ensureProjectDevShareLink",
+        "summary": "Get or create the persistent Dev share link",
+        "description": "Owner-only. Repeated calls return the same protected Dev link until it is rotated or revoked. The link is a bearer credential without automatic expiry.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/ProjectId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current Dev access mode and owner-only share link.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DevAccessState"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "revokeProjectDevShareLink",
+        "summary": "Revoke the Dev share link and active sessions",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/ProjectId"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dev share link revoked.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DevAccessState"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/v1/projects/{project_id}/dev-share-link:rotate": {
+      "post": {
+        "operationId": "rotateProjectDevShareLink",
+        "summary": "Rotate the persistent Dev share link",
+        "description": "Owner-only. Reusing the same idempotency key returns the current rotated link; rotating invalidates previous links and sessions immediately.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/ProjectId"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "New Dev share link.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DevAccessState"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/v1/projects/{project_id}/dev-access-mode": {
+      "put": {
+        "operationId": "setProjectDevAccessMode",
+        "summary": "Select public or protected Dev access",
+        "description": "Owner-only. Public Dev needs no platform access link; switching back to protected creates a fresh link and invalidates earlier sessions.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/ProjectId"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetDevAccessModeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Current Dev access mode and owner-only share link.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DevAccessState"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
     "/v1/projects/{project_id}/dev-access-tickets": {
       "post": {
         "operationId": "createProjectDevAccessTicket",
         "summary": "Create a single-use dev access ticket",
-        "description": "Owner-only issuance of a ten-minute single-use ticket for the immutable dev project origin. A new ticket revokes unused tickets previously issued to the same principal.",
+        "description": "Owner-only issuance of a one-hour single-use ticket for the immutable dev project origin. A new ticket revokes unused tickets previously issued to the same principal.",
         "parameters": [
           {
             "$ref": "#/components/parameters/RequestId"
@@ -3090,134 +3297,11 @@
         "x-ohmyhost-resource-disclosure": "indistinguishable-not-found"
       }
     },
-    "/v1/projects/{project_id}/mail-domain": {
-      "put": {
-        "operationId": "configureProjectMailDomain",
-        "summary": "Configure the project sender subdomain",
-        "description": "Create-only admission for one canonical sender subdomain, requiring a confirmed current Paid service period. Top-ups and promotional credits do not enable Paid. Provider mutation occurs only inside a later authorized deployment Workflow.",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/RequestId"
-          },
-          {
-            "$ref": "#/components/parameters/ProjectId"
-          },
-          {
-            "$ref": "#/components/parameters/IdempotencyKey"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ConfigureProjectMailDomainRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "The immutable project sender-domain configuration and current credential-free status.",
-            "headers": {
-              "X-Request-Id": {
-                "$ref": "#/components/headers/XRequestId"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProjectMailDomain"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "401": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "402": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "403": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "404": {
-            "$ref": "#/components/responses/ResourceNotFound"
-          },
-          "409": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "429": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "503": {
-            "$ref": "#/components/responses/Problem"
-          }
-        },
-        "x-ohmyhost-idempotency": {
-          "canonicalRequestVersion": "v1",
-          "identicalRequest": "replay-stored-response",
-          "changedRequest": "409-idempotency-key-reused"
-        },
-        "x-ohmyhost-resource-disclosure": "indistinguishable-not-found"
-      },
-      "get": {
-        "operationId": "getProjectMailDomain",
-        "summary": "Get sender-domain delegation status",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/RequestId"
-          },
-          {
-            "$ref": "#/components/parameters/ProjectId"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The current credential-free sender-domain status.",
-            "headers": {
-              "X-Request-Id": {
-                "$ref": "#/components/headers/XRequestId"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProjectMailDomain"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "401": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "403": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "404": {
-            "$ref": "#/components/responses/ResourceNotFound"
-          },
-          "429": {
-            "$ref": "#/components/responses/Problem"
-          },
-          "503": {
-            "$ref": "#/components/responses/Problem"
-          }
-        },
-        "x-ohmyhost-resource-disclosure": "indistinguishable-not-found"
-      }
-    },
     "/v1/projects/{project_id}/deployments:plan": {
       "post": {
         "operationId": "planDeployment",
         "summary": "Plan a deployment",
-        "description": "Resolves immutable inputs and estimates effects without provider mutation or billable work. Mail and the currently supported mail-backed Better Auth contract require a confirmed Paid service period; it is checked again before build reservation. An old sender configuration is not Paid authority.",
+        "description": "Resolves immutable inputs and estimates effects without provider mutation or billable work. The plan targets Dev unless `environment` is `prod`; a Prod plan builds straight into Prod, except that a project with shared data and a database only reaches Prod through promotion. Mail and the currently supported mail-backed Better Auth contract require a confirmed Paid service period; it is checked again before build reservation. An old sender configuration is not Paid authority.",
         "parameters": [
           {
             "$ref": "#/components/parameters/RequestId"
@@ -3238,7 +3322,7 @@
         },
         "responses": {
           "200": {
-            "description": "A deployment plan valid for fifteen minutes.",
+            "description": "A deployment plan valid for 24 hours.",
             "headers": {
               "X-Request-Id": {
                 "$ref": "#/components/headers/XRequestId"
@@ -4693,6 +4777,645 @@
         ],
         "x-ohmyhost-resource-disclosure": "indistinguishable-not-found"
       }
+    },
+    "/v1/projects/{project_id}/environments/{environment_id}/mail-domain": {
+      "put": {
+        "operationId": "configureManagedMailDomain",
+        "summary": "Configure sending and receiving on a selected mail domain",
+        "description": "One production mail domain per project; environment_id is the project Prod environment ID. Dev and Prod application URLs do not create separate mail domains. Provider credentials never leave ohmyho.st. Content expires 72 hours after original receipt.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          },
+          {
+            "name": "environment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ManagedMailDomainRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authorized mail result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedMailDomain"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-ohmyhost-resource-disclosure": "indistinguishable-not-found"
+      },
+      "get": {
+        "operationId": "getManagedMailDomain",
+        "summary": "Read independent sending and receiving readiness",
+        "description": "One production mail domain per project; environment_id is the project Prod environment ID. Dev and Prod application URLs do not create separate mail domains. Provider credentials never leave ohmyho.st. Content expires 72 hours after original receipt.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          },
+          {
+            "name": "environment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized mail result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedMailDomain"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-ohmyhost-resource-disclosure": "indistinguishable-not-found"
+      }
+    },
+    "/v1/projects/{project_id}/environments/{environment_id}/mail-webhook": {
+      "put": {
+        "operationId": "prepareManagedMailWebhook",
+        "summary": "Prepare a required customer webhook and return its signing secret",
+        "description": "One production mail domain per project; environment_id is the project Prod environment ID. Dev and Prod application URLs do not create separate mail domains. Provider credentials never leave ohmyho.st. Content expires 72 hours after original receipt.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          },
+          {
+            "name": "environment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ManagedMailWebhookRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authorized mail result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedMailWebhook"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-ohmyhost-resource-disclosure": "indistinguishable-not-found"
+      },
+      "delete": {
+        "operationId": "disableManagedMailReceiving",
+        "summary": "Disable receiving and remove the customer webhook",
+        "description": "One production mail domain per project; environment_id is the project Prod environment ID. Dev and Prod application URLs do not create separate mail domains. Provider credentials never leave ohmyho.st. Content expires 72 hours after original receipt.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          },
+          {
+            "name": "environment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized mail result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedMailDisabled"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-ohmyhost-resource-disclosure": "indistinguishable-not-found"
+      }
+    },
+    "/v1/projects/{project_id}/environments/{environment_id}/mail-webhook/verify": {
+      "post": {
+        "operationId": "verifyManagedMailWebhook",
+        "summary": "Verify the customer endpoint and enable receiving",
+        "description": "One production mail domain per project; environment_id is the project Prod environment ID. Dev and Prod application URLs do not create separate mail domains. Provider credentials never leave ohmyho.st. Content expires 72 hours after original receipt.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          },
+          {
+            "name": "environment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized mail result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedMailDomain"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-ohmyhost-resource-disclosure": "indistinguishable-not-found"
+      }
+    },
+    "/v1/projects/{project_id}/environments/{environment_id}/mail/messages": {
+      "get": {
+        "operationId": "listManagedMailMessages",
+        "summary": "List mail handoff metadata within the 72 hour window",
+        "description": "One production mail domain per project; environment_id is the project Prod environment ID. Dev and Prod application URLs do not create separate mail domains. Provider credentials never leave ohmyho.st. Content expires 72 hours after original receipt.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          },
+          {
+            "name": "environment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized mail result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedMailMessagePage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-ohmyhost-resource-disclosure": "indistinguishable-not-found"
+      }
+    },
+    "/v1/projects/{project_id}/environments/{environment_id}/mail/messages/{message_id}": {
+      "get": {
+        "operationId": "getManagedMailMessage",
+        "summary": "Retrieve owned mail content before expiry",
+        "description": "One production mail domain per project; environment_id is the project Prod environment ID. Dev and Prod application URLs do not create separate mail domains. Provider credentials never leave ohmyho.st. Content expires 72 hours after original receipt.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          },
+          {
+            "name": "environment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          },
+          {
+            "name": "message_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized mail result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedMailContentResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-ohmyhost-resource-disclosure": "indistinguishable-not-found"
+      }
+    },
+    "/v1/projects/{project_id}/environments/{environment_id}/mail/messages/{message_id}/retry": {
+      "post": {
+        "operationId": "retryManagedMailMessage",
+        "summary": "Retry within the shared maximum of three retries",
+        "description": "One production mail domain per project; environment_id is the project Prod environment ID. Dev and Prod application URLs do not create separate mail domains. Provider credentials never leave ohmyho.st. Content expires 72 hours after original receipt.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          },
+          {
+            "name": "environment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          },
+          {
+            "name": "message_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized mail result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedMailRetryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-ohmyhost-resource-disclosure": "indistinguishable-not-found"
+      }
+    },
+    "/v1/projects/{project_id}/environments/{environment_id}/mail/messages/{message_id}/attachments/{attachment_id}": {
+      "get": {
+        "operationId": "getManagedMailAttachment",
+        "summary": "Download an owned attachment before expiry",
+        "description": "One production mail domain per project; environment_id is the project Prod environment ID. Dev and Prod application URLs do not create separate mail domains. Provider credentials never leave ohmyho.st. Content expires 72 hours after original receipt. Downloads over 50 MiB return 413.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          },
+          {
+            "name": "environment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          },
+          {
+            "name": "message_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          },
+          {
+            "name": "attachment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized mail result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedMailExpired"
+                }
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-ohmyhost-resource-disclosure": "indistinguishable-not-found"
+      }
     }
   },
   "components": {
@@ -5033,6 +5756,415 @@
       }
     },
     "schemas": {
+      "ManagedMailDomainRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "domain",
+          "sending",
+          "receiving"
+        ],
+        "properties": {
+          "domain": {
+            "type": "string",
+            "minLength": 4,
+            "maxLength": 253
+          },
+          "sending": {
+            "type": "boolean"
+          },
+          "receiving": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ManagedMailWebhookRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 2048
+          }
+        }
+      },
+      "ManagedMailDnsRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "name",
+          "value",
+          "purpose",
+          "status"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "TXT",
+              "CNAME",
+              "MX"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 65535
+          }
+        }
+      },
+      "ManagedMailDomain": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "domain_id",
+          "domain",
+          "environment_id",
+          "sending",
+          "receiving",
+          "status",
+          "configured_at",
+          "observed_at",
+          "dns_records",
+          "webhook",
+          "next_check_after_seconds"
+        ],
+        "properties": {
+          "domain_id": {
+            "$ref": "#/components/schemas/Ulid"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "environment_id": {
+            "$ref": "#/components/schemas/Ulid"
+          },
+          "sending": {
+            "type": "string",
+            "enum": [
+              "disabled",
+              "pending",
+              "ready",
+              "failed"
+            ]
+          },
+          "receiving": {
+            "type": "string",
+            "enum": [
+              "disabled",
+              "pending",
+              "ready",
+              "failed"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "verification_pending"
+            ]
+          },
+          "configured_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "observed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "dns_records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ManagedMailDnsRecord"
+            }
+          },
+          "dns": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "records"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "configured",
+                  "action_required",
+                  "conflict"
+                ]
+              },
+              "records": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ManagedMailDnsRecord"
+                }
+              }
+            }
+          },
+          "webhook": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "url",
+              "verified"
+            ],
+            "properties": {
+              "url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "verified": {
+                "type": "boolean"
+              }
+            }
+          },
+          "next_check_after_seconds": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "enum": [
+              60,
+              null
+            ]
+          }
+        }
+      },
+      "ManagedMailWebhook": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "url",
+          "signing_secret",
+          "status"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "signing_secret": {
+            "type": "string",
+            "description": "Server-only signing secret. Never log or send it to the browser."
+          },
+          "status": {
+            "type": "string",
+            "const": "verification_required"
+          }
+        }
+      },
+      "ManagedMailDisabled": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "disabled"
+          }
+        }
+      },
+      "ManagedMailExpired": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "expired"
+          }
+        }
+      },
+      "ManagedMailRetryResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "attempted"
+        ],
+        "properties": {
+          "attempted": {
+            "type": "boolean"
+          },
+          "delivered": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ManagedMailMessagePage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "message_id",
+                "received_at",
+                "state",
+                "attempts"
+              ],
+              "properties": {
+                "message_id": {
+                  "$ref": "#/components/schemas/Ulid"
+                },
+                "received_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "state": {
+                  "type": "string",
+                  "enum": [
+                    "pending",
+                    "delivering",
+                    "delivered",
+                    "delivery_failed",
+                    "expired"
+                  ]
+                },
+                "attempts": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                }
+              }
+            }
+          }
+        }
+      },
+      "ManagedMailContentResult": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ManagedMailExpired"
+          },
+          {
+            "$ref": "#/components/schemas/ManagedMailContent"
+          }
+        ]
+      },
+      "ManagedMailContent": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "domain",
+          "received_at",
+          "expires_at",
+          "from",
+          "to",
+          "subject",
+          "text",
+          "html",
+          "message_id",
+          "attachments"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Ulid"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "received_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "subject": {
+            "type": "string"
+          },
+          "text": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "html": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "message_id": {
+            "type": "string"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "filename",
+                "content_type",
+                "download_path"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "filename": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "content_type": {
+                  "type": "string"
+                },
+                "download_path": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
       "FeatureVoteChoices": {
         "type": "array",
         "minItems": 3,
@@ -6104,131 +7236,6 @@
           }
         }
       },
-      "ConfigureProjectMailDomainRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "domain"
-        ],
-        "properties": {
-          "domain": {
-            "type": "string",
-            "minLength": 4,
-            "maxLength": 253,
-            "pattern": "^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,63}$"
-          }
-        }
-      },
-      "ProjectMailDomain": {
-        "oneOf": [
-          {
-            "$ref": "#/components/schemas/ConfiguredProjectMailDomain"
-          },
-          {
-            "$ref": "#/components/schemas/DelegatedProjectMailDomain"
-          }
-        ]
-      },
-      "ConfiguredProjectMailDomain": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "domain",
-          "status",
-          "configured_at"
-        ],
-        "properties": {
-          "domain": {
-            "type": "string",
-            "minLength": 4,
-            "maxLength": 253
-          },
-          "status": {
-            "type": "string",
-            "const": "configured"
-          },
-          "configured_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "DelegatedProjectMailDomain": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "domain",
-          "status",
-          "configured_at",
-          "name_servers",
-          "change_id"
-        ],
-        "properties": {
-          "domain": {
-            "type": "string",
-            "minLength": 4,
-            "maxLength": 253
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "delegation_required",
-              "verification_pending",
-              "verification_failed",
-              "ready"
-            ]
-          },
-          "configured_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "name_servers": {
-            "type": "array",
-            "minItems": 4,
-            "maxItems": 4,
-            "uniqueItems": true,
-            "items": {
-              "type": "string",
-              "pattern": "^ns-[0-9]{1,4}\\.awsdns-[0-9]{1,2}\\.(?:com|net|org|co\\.uk)$"
-            }
-          },
-          "change_id": {
-            "type": "string",
-            "pattern": "^C[A-Z0-9]{8,31}$"
-          },
-          "observed_at": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Time of the fresh read-only provider verification, not the original configuration time."
-          },
-          "next_check_after_seconds": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "enum": [
-              3600,
-              null
-            ],
-            "description": "Ask the agent to check pending or failed verification again after one hour; null when ready."
-          },
-          "verification_issue": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "enum": [
-              "identity_missing",
-              "identity_verification_failed",
-              "dkim_verification_failed",
-              "dkim_records_changed",
-              "tenant_association_missing",
-              null
-            ],
-            "description": "A missing tenant association is platform provisioning, not a request to rewrite DNS. Read the original operation and its failure action."
-          }
-        }
-      },
       "PutEnvironmentSecretRequest": {
         "type": "object",
         "additionalProperties": false,
@@ -6496,6 +7503,7 @@
       "SourceAutoDeploy": {
         "type": "object",
         "additionalProperties": false,
+        "description": "Push-to-deploy configuration. Generation 0 with null branch, ref, grant_status and updated_at means auto-deploy was never configured for this project.",
         "required": [
           "branch",
           "ref",
@@ -6507,10 +7515,16 @@
         ],
         "properties": {
           "branch": {
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "ref": {
-            "type": "string",
+            "type": [
+              "string",
+              "null"
+            ],
             "pattern": "^refs/heads/"
           },
           "environment": {
@@ -6524,17 +7538,24 @@
           },
           "generation": {
             "type": "integer",
-            "minimum": 1
+            "minimum": 0
           },
           "grant_status": {
-            "type": "string",
+            "type": [
+              "string",
+              "null"
+            ],
             "enum": [
               "active",
-              "revoked"
+              "revoked",
+              null
             ]
           },
           "updated_at": {
-            "type": "string",
+            "type": [
+              "string",
+              "null"
+            ],
             "format": "date-time"
           }
         }
@@ -7394,6 +8415,56 @@
           }
         }
       },
+      "SetDevAccessModeRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "protected",
+              "public"
+            ]
+          }
+        }
+      },
+      "DevAccessState": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "project_id",
+          "mode",
+          "share_url"
+        ],
+        "properties": {
+          "project_id": {
+            "$ref": "#/components/schemas/Ulid"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "protected",
+              "public"
+            ]
+          },
+          "share_url": {
+            "description": "Owner-only persistent bearer link in protected mode; null when public or revoked.",
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "uri",
+                "pattern": "^https://dev-[a-z0-9]+(?:-[a-z0-9]+){0,4}\\.(?:dev\\.)?check\\.omh\\.st/\\.ohmyhost/dev-access/redeem\\?stage=dev&ticket=[A-Za-z0-9_-]{43}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
       "DevAccessTicket": {
         "type": "object",
         "additionalProperties": false,
@@ -7440,6 +8511,15 @@
         "properties": {
           "commit_sha": {
             "$ref": "#/components/schemas/GitCommitSha"
+          },
+          "environment": {
+            "type": "string",
+            "enum": [
+              "dev",
+              "prod"
+            ],
+            "default": "dev",
+            "description": "The environment the deployment builds into. Prod skips Dev and switches Prod traffic once activated."
           }
         }
       },
@@ -7457,12 +8537,13 @@
       },
       "DeploymentPlan": {
         "type": "object",
-        "description": "Immutable pre-build deployment plan. It expires exactly fifteen minutes after creation.",
+        "description": "Immutable pre-build deployment plan. It expires exactly 24 hours after creation.",
         "additionalProperties": false,
-        "x-ohmyhost-ttl-seconds": 900,
+        "x-ohmyhost-ttl-seconds": 86400,
         "required": [
           "id",
           "project_id",
+          "environment",
           "commit_sha",
           "source_digest",
           "build_plan_digest",
@@ -7484,6 +8565,14 @@
           },
           "project_id": {
             "$ref": "#/components/schemas/Ulid"
+          },
+          "environment": {
+            "type": "string",
+            "enum": [
+              "dev",
+              "prod"
+            ],
+            "description": "The environment this plan builds into."
           },
           "commit_sha": {
             "$ref": "#/components/schemas/GitCommitSha"
@@ -7572,13 +8661,14 @@
       },
       "CostEstimate": {
         "type": "object",
-        "description": "Build-compute reservation quote, not the lifetime cost of the application. amount_micros is the customer USD equivalent of credit_micros; provider_cost_micros is the corresponding published provider-list basis. The versioned price is fixed by this immutable deployment plan. reserved_seconds is the reserved build time in seconds. The measured build seconds settle the reservation and unused credits are released. Storage, mail and runtime costs are separate.",
+        "description": "Build-compute reservation quote, not the lifetime cost of the application. credits is the reserved amount in credits as a decimal (credit_micros divided by one million), the figure to show people. amount_micros is the customer USD equivalent of credit_micros; provider_cost_micros is the corresponding published provider-list basis. The versioned price is fixed by this immutable deployment plan. reserved_seconds is the reserved build time in seconds. The measured build seconds settle the reservation and unused credits are released. Storage, mail and runtime costs are separate.",
         "additionalProperties": false,
         "required": [
           "amount_micros",
           "currency",
           "rate_card_version",
           "credit_micros",
+          "credits",
           "provider_cost_micros",
           "scope",
           "reserved_seconds"
@@ -7600,6 +8690,10 @@
           "credit_micros": {
             "type": "string",
             "pattern": "^[0-9]+$"
+          },
+          "credits": {
+            "type": "string",
+            "pattern": "^[0-9]+(\\.[0-9]{1,6})?$"
           },
           "provider_cost_micros": {
             "type": "string",
@@ -7983,6 +9077,14 @@
           "data_mode": {
             "$ref": "#/components/schemas/ProjectDataMode"
           },
+          "dev_access_mode": {
+            "type": "string",
+            "enum": [
+              "protected",
+              "public"
+            ],
+            "default": "protected"
+          },
           "region": {
             "$ref": "#/components/schemas/HostingRegion"
           },
@@ -8344,6 +9446,7 @@
           "etag",
           "handle",
           "region",
+          "dev_access_mode",
           "lifecycle",
           "source",
           "default_environment",
@@ -8370,6 +9473,13 @@
           },
           "region": {
             "$ref": "#/components/schemas/HostingRegion"
+          },
+          "dev_access_mode": {
+            "type": "string",
+            "enum": [
+              "protected",
+              "public"
+            ]
           },
           "lifecycle": {
             "type": "string",
@@ -8518,6 +9628,7 @@
               "mail_domain_conflict",
               "mail_domain_required",
               "storage_jurisdiction_conflict",
+              "shared_data_requires_promotion",
               "framework_conversion_required",
               "repository_configuration_missing",
               "migration_filename_noncanonical",

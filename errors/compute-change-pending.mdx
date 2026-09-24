@@ -1,0 +1,12 @@
+---
+title: "Compute change pending"
+description: "What the `compute_change_pending` error means and what to do next."
+---
+
+The API, CLI and MCP return `compute_change_pending` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Poll the existing operation after 60 seconds. Do not submit another size change, deletion or transfer while it runs.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

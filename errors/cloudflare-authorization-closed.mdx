@@ -1,0 +1,12 @@
+---
+title: "Cloudflare authorization closed"
+description: "What the `cloudflare_authorization_closed` error means and what to do next."
+---
+
+The API, CLI and MCP return `cloudflare_authorization_closed` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Read Cloudflare DNS status. Reuse a valid grant for the requested zone; otherwise request fresh authorization with a new idempotency key. Do not replay the callback.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

@@ -1,0 +1,12 @@
+---
+title: "Compute change conflict"
+description: "What the `compute_change_conflict` error means and what to do next."
+---
+
+The API, CLI and MCP return `compute_change_conflict` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Read the original operation and current database compute. Preserve data and report unresolved conflicts through feedback with the operation ID.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

@@ -1,0 +1,12 @@
+---
+title: "Etag mismatch"
+description: "What the `etag_mismatch` error means and what to do next."
+---
+
+The API, CLI and MCP return `etag_mismatch` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Refresh the resource, plan the action again, and retry.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

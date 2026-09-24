@@ -34,12 +34,16 @@ and follow the returned schema rather than guessing arguments.
 - `ohmyhost token list` — ohmyhost token list --organization ULID [--after KEY_ID] --json
 - `ohmyhost token revoke` — ohmyhost token revoke --organization ULID --key KEY_ID --yes --json
 - `ohmyhost feedback submit` — ohmyhost feedback submit --organization ULID --kind bug|issue|feature_request --title TITLE --description REDACTED_REPORT [--project ULID] [--environment ULID] [--operation ULID] [--error-code CODE] [--client-version VERSION] --idempotency-key KEY --json
-- `ohmyhost project create` — ohmyhost project create --organization ULID --name NAME [--data-mode shared|isolated] [--region us|eu] --idempotency-key KEY --json (the region is chosen once: us is the default, eu places the database, files and builds in the EU; it cannot be changed later)
+- `ohmyhost project create` — ohmyhost project create --organization ULID --name NAME [--data-mode shared|isolated] [--dev-access-mode protected|public] [--region us|eu] --idempotency-key KEY --json (the region is chosen once: us is the default, eu places the database, files and builds in the EU; it cannot be changed later)
 - `ohmyhost project list` — ohmyhost project list [--cursor ULID] [--limit LIMIT] --json
 - `ohmyhost project context` — ohmyhost project context --project ULID --json
 - `ohmyhost project notes set` — ohmyhost project notes set --project ULID --version NUMBER --markdown TEXT --idempotency-key KEY --json (no credentials or signed URLs)
 - `ohmyhost project status` — ohmyhost project status --project ULID --json
 - `ohmyhost project dev-access create` — ohmyhost project dev-access create --project ULID --json
+- `ohmyhost project dev-share link` — ohmyhost project dev-share link --project ULID --json
+- `ohmyhost project dev-share rotate` — ohmyhost project dev-share rotate --project ULID --idempotency-key KEY --yes --json
+- `ohmyhost project dev-share revoke` — ohmyhost project dev-share revoke --project ULID --idempotency-key KEY --yes --json
+- `ohmyhost project dev-access mode` — ohmyhost project dev-access mode --project ULID --mode protected|public --idempotency-key KEY --yes --json
 - `ohmyhost project handle check` — ohmyhost project handle check --handle HANDLE --json (is this address free? answers with a reason and free alternatives; the address becomes HANDLE.check.omh.st)
 - `ohmyhost project handle set` — ohmyhost project handle set --project ULID --handle HANDLE --if-match ETAG --idempotency-key KEY --json (moves the project to a free address; the old one stops working and anyone may claim it)
 - `ohmyhost database compute set` — ohmyhost database compute set --project ULID --environment dev|prod --profile standard|performance --idempotency-key KEY --yes [--wait] --json
@@ -62,8 +66,8 @@ and follow the returned schema rather than guessing arguments.
 - `ohmyhost domain paid apply` — ohmyhost domain paid apply --project ULID --hostname HOST --idempotency-key KEY --yes --json
 - `ohmyhost domain paid status` — ohmyhost domain paid status --project ULID --json
 - `ohmyhost domain paid delete` — ohmyhost domain paid delete --project ULID --hostname HOST --idempotency-key KEY --yes --json
-- `ohmyhost plan` — ohmyhost plan --project ULID --commit SHA --json
-- `ohmyhost deploy` — ohmyhost deploy --project ULID --plan-id ULID --idempotency-key KEY --yes [--wait] --json
+- `ohmyhost plan` — ohmyhost plan --project ULID --commit SHA [--environment dev|prod] --json
+- `ohmyhost deploy` — ohmyhost deploy --project ULID (--plan-id ULID | --commit SHA [--environment dev|prod]) --idempotency-key KEY --yes [--wait] --json
 - `ohmyhost logs` — ohmyhost logs OPERATION_ULID --follow --json
 - `ohmyhost deployment logs` — ohmyhost deployment logs --project ULID --deployment ULID --follow --json
 - `ohmyhost rollback plan` — ohmyhost rollback plan --project ULID --deployment DEPLOYMENT_ULID --json
@@ -76,8 +80,16 @@ and follow the returned schema rather than guessing arguments.
 - `ohmyhost function runs` — ohmyhost function runs --project ULID --environment ENVIRONMENT_ULID [--limit 1-100] --json
 - `ohmyhost secret set` — printf '%s' "$SECRET_VALUE" | ohmyhost secret set NAME --project ULID --environment ENVIRONMENT_ULID --idempotency-key KEY --stdin [--wait] --json
 - `ohmyhost secret delete` — ohmyhost secret delete NAME --project ULID --environment ENVIRONMENT_ULID --idempotency-key KEY [--wait] --json
-- `ohmyhost mail domain set` — ohmyhost mail domain set --project ULID --domain DOMAIN --idempotency-key KEY --json
-- `ohmyhost mail domain status` — ohmyhost mail domain status --project ULID --json
+- `ohmyhost mail setup` — ohmyhost mail setup --project ULID --environment ULID --domain DOMAIN --sending true --receiving false --idempotency-key KEY --json
+- `ohmyhost mail status` — ohmyhost mail status --project ULID --environment ULID --json
+- `ohmyhost mail webhook set` — ohmyhost mail webhook set --project ULID --environment ULID --url HTTPS_URL --idempotency-key KEY --json
+- `ohmyhost mail webhook verify` — ohmyhost mail webhook verify --project ULID --environment ULID --idempotency-key KEY --json
+- `ohmyhost mail webhook disable` — ohmyhost mail webhook disable --project ULID --environment ULID --idempotency-key KEY --json
+- `ohmyhost mail messages list` — ohmyhost mail messages list --project ULID --environment ULID [--after ULID] --json
+- `ohmyhost mail messages get` — ohmyhost mail messages get --project ULID --environment ULID --message ULID --json
+- `ohmyhost mail messages retry` — ohmyhost mail messages retry --project ULID --environment ULID --message ULID --idempotency-key KEY --json
+- `ohmyhost mail domain set` — ohmyhost mail domain set --project ULID --environment ULID --domain DOMAIN --sending true --receiving false --idempotency-key KEY --json
+- `ohmyhost mail domain status` — ohmyhost mail domain status --project ULID --environment ULID --json
 
 ## MCP tools
 
@@ -99,7 +111,7 @@ and follow the returned schema rather than guessing arguments.
 - `project_export_create` — Owner-only: request an asynchronous password-encrypted SQL ZIP, including at zero credits.
 - `project_export_get` — Owner-only: read the original SQL ZIP export's progress/error and verified download URL.
 - `organization_usage_get` — Read posted UTC-month usage by project, environment and published meter/rate.
-- `organization_account_get` — Owner-only: read the effective Free/Paid plan, its Stripe or granted source, available monthly and non-expiring one-time credits, reservations and next expiry.
+- `organization_account_get` — Owner-only: read the effective Free/Paid plan, its Stripe or granted source, available expiring Free credits and purchased credits that never expire, reservations and next expiry.
 - `organization_credits_get` — Read the owner's shared organization credit pool, seven-day grace_started_at/grace_expires_at and published rate_cards.
 - `project_budget_get` — Read the owner's project UTC-month budget, measured usage and open reservations.
 - `project_budget_set` — Set an owner's optional monthly project budget in microcredits (1000000 = one credit).
@@ -123,8 +135,12 @@ and follow the returned schema rather than guessing arguments.
 - `feedback_submit` — Report a bug, suspected issue or feature request to ohmyho.st.
 - `project_create` — Create an ohmyho.st project.
 - `project_get` — Get one project
-- `project_status` — Get source, both Dev/Prod environment IDs, deployment URLs, latest operation and cleanup status.
-- `project_dev_access_create` — Create an owner-only ten-minute single-use access link for the protected Dev app.
+- `project_status` — Get source, both Dev/Prod environment IDs, deployment URLs, Dev access mode, latest operation and cleanup status.
+- `project_dev_share_link_get` — Owner only: get or create the persistent protected Dev link.
+- `project_dev_access_mode_set` — Owner only: choose public Dev (no platform token) or protected Dev (share link required).
+- `project_dev_share_link_rotate` — Owner only: replace the persistent Dev link and immediately revoke old links and sessions.
+- `project_dev_share_link_revoke` — Owner only: revoke the persistent Dev link and active sessions immediately; Dev stays protected until a new link is obtained.
+- `project_dev_access_create` — Create an owner-only one-hour single-use access link for the protected Dev app.
 - `github_connect` — Owner or Admin: connect GitHub once for this workspace.
 - `github_status` — Read this workspace's GitHub connection.
 - `source_link` — Link a repository covered by the workspace GitHub connection.
@@ -138,8 +154,16 @@ and follow the returned schema rather than guessing arguments.
 - `operation_logs` — Read available operation events for at most ten seconds, stopping earlier at max_events or a terminal event.
 - `function_runs_list` — List the newest scheduled function runs (functions.crons) of an environment: one run per due UTC minute with state, attempt, the status the scheduled handler returned and timing.
 - `operation_reconcile` — Start an explicitly confirmed provider reconciliation attempt
-- `mail_domain_set` — Configure the canonical transactional-mail sender domain.
-- `mail_domain_status` — Read sender DNS/DKIM verification.
+- `mail_setup` — Configure the customer's one production mail domain using the project Prod environment ID.
+- `mail_status` — Read sending and receiving readiness and exact DNS records for the project’s one production mail domain.
+- `mail_webhook_set` — Set the required HTTPS endpoint on the project's Prod application using its Prod environment ID.
+- `mail_webhook_verify` — Send a signed test to the Prod application endpoint and enable receiving after it accepts the event.
+- `mail_webhook_disable` — Disable receiving on the project's Prod mail domain and remove its webhook; existing message content becomes inaccessible.
+- `mail_messages_list` — List the Prod environment's owned handoff metadata younger than 72 hours.
+- `mail_message_get` — Read only this project's Prod-received message before the hard 72-hour expiry.
+- `mail_message_retry` — Retry the Prod customer webhook within its shared budget: initial attempt plus at most three retries, all before 72 hours from receipt.
+- `mail_domain_set` — Configure the project's one production mail domain using its Prod environment ID.
+- `mail_domain_status` — Read separate sending and receiving readiness and exact DNS records for the project’s production mail domain.
 - `secrets_list` — List secret metadata without values
 - `secret_delete` — Delete an environment secret
 - `secret_set_command` — Return the stdin-only CLI command for setting a secret; the value never enters MCP.

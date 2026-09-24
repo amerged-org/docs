@@ -1,0 +1,12 @@
+---
+title: "Rate limited"
+description: "What the `rate_limited` error means and what to do next."
+---
+
+The API, CLI and MCP return `rate_limited` with HTTP 429. Retrying the same request with backoff can succeed.
+
+## What to do
+
+Retry after the server delay.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

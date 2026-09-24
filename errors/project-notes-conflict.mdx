@@ -1,0 +1,12 @@
+---
+title: "Project notes conflict"
+description: "What the `project_notes_conflict` error means and what to do next."
+---
+
+The API, CLI and MCP return `project_notes_conflict` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Read project context, merge the current notes and retry with its version and a new idempotency key.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

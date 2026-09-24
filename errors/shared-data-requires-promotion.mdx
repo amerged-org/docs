@@ -1,0 +1,12 @@
+---
+title: "Shared data requires promotion"
+description: "What the `shared_data_requires_promotion` error means and what to do next."
+---
+
+The API, CLI and MCP return `shared_data_requires_promotion` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Plan and deploy this commit to Dev, then run 'ohmyhost deployment promote plan' to reach Prod.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).
