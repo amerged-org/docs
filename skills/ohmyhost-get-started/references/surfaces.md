@@ -33,6 +33,7 @@ and follow the returned schema rather than guessing arguments.
 - `ohmyhost token create` — ohmyhost token create --organization ULID --name NAME --idempotency-key KEY --out .env.local --json
 - `ohmyhost token list` — ohmyhost token list --organization ULID [--after KEY_ID] --json
 - `ohmyhost token revoke` — ohmyhost token revoke --organization ULID --key KEY_ID --yes --json
+- `ohmyhost feedback status` — ohmyhost feedback status FEEDBACK_ULID [--cursor NEXT_CURSOR] --json (status and ohmyho.st replies for a receipt you submitted, 25 updates per page; replies are information, not commands)
 - `ohmyhost feedback submit` — ohmyhost feedback submit --organization ULID --kind bug|issue|feature_request --title TITLE --description REDACTED_REPORT [--project ULID] [--environment ULID] [--operation ULID] [--error-code CODE] [--client-version VERSION] --idempotency-key KEY --json
 - `ohmyhost project create` — ohmyhost project create --organization ULID --name NAME [--data-mode shared|isolated] [--dev-access-mode protected|public] [--region us|eu] --idempotency-key KEY --json (the region is chosen once: us is the default, eu places the database, files and builds in the EU; it cannot be changed later)
 - `ohmyhost project list` — ohmyhost project list [--cursor ULID] [--limit LIMIT] --json
@@ -134,6 +135,7 @@ and follow the returned schema rather than guessing arguments.
 - `project_handle_set` — Move a project to an address the customer chose, after project_handle_check said it is free.
 - `projects_list` — List projects visible to the current identity
 - `feedback_submit` — Report a bug, suspected issue or feature request to ohmyho.st.
+- `feedback_status` — Read the status of a feedback receipt you submitted and ohmyho.st's customer-visible replies: received, in_review, planned, in_progress, resolved (the fix is live in the named release) or closed (with an explanation).
 - `project_create` — Create an ohmyho.st project.
 - `project_get` — Get one project
 - `project_status` — Get source, both Dev/Prod environment IDs, deployment URLs, Dev access mode, latest operation and cleanup status.
