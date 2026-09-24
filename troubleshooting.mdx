@@ -2,6 +2,8 @@
 title: "Diagnose a deployment"
 description: "Get a useful error and continue the original operation safely."
 ---
+import ErrorCodes from "/snippets/error-codes.mdx";
+
 
 Start with the current project and original operation:
 
@@ -31,6 +33,12 @@ ohmyhost operation reconcile "$OPERATION_ID" --idempotency-key "$RECONCILE_KEY" 
 ```
 
 Use this when the operation reports reconciliation is required and no attempt is pending. Retain the same request key across uncertainty. A completed reconciliation attempt does not itself mean the original deployment succeeded.
+
+## Error codes
+
+Every error names its `code`, and the CLI adds `docs_url`, the page for that code.
+
+<ErrorCodes />
 
 ## Report a platform issue
 

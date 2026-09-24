@@ -1,0 +1,12 @@
+---
+title: "Project rename blocked"
+description: "What the `project_rename_blocked` error means and what to do next."
+---
+
+The API, CLI and MCP return `project_rename_blocked` with HTTP 409. Retrying the same request with backoff can succeed.
+
+## What to do
+
+Wait for the running operation to finish, read the project again, then rename with the new ETag.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

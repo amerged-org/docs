@@ -1,0 +1,12 @@
+---
+title: "Cloudflare zone not bound"
+description: "What the `cloudflare_zone_not_bound` error means and what to do next."
+---
+
+The API, CLI and MCP return `cloudflare_zone_not_bound` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Configure the project domain first with 'ohmyhost domain paid plan' then 'ohmyhost domain paid apply', or configure its sender domain with 'ohmyhost mail domain set'. Then request Cloudflare authorization for that domain's zone.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

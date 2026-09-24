@@ -1,0 +1,12 @@
+---
+title: "Database write pending"
+description: "What the `database_write_pending` error means and what to do next."
+---
+
+The API, CLI and MCP return `database_write_pending` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Poll the original database-write operation before transfer or deletion.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

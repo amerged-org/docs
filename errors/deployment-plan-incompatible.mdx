@@ -1,0 +1,12 @@
+---
+title: "Deployment plan incompatible"
+description: "What the `deployment_plan_incompatible` error means and what to do next."
+---
+
+The API, CLI and MCP return `deployment_plan_incompatible` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Run 'ohmyhost plan' again with the current source revision.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

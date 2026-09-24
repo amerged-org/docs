@@ -1,0 +1,12 @@
+---
+title: "Project export not ready"
+description: "What the `project_export_not_ready` error means and what to do next."
+---
+
+The API, CLI and MCP return `project_export_not_ready` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Finish database provisioning, then request the export again. No backup was accepted.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

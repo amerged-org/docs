@@ -1,0 +1,12 @@
+---
+title: "Unauthenticated"
+description: "What the `unauthenticated` error means and what to do next."
+---
+
+The API, CLI and MCP return `unauthenticated` with HTTP 401. Retrying the same request unchanged does not help.
+
+## What to do
+
+Check OHMYHOST_TOKEN and the selected environment. Replace invalid tokens, or unset OHMYHOST_TOKEN and run 'ohmyhost login'.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

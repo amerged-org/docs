@@ -1,0 +1,12 @@
+---
+title: "Project identity unavailable"
+description: "What the `project_identity_unavailable` error means and what to do next."
+---
+
+The API, CLI and MCP return `project_identity_unavailable` with HTTP 503. Retrying the same request with backoff can succeed.
+
+## What to do
+
+Retry project creation with the same idempotency key.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

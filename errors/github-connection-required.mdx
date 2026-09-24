@@ -1,0 +1,12 @@
+---
+title: "Github connection required"
+description: "What the `github_connection_required` error means and what to do next."
+---
+
+The API, CLI and MCP return `github_connection_required` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Run 'ohmyhost github connect --organization ULID --idempotency-key KEY --json' for this workspace, complete its browser link, then repeat the original source link.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

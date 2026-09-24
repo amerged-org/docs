@@ -1,0 +1,12 @@
+---
+title: "Billing purchase conflict"
+description: "What the `billing_purchase_conflict` error means and what to do next."
+---
+
+The API, CLI and MCP return `billing_purchase_conflict` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Read the original checkout and use billing portal to manage the existing subscription. Do not create another purchase after uncertainty.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

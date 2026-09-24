@@ -31,7 +31,7 @@ Example feedback: “This app uses your WorkOS AuthKit account. The ohmyho.st CL
 
 ## PostgreSQL and Auth
 
-- Access to ohmyho.st-managed PostgreSQL uses `OHMYHOST_DATABASE`. Hyperdrive, Neon management, direct migration credentials and managed connection URLs are platform-private. This does not forbid a customer's compatible auth SDK from calling their own external identity provider.
+- Access to ohmyho.st-managed PostgreSQL uses `OHMYHOST_DATABASE`. Neon management, direct migration credentials and managed connection URLs are platform-private. This does not forbid a customer's compatible auth SDK from calling their own external identity provider.
 - Call the database with `createPrivateDatabaseClient` from `@ohmyhost/customer-runtime`; see [database-runtime.md](database-runtime.md) for the working example, what is not available and what it costs. There is no connection string or customer socket; interactive transactions use the bounded `withConnection(callback)` scope. Keep canonical expand-only migrations under the path reported by init.
 - A held scope allows two concurrent connections per environment, 100 statements, 30 seconds total and five seconds idle. Close it before storage transfers, email, AI calls or other network waits. An adapter for an existing acquire/close port must release the underlying scope in `finally`; never keep a request-wide transaction open while processing a file.
 - SQL `DATE` values retain the `YYYY-MM-DD` wire string. They are calendar days, not timezone-bearing JavaScript dates; preserve existing timestamp decoding and normalize only the field that the application's contract requires.
@@ -41,7 +41,7 @@ Example feedback: “This app uses your WorkOS AuthKit account. The ohmyho.st CL
 
 - For interactive work a customer can issue a time-bound direct PostgreSQL login with `ohmyhost database access create` / MCP `database_access_create` (mode `read` or `write`, 5 minutes to 24 hours, at most three active per environment) and open it with `ohmyhost database psql`. The connection URI and `psql` command are returned exactly once: use them immediately, never store or commit a connection string or password, and revoke the credential when finished. Such a login can never change schema and row-level security still applies; application code keeps using `OHMYHOST_DATABASE`.
 
-Provider background: [Cloudflare Hyperdrive](https://developers.cloudflare.com/hyperdrive/get-started/), [Neon connections](https://neon.com/docs/connect/choose-connection), and [Better Auth PostgreSQL](https://better-auth.com/docs/adapters/postgresql). Do not copy their provider-specific runtime bindings into customer code.
+Provider background: [Neon connections](https://neon.com/docs/connect/choose-connection) and [Better Auth PostgreSQL](https://better-auth.com/docs/adapters/postgresql). Do not copy provider-specific runtime bindings into customer code.
 
 ## Files, mail, functions, and secrets
 
@@ -58,6 +58,20 @@ Provider background: [Cloudflare Hyperdrive](https://developers.cloudflare.com/h
 - `src/ohmyhost/worker.ts` is bundled by the platform on its own, outside the framework build: tsconfig `paths` resolve, but Vite-only aliases, framework virtual modules and modules that declare TanStack Start server functions or Next.js route handlers do not. Import plain application modules (repositories, storage and database clients from `src/generated/ohmyhost-runtime`) and keep framework entry code out of the Worker module.
 - Select a small work batch and per-call timeouts that fit the 120-second scheduled deadline. Persist claims, retry state and cleanup progress before acknowledging work; close database scopes before provider calls. Import narrow runtime modules rather than barrel files that pull Next.js routes into the scheduled bundle. Verify that a due run actually completes through `function_runs_list`.
 - For ohmyho.st-managed transactional mail, use `createTransactionalMailClient` from `@ohmyhost/customer-runtime/mail` with the supplied `OHMYHOST_MAIL_GATEWAY_URL`, `OHMYHOST_MAIL_KEY` and `OHMYHOST_PROJECT_ID`, and `fetch: (request) => env.OHMYHOST_MAIL_GATEWAY.fetch(request)`. Resolve the private Service Binding from the framework request context or Worker `env`; it is not a string in `process.env`. A missing binding is a configuration error, not a reason to retry through public `fetch` or disable placement/egress. Keep the same message and idempotency key for an uncertain retry; do not automatically switch transports. Verification/reset mail owned by an external identity provider stays with that integration. Install application-owned private values through stdin-based CLI commands; source lists secret names, never values.
+
+## Browser media and microphone
+
+Video or audio playback and microphone access are blocked by default; to allow them, add exactly these lines to `public/_headers` and redeploy. Anything broader is ignored, and camera and geolocation stay blocked.
+
+```text
+/*
+  Content-Security-Policy: media-src 'self' blob:
+  Permissions-Policy: microphone=(self)
+```
+
+## Browser security (CSP)
+
+Rendered pages run under a nonce Content-Security-Policy: `script-src 'self' 'nonce-…'` and `style-src 'self' 'nonce-…'`, without `'unsafe-inline'`. Each request carries a fresh nonce in the `x-nonce` request header, and the platform's Next.js and TanStack Start integration applies it to framework tags. Hand-written inline `<style>` blocks, `style=""` attributes (also inside inline SVGs pasted from design tools) and inline event handlers are blocked: move them into CSS files, or read `x-nonce` and set it on your own `<style nonce>` and `<script nonce>` tags. Static-asset deployments allow no inline script or style at all. Check the live policy with `curl -sI <url> | grep -i content-security-policy`.
 
 ## Framework notes
 

@@ -11,7 +11,7 @@ Use this reference when a detected Supabase capability needs a replacement. Keep
 ## Database and Auth
 
 - Replace Supabase database/PostgREST calls and browser SQL with authenticated same-origin use cases backed by `OHMYHOST_DATABASE`. Remove `@supabase/supabase-js` only when no deliberately retained customer-owned Supabase Auth or other approved capability still needs it. Retained external auth must be independently verified; SDK package evidence alone neither selects a managed database nor blocks hosting.
-- Hyperdrive and Neon management are platform-private. Customer code never receives `HYPERDRIVE`, a database URL, or migration credentials.
+- The regional database service and Neon management are platform-private. Customer code receives only the scoped `OHMYHOST_DATABASE` binding, never a database URL or migration credentials.
 - Convert RPCs to explicit transactions or reviewed PostgreSQL functions with fixed `search_path`, explicit authorization, idempotency, and concurrency tests.
 - Canonical migrations are expand-only `YYYYMMDDHHMMSS_name.sql` files. A reviewed PostgreSQL schema-only dump may include `public` and app-owned `private`, never Supabase `auth` or `storage`.
 - If the customer chooses the verified Better Auth conversion, it owns the new `auth` schema, UUID identities, verification/reset mail, host-only cookies, session revocation, and database sessions. Never recreate browser-controlled JWT GUCs or Supabase roles.

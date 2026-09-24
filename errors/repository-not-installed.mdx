@@ -1,0 +1,12 @@
+---
+title: "Repository not installed"
+description: "What the `repository_not_installed` error means and what to do next."
+---
+
+The API, CLI and MCP return `repository_not_installed` with HTTP 403. Retrying the same request unchanged does not help.
+
+## What to do
+
+Read 'ohmyhost github status --organization ULID --json', open connection.settings_url and add this repository to the installation. Then repeat the original source link and key.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

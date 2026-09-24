@@ -1,0 +1,12 @@
+---
+title: "Workers runtime incompatible"
+description: "What the `workers_runtime_incompatible` error means and what to do next."
+---
+
+The API, CLI and MCP return `workers_runtime_incompatible` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Remove or replace the reported module, commit the change, then create a new plan.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

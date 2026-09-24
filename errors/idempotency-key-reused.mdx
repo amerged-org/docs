@@ -1,0 +1,12 @@
+---
+title: "Idempotency key reused"
+description: "What the `idempotency_key_reused` error means and what to do next."
+---
+
+The API, CLI and MCP return `idempotency_key_reused` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Use a new idempotency key for a different request.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

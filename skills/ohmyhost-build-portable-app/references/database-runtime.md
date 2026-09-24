@@ -48,10 +48,9 @@ response budgets and parameter limits remain unchanged.
 
 ## What you cannot do, and why
 
-- **No connection string, no `pg`, no Hyperdrive.** A customer Worker never receives a database URL
-  and cannot open a socket: outbound `connect()` is disabled. Reading `HYPERDRIVE.connectionString`
-  or constructing a `pg` `Pool` builds green, deploys, and then fails its health check with nothing
-  to show for it.
+- **No connection string or `pg` in customer code.** A customer Worker never receives a database URL
+  and cannot open a socket: outbound `connect()` is disabled. A `pg` `Pool` or a platform URL
+  is outside the customer runtime contract.
 - **Interactive transactions are bounded.** Use `database.withConnection(callback)` for read-decide-write
   flows, sending `BEGIN`, your parameterized statements and `COMMIT` or `ROLLBACK` through the
   callback's `connection.query({ text, values })`; the client closes the connection in `finally`.

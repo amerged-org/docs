@@ -1,35 +1,259 @@
 {
-  "source_commit": "988f9d66dab73480efdd9a2d27dfbe5e1c95684d",
+  "source_commit": "0a1ff9671a50fd4152941654e082e0e8c1fcfdd1",
   "source_dirty": false,
-  "release": "0.1.13",
+  "release": "0.1.16",
   "files": [
     {
       "path": "snippets/credit-pricing-table.mdx",
-      "sha256": "0405e57c702cf71805cf1322dd572e85ce911fabe40983b17f0b27e5ced6443f"
+      "sha256": "d281b08bb82ad06ddfa13ca47df6e3c4fa97208fc9c741a7d3c604f1f2e40299"
+    },
+    {
+      "path": "errors/api-key-creation-uncertain.mdx",
+      "sha256": "8d9afdd2444cd4483d5cb45a5d750fa9ff015ed806ef46b9115c9a7a06bb22a3"
+    },
+    {
+      "path": "errors/api-key-permissions-unavailable.mdx",
+      "sha256": "a283fb8b5715cc6bea9239154f980d7eeacc310f68d028affed89754570e50b6"
+    },
+    {
+      "path": "errors/billing-purchase-conflict.mdx",
+      "sha256": "8e8b0a3efae06ff1570e8140ee1b1d00260c050bdca03650ddc1f478f73c237a"
+    },
+    {
+      "path": "errors/billing-recharge-conflict.mdx",
+      "sha256": "594b3b60dbd757bb592f899bf49321c0ca8cf953b2cb099abaa1e8fbe2fde7b7"
+    },
+    {
+      "path": "errors/cloudflare-authorization-closed.mdx",
+      "sha256": "5246f747f20ef20b729347bade461ad24c580b7abbe22b8b2b52098fbc9452f6"
+    },
+    {
+      "path": "errors/cloudflare-zone-not-bound.mdx",
+      "sha256": "e3e07b224cf3cd2439e771275cde1bfb1edee736742d58e983fb22760ab8c10c"
+    },
+    {
+      "path": "errors/compute-change-conflict.mdx",
+      "sha256": "9a8e58c526a70a8a752256ffe290546d672240c52572e400446987d3d246173a"
+    },
+    {
+      "path": "errors/compute-change-pending.mdx",
+      "sha256": "0c16fbe46447ed073f368a38cbca5103121e591707ba06234605f28355a098d8"
+    },
+    {
+      "path": "errors/compute-performance-paid-required.mdx",
+      "sha256": "cd2fd4a5cd0d1e070e917bbe60c5e803568e201b7abc15233736d6f5fd815c8b"
+    },
+    {
+      "path": "errors/compute-performance-unavailable.mdx",
+      "sha256": "8a27897052a7a8b8d63cbda56ea89e7ff9fd22571699780b38018adf5484a967"
+    },
+    {
+      "path": "errors/confirmation-expired.mdx",
+      "sha256": "a544938bec74705e5db884df84c4c6e657746b69a6620ebe1e77980d11448ba5"
+    },
+    {
+      "path": "errors/confirmation-invalid.mdx",
+      "sha256": "38dedcdd28eaaef437fd0a24d4003122e1c1deb5582948e5fb5f0e5de3a9e29b"
+    },
+    {
+      "path": "errors/database-access-limit.mdx",
+      "sha256": "a37060971ea0d236ad685f2f592881db68873fce524e0cebff320ec52fa9a82b"
+    },
+    {
+      "path": "errors/database-write-pending.mdx",
+      "sha256": "011c71bc3773cb9aa28bbbc503323a74f620f7a9ab8a9c2311bddf34b94a4ddb"
+    },
+    {
+      "path": "errors/deployment-plan-expired.mdx",
+      "sha256": "ab8d11c68624bdf1e0ad90f4b760c308b74bf4838ca9134dc3b41dadb50b4f0a"
+    },
+    {
+      "path": "errors/deployment-plan-incompatible.mdx",
+      "sha256": "8535fde4abacb7c11d557aaa5bb9084e212e3bdfa8b8614c9f5d6c7c8c91cb84"
+    },
+    {
+      "path": "errors/environment-secret-mutation-blocked.mdx",
+      "sha256": "05fdacf736ec16649d80fe156dc4edad5b744159821336a52621d5497df33329"
+    },
+    {
+      "path": "errors/etag-mismatch.mdx",
+      "sha256": "f43a97c8eca05fb4beddcad6dc660431be002769ecce877b2f4a147bb61413c0"
+    },
+    {
+      "path": "errors/forbidden.mdx",
+      "sha256": "ee2f425d317dce27a5743dae923d3111ec3a00ee135ab73bc9a48b7e080a3a5d"
+    },
+    {
+      "path": "errors/framework-conversion-required.mdx",
+      "sha256": "7a2ff45216acaab8e4bfa110bec48bc5441a27057ad0e92bc91cdaf445b2cedf"
+    },
+    {
+      "path": "errors/github-connection-required.mdx",
+      "sha256": "7f01a2bb7a433ab71a735365f14e05fc5199562163217c7e7d9eb812b5532687"
+    },
+    {
+      "path": "errors/github-connection-revoked.mdx",
+      "sha256": "f3b4b98d47b019187db59db13baca816653bc9c29835c587e6be812c9d86eb6c"
+    },
+    {
+      "path": "errors/idempotency-key-reused.mdx",
+      "sha256": "93ba687f74c73dd925b1e92d52f3ded7ad717a03c2e4b06ed7449e3b13d3f060"
+    },
+    {
+      "path": "errors/insufficient-organization-credits.mdx",
+      "sha256": "b0d07d7a24f8c3ff394182d26dbdddfabdac6734490e42331dbc404e70636a8d"
+    },
+    {
+      "path": "errors/interactive-login-required.mdx",
+      "sha256": "4b135f101fb5e03db87c3b82366808669309fd6f753d445d4f0840c4dab2248f"
+    },
+    {
+      "path": "errors/invalid-request.mdx",
+      "sha256": "bba2deb1bd34df6e6cd9183099540ebf6cddffff08c13c4f4d3c234d47827c3a"
+    },
+    {
+      "path": "errors/mail-domain-conflict.mdx",
+      "sha256": "3cac54af841759e4eecec451a12f7c1bbf5ed29b551c49b26faa717e298d363c"
+    },
+    {
+      "path": "errors/mail-domain-required.mdx",
+      "sha256": "64997230132d7e1768473c3253bbc0cf7a9369cb593653cb5a211f3cc4d42f12"
+    },
+    {
+      "path": "errors/migration-filename-noncanonical.mdx",
+      "sha256": "01e8324eade05a96eb6abdaae4ffd47a63aa5ccc7683079de6c4d0e4b4582747"
+    },
+    {
+      "path": "errors/organization-required.mdx",
+      "sha256": "9dd0a0b2c292331ecb2f313095256827d424d769ffddcbb8ef94b216f7a2add0"
+    },
+    {
+      "path": "errors/paid-plan-required.mdx",
+      "sha256": "166025e0b8c560b30f728e9e2062b435337f188787121edcbc712cedcab89e7e"
+    },
+    {
+      "path": "errors/payload-too-large.mdx",
+      "sha256": "c19f2c105afeca00e6dcd7a59506bcd4b6f3d863d099c6005ea845aa5773bcbe"
+    },
+    {
+      "path": "errors/project-budget-exceeded.mdx",
+      "sha256": "010de943f4cbbdb0e81940f072bfefe7fd1317997d351f3434f1277d0acff110"
+    },
+    {
+      "path": "errors/project-export-not-ready.mdx",
+      "sha256": "e5c8ea578f9212b1724790945a7309c87bae15f5be8b7aaa38dcc3457ac2be3d"
+    },
+    {
+      "path": "errors/project-handle-invalid.mdx",
+      "sha256": "ecf2fb6c90b7528b311ad3b1e56dab27c00095ba9736cbf5ddfe4eb10d09f76e"
+    },
+    {
+      "path": "errors/project-handle-taken.mdx",
+      "sha256": "728312cdc284cbe852b046c78237f448b3d09c4e0663d890bcfe11470a807072"
+    },
+    {
+      "path": "errors/project-handle-unavailable.mdx",
+      "sha256": "2ff12253518e1293c51135d86b0a692be3fd1eb44af84e38ac7c35b91f938c39"
+    },
+    {
+      "path": "errors/project-handle-unchanged.mdx",
+      "sha256": "665d2a9c04cf4b17b19a7bde75a27bc142019f83ac382b4a7f2d5bfcb3c2d4ce"
+    },
+    {
+      "path": "errors/project-identity-unavailable.mdx",
+      "sha256": "8782d4e554aff9ab0eec67880199f4ca17108144f2eeed79926a52da598e7ed8"
+    },
+    {
+      "path": "errors/project-notes-conflict.mdx",
+      "sha256": "4077be05c03d2ab896d350d16edede3c34cde7e7cf38f850a8fec9e53a0153df"
+    },
+    {
+      "path": "errors/project-rename-blocked.mdx",
+      "sha256": "8970ce45676e1e0818fd9e7f194cfac577101c96465b6f899a42a788b293772c"
+    },
+    {
+      "path": "errors/promotion-invalid-target.mdx",
+      "sha256": "cab81eb9845a4aa63872c00faf3d10d3ba70fc83034e8fe77e1dd01e0792a2c0"
+    },
+    {
+      "path": "errors/promotion-source-stale.mdx",
+      "sha256": "0b9eb9d430415db3bca08cbc6cc49ac9fbfb5ca7fee4b34c607737412663e36d"
+    },
+    {
+      "path": "errors/promotion-target-stale.mdx",
+      "sha256": "b3e803976cf386b43f103d9d25a99558a9632ab47bd0f3e150fa7980ed7a085e"
+    },
+    {
+      "path": "errors/rate-limited.mdx",
+      "sha256": "9be056689a1b63755012e8773a67afad9b295312b8479d4ebce23bd4c8c63044"
+    },
+    {
+      "path": "errors/reconciliation-exhausted.mdx",
+      "sha256": "ede544821c6f94acd80a3b0e2076b0794c3f47891402ae7896b4537cbbeed72f"
+    },
+    {
+      "path": "errors/repository-configuration-missing.mdx",
+      "sha256": "301fd8a8254254ea17891798aad5f268a5bc9fe91b52efd36683826274b3d512"
+    },
+    {
+      "path": "errors/repository-not-installed.mdx",
+      "sha256": "d4c9fd6c0b23240ee75a7d18cdfe18a0a1d0a5ca5e1f241f663b21d43090f18c"
+    },
+    {
+      "path": "errors/resource-not-found.mdx",
+      "sha256": "b234a3ae579ae5b519a23b1d30c4575874a8f9a5e5bd091637ddcd5b919f9963"
+    },
+    {
+      "path": "errors/service-unavailable.mdx",
+      "sha256": "b813755b771bcc35b588d3b6806265ed4437a1fb40d1ce325be0baab3e4e5573"
+    },
+    {
+      "path": "errors/shared-data-requires-promotion.mdx",
+      "sha256": "3dc2f40298cdaf4348fff3f18be62205a68a3744c9ac077b6f098fdd759ed883"
+    },
+    {
+      "path": "errors/storage-jurisdiction-conflict.mdx",
+      "sha256": "e0a941d648f623cddd07a25b2b93cadbc8a56af7ffe5fe27eaa6e2ba87b21dce"
+    },
+    {
+      "path": "errors/unauthenticated.mdx",
+      "sha256": "1549b8968cf03d66df0c5e63f5ee8f5ec48d78f475a1c1579113dbc508643817"
+    },
+    {
+      "path": "errors/workers-runtime-incompatible.mdx",
+      "sha256": "30ce9e41c898b2c4c3d771f086fc11db89145bc4f12488bf0d41a6df2819854d"
+    },
+    {
+      "path": "snippets/error-codes.mdx",
+      "sha256": "50a8c03e893b152bc6a6011bf43f68098d9c3d21c58e7573e4e453575c497f4a"
     },
     {
       "path": "skills/ohmyhost-build-portable-app/SKILL.md",
-      "sha256": "3e81b7b4569a308173cb16cb229257f76a4340c00e26a4a4ecf08bcb72eb2802"
+      "sha256": "3cb737889f7817c34db060b12a23a33bf71b5ecb735af68a19483373751d3ef3"
     },
     {
       "path": "skills/ohmyhost-build-portable-app/references/cli-deploy.md",
-      "sha256": "ffdd5d231011d7220c33a8b63aa8d19d1c39dcfbdc76e1cc1c2dd8c0002b624f"
+      "sha256": "b4e9a312ce0c2a2622528c804f42f2a67a080b066a016ebec0691c50ce7b592b"
     },
     {
       "path": "skills/ohmyhost-build-portable-app/references/database-runtime.md",
-      "sha256": "69a0bf60df7d20f8fb03222ba9d6e682bdfd524e3a59ec2bf39de7422d6de61c"
+      "sha256": "eba4a117310c7e12b9b99f3cab1928c21d3671167745c707ce63f39d793c52d4"
+    },
+    {
+      "path": "skills/ohmyhost-build-portable-app/references/mail.md",
+      "sha256": "ab01f899f8a14f286327bb31a98acdb494be6f313bee8077d56ae8324d4c0283"
     },
     {
       "path": "skills/ohmyhost-build-portable-app/references/stack-contracts.md",
-      "sha256": "d368e0c061e656312b47c8eaef684f488d8a0c3aa53cd7e29b93816bf0268b9a"
+      "sha256": "3795c4c6fa3bea3129f62bf66d141f950e2ae2199d33733f3dce0e36296c48c6"
     },
     {
       "path": "skills/ohmyhost-deploy-github/SKILL.md",
-      "sha256": "69f0db286c0310f7de9e8668e7e10af0aac0ff33cbefaa645fa2b7ca6085bb04"
+      "sha256": "3e54b23c9a24f7735b41b2d45577a5cb80a304460ebe1d8e3685b6895aa74d74"
     },
     {
       "path": "skills/ohmyhost-domains-and-mail/SKILL.md",
-      "sha256": "1f957c7bd1e4558b8ccbcce356c1666f39d47b62a19c6b20220605c704f4137f"
+      "sha256": "fb032a8cbcd2cd47188d50f4a616da0ef318b80ca8db15ee198d0ab19310b2ce"
     },
     {
       "path": "skills/ohmyhost-export-database/SKILL.md",
@@ -45,7 +269,7 @@
     },
     {
       "path": "skills/ohmyhost-get-started/references/surfaces.md",
-      "sha256": "827ad7df32cba13ebd7190556850bfef8bbbd2af0948c3fd20bf56c3ba7ac366"
+      "sha256": "d2367ef1660fb22e51440e319632cfc70f039e6a37d6a1b8a971a4abb3a5cebc"
     },
     {
       "path": "skills/ohmyhost-manage-database/SKILL.md",
@@ -57,7 +281,7 @@
     },
     {
       "path": "skills/ohmyhost-migrate-supabase-postgres/references/provider-contracts.md",
-      "sha256": "2dbb03464b2d02eb50080f481090ae439b66602354c71cc730ef16d58153a25a"
+      "sha256": "3279b4535b56add9c40bb0569c40ca57e32165783d35b6294f4f59d6c9300978"
     },
     {
       "path": "skills/ohmyhost-migrate-supabase-postgres/scripts/create-portable-baseline.mjs",
@@ -65,23 +289,23 @@
     },
     {
       "path": "skills/ohmyhost-troubleshoot-deployment/SKILL.md",
-      "sha256": "c6fe23e1fa03e2c7444a84a7b1c2d94e2645aa9364798d8f19d4be9ff1078add"
+      "sha256": "77d372be2f86d16a50783d864bfe6e5b00393324db0ec5aa51cd5a8ab2382fad"
     },
     {
       "path": "skills/ohmyhost-usage-and-budgets/SKILL.md",
-      "sha256": "6c8f0e0cde128439ab3a442bc63b62d4b050ae758b6144b1179c06dbaab61540"
+      "sha256": "8aadee6ee94eaf92e529e434bfee4921e2d91bc3eb84d859ab66a081bc065b28"
     },
     {
       "path": "openapi.yaml",
-      "sha256": "a87a082a705fff03df03a0da822a09a13e19300bbd964eacda3fd1643e669c5e"
+      "sha256": "cc45855922f9318033754c0af03def9bfbd36e62ce9021a9daf7bed40bcf524b"
     },
     {
       "path": "openapi.json",
-      "sha256": "9c7958e25e2aea2e0d05bd64630f9e130e6b7b1f82f3216fa739b482a39387fc"
+      "sha256": "663c1bb87255af291a0c62fdc2561fde4e6873465b447a41c709b782771e6061"
     },
     {
       "path": "mcp-tools.json",
-      "sha256": "e9c68f94aad57a8ef62147a41b7febfc931b5df35127350251eae6409018138d"
+      "sha256": "11930ec5c695224b22ec9e84ebf99a9c9a5d4690fae2e60e3373a365d55c4698"
     },
     {
       "path": "mcp.json",
@@ -89,19 +313,19 @@
     },
     {
       "path": "snippets/install-clients.mdx",
-      "sha256": "c0eae23847f7c8813bc58dc9af7d3b77b2d1f42e72994043f711eb3f3914b4b5"
+      "sha256": "1211bcffc8a61804ca6fa7be267779dbe523d9b928fce12f3c5bbf97ff451e35"
     },
     {
       "path": "snippets/install-sdk.mdx",
-      "sha256": "ab6d3ee4cb41da990b9d96f1fb8cd57c81e8c9fa71c4762ce088821a4f2f2bf8"
+      "sha256": "9ca2f9ab7ce4133c65cf4944e2b8a7dcca7e26ddc6f49752ed73ce5041a0ec05"
     },
     {
       "path": "snippets/skill-catalog.mdx",
-      "sha256": "ceaff9874fb6c97f10a102aff3ba79dcbed7bee3ca54c29d6af50fea427016af"
+      "sha256": "a5b63ea4f09273dea98965021a80dde78861d7704eed772fb70d67af0f65a44b"
     },
     {
       "path": "snippets/mcp-tools.mdx",
-      "sha256": "6dec5201f7ef2fc5cccb6225ee63856e721b66fed78a3684249c761dc6826101"
+      "sha256": "5fb1aa18fec506d088585454066d301afcc2189f7540de7ee84e0483d2f84314"
     },
     {
       "path": "logo/light.svg",

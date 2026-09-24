@@ -1,0 +1,12 @@
+---
+title: "Deployment plan expired"
+description: "What the `deployment_plan_expired` error means and what to do next."
+---
+
+The API, CLI and MCP return `deployment_plan_expired` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Run 'ohmyhost plan' again, then deploy the new plan.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

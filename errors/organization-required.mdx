@@ -1,0 +1,12 @@
+---
+title: "Organization required"
+description: "What the `organization_required` error means and what to do next."
+---
+
+The API, CLI and MCP return `organization_required` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Run 'ohmyhost organization list --json' and select one with 'ohmyhost organization use --organization ULID --json', or create the first workspace.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

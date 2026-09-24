@@ -1,0 +1,12 @@
+---
+title: "Migration filename noncanonical"
+description: "What the `migration_filename_noncanonical` error means and what to do next."
+---
+
+The API, CLI and MCP return `migration_filename_noncanonical` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Rename every migration to YYYYMMDDHHMMSS_name.sql, commit the change, then plan again.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

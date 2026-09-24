@@ -1,0 +1,12 @@
+---
+title: "Billing recharge conflict"
+description: "What the `billing_recharge_conflict` error means and what to do next."
+---
+
+The API, CLI and MCP return `billing_recharge_conflict` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Read billing recharge get and the current revision. Preserve the original key after uncertainty; do not start a checkout or automatically re-enable charges.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).
