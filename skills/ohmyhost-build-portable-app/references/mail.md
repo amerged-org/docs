@@ -3,7 +3,10 @@
 Use the installed current CLI/MCP and the generated SDK. The customer needs only their
 ohmyho.st project access. Ask which domain and sender address they want, and whether they
 need sending, receiving, or both. Recommend a mail subdomain when existing company inboxes
-already use the root domain; never silently take over existing MX routing.
+already use the root domain; never silently take over existing MX routing. Sending needs this
+customer-owned domain: the project's hosting address does not send, and there is no platform
+sender to fall back to. Add mail only on that request or when the app actually sends mail; an app
+without it deploys with no mail domain.
 
 ## Setup
 
@@ -18,7 +21,8 @@ already use the root domain; never silently take over existing MX routing.
    ```
 
    Use authorized Cloudflare DNS automation or return the exact DNS records for manual setup.
-   DNS verification is asynchronous. Treat sending and receiving readiness separately.
+   DNS verification is asynchronous; while it is pending, `mail_status` returns
+   `next_check_after_seconds` of 60. Treat sending and receiving readiness separately.
    Keep the existing deployment operation while verification is pending.
 
 3. For receiving, add a server route such as `/api/email/inbound` to the customer's app,
@@ -49,7 +53,7 @@ already use the root domain; never silently take over existing MX routing.
   expiry. A download above 50 MiB fails with `mail_attachment_too_large`; handle that
   error explicitly. Store files through the project's normal file capability; keep network transfers
   outside database transactions.
-- The platform has no permanent inbox archive. Resend's own retention is separate
+- The platform has no permanent inbox archive. Resend's own 30-day retention is separate
   from ohmyho.st's 72-hour access limit; business retention belongs to the customer app.
 
 ## Delivery and costs
@@ -64,9 +68,9 @@ so duplicate event IDs must not repeat effects.
 bounded recovery only for the selected project/environment. Nothing older than 72 hours is
 available through these paths. Provider retention is separate from platform access expiry.
 
-One sent recipient costs **0.18 credits**; one received email costs **0.18 credits**. Webhook
-retries do not create another mail charge. Application database, file and runtime usage follow
-their existing resource rates.
+Each sent recipient (`mail.sent`) and each received email (`mail.received`) is charged at the
+published rate on https://ohmyho.st/pricing. Webhook retries do not create another mail charge.
+Application database, file and runtime usage follow their existing resource rates.
 
 Verify with one actual confirmation and reply: sender accepted, incoming webhook signature
 valid, one saved database message, attachment readable, duplicate delivery does not duplicate

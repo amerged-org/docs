@@ -3079,6 +3079,7 @@
       "post": {
         "operationId": "planPaidProjectDomain",
         "summary": "Plan one Paid customer-owned hostname",
+        "description": "The hostname routes to the project's current Prod deployment. A project whose Prod environment has no active deployment returns production_deployment_required (409); deploy to Prod or promote the current Dev deployment, then plan again.",
         "parameters": [
           {
             "$ref": "#/components/parameters/RequestId"
@@ -3120,6 +3121,9 @@
           "404": {
             "$ref": "#/components/responses/ResourceNotFound"
           },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
           "429": {
             "$ref": "#/components/responses/Problem"
           },
@@ -3134,7 +3138,7 @@
       "put": {
         "operationId": "applyPaidProjectDomain",
         "summary": "Apply one Paid customer-owned hostname",
-        "description": "Requires a confirmed current Paid service period and no expired credit-exhaustion grace. Returns paid_plan_required without a Paid period, or insufficient_organization_credits after seven days with no available credits, without provider mutation. Top-ups restore exhausted Paid access but do not create or extend a Paid service period.",
+        "description": "Requires a confirmed current Paid service period and no expired credit-exhaustion grace. Returns paid_plan_required without a Paid period, or insufficient_organization_credits after seven days with no available credits, without provider mutation. Top-ups restore exhausted Paid access but do not create or extend a Paid service period. After the Paid check, a project whose Prod environment has no active deployment returns production_deployment_required (409) without claiming the hostname or any provider mutation; a changed request under a used key returns idempotency_key_reused (409).",
         "parameters": [
           {
             "$ref": "#/components/parameters/RequestId"
@@ -3183,7 +3187,7 @@
             "$ref": "#/components/responses/ResourceNotFound"
           },
           "409": {
-            "$ref": "#/components/responses/IdempotencyConflict"
+            "$ref": "#/components/responses/Problem"
           },
           "429": {
             "$ref": "#/components/responses/Problem"
@@ -4911,6 +4915,69 @@
           }
         },
         "x-ohmyhost-resource-disclosure": "indistinguishable-not-found"
+      },
+      "delete": {
+        "operationId": "deleteManagedMailDomain",
+        "summary": "Retire the project's mail domain while the project stays active",
+        "description": "Ends sending and receiving at once, removes the webhook, then removes the domain and its sending key from the mail provider and confirms their absence. DNS is not changed; dns_records lists the records to remove from the domain's DNS, including any that Cloudflare authorization added. Repeat the same idempotency key after an uncertain response. A later mail setup starts a new domain registration.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          },
+          {
+            "name": "environment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The mail domain is retired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedMailDomainDeleted"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-ohmyhost-resource-disclosure": "indistinguishable-not-found"
       }
     },
     "/v1/projects/{project_id}/environments/{environment_id}/mail-webhook": {
@@ -5987,6 +6054,31 @@
           "status": {
             "type": "string",
             "const": "disabled"
+          }
+        }
+      },
+      "ManagedMailDomainDeleted": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "domain",
+          "dns_records"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "deleted"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "dns_records": {
+            "type": "array",
+            "description": "Records ohmyho.st no longer manages; remove them from the domain's DNS.",
+            "items": {
+              "$ref": "#/components/schemas/ManagedMailDnsRecord"
+            }
           }
         }
       },
@@ -9627,8 +9719,10 @@
               "promotion_invalid_target",
               "mail_domain_conflict",
               "mail_domain_required",
+              "mail_capacity_unavailable",
               "storage_jurisdiction_conflict",
               "shared_data_requires_promotion",
+              "production_deployment_required",
               "framework_conversion_required",
               "repository_configuration_missing",
               "migration_filename_noncanonical",

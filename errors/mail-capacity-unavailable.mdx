@@ -1,0 +1,12 @@
+---
+title: "Mail capacity unavailable"
+description: "What the `mail_capacity_unavailable` error means and what to do next."
+---
+
+The API, CLI and MCP return `mail_capacity_unavailable` with HTTP 503. Retrying the same request with backoff can succeed.
+
+## What to do
+
+Report this request ID through feedback. The stored mail setup continues automatically once ohmyho.st has capacity; follow mail status and keep the original idempotency key.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).

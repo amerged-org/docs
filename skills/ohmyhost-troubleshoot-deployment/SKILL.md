@@ -18,7 +18,7 @@ Read `project_context_get`, `project_status` and `operation_get` for the origina
 | Reconciliation `pending`       | Poll the original operation after 60 seconds.                                                           |
 | `reconciliation_exhausted`     | Stop retrying and report the operation; a new deployment or deletion is not a recovery bypass.          |
 
-A completed reconciliation receipt is not the application result. Verify the original operation and the actual app. Distinguish a private Dev 404 from an application failure: obtain `project_dev_access_create` and open its single-use link before checking the clean Dev origin.
+A completed reconciliation receipt is not the application result. Verify the original operation and the actual app. Distinguish a protected Dev 404 from an application failure: read `dev_access_mode` from `project_status`. For protected Dev, open the owner's link from `project_dev_share_link_get` before checking the clean Dev origin; public Dev opens at the clean URL.
 
 A video that will not play or a denied microphone is not a platform bug: add the media opt-in from the portable-app Skill's [runtime contracts](../ohmyhost-build-portable-app/references/stack-contracts.md) and redeploy.
 

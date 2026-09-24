@@ -1,0 +1,12 @@
+---
+title: "Production deployment required"
+description: "What the `production_deployment_required` error means and what to do next."
+---
+
+The API, CLI and MCP return `production_deployment_required` with HTTP 409. Retrying the same request unchanged does not help.
+
+## What to do
+
+Deploy to Prod first: run 'ohmyhost plan --environment prod' and deploy that plan, or promote the current Dev deployment with 'ohmyhost deployment promote plan'. Then plan the domain again.
+
+Keep the `request_id` from the error when you [report the problem](/feedback).
