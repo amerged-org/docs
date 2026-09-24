@@ -38,7 +38,7 @@ const { rows } = await database.query({
 ```
 
 The client validates keys and size, then creates RPC-compatible plain objects. Version 0.1.6
-created null-prototype objects that Workers RPC rejected. Upgrade the pinned runtime URL and
+created null-prototype objects that Workers RPC rejected. Upgrade the pinned runtime alias and
 lockfile when repairing that failure; keep the application's ordinary JSON parameter contract.
 When an app stores JSON, verify an actual JSON write/read through its hosted route as well as
 its health query. A scalar-only health query does not exercise object serialization.

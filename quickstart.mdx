@@ -21,6 +21,8 @@ ohmyhost init --dry-run --json
 
 The result identifies the framework, requirements and concrete blockers. Resolve the reported issue and repeat inspection. Keep one pinned package manager and its matching lockfile. Preserve application auth and existing migrations; a package name alone does not require replacing them.
 
+Upgrade the CLI and MCP to the [current release](/cli) first. When the result reports `companion.packages.customerRuntime` (or `worker.packages.customerRuntime`), install the application runtime under its import name as exactly that npm alias, for example `"@ohmyhost/customer-runtime": "npm:@amerged/ohmyhost-runtime@<version>"` in `package.json`, then refresh and commit the lockfile. Every `@ohmyhost/customer-runtime/*` import stays unchanged. A bare `@ohmyhost/customer-runtime` version fails the platform build. Replace a runtime pinned to an `ohmyho.st/releases/` URL with the alias: only the current release is served there, and older versions carry no compatibility promise.
+
 For data-backed apps, choose isolated Dev/Prod databases and files or explicitly shared data. Isolation is recommended; two databases consume credits independently. [How environments work](/environments).
 
 Choose whether the Dev URL should be protected by a reusable share link (the default) or public without a platform token. The agent asks before creating a project and records the choice.
