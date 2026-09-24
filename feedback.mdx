@@ -7,7 +7,7 @@ description: "Give the service a useful redacted report from your customer agent
 ohmyhost feedback submit --organization "$ORGANIZATION_ID" --kind issue --title "Deployment cannot continue" --description "$REDACTED_DESCRIPTION" --project "$PROJECT_ID" --operation "$OPERATION_ID" --error-code "$ERROR_CODE" --idempotency-key "$FEEDBACK_KEY" --json
 ```
 
-Choose `bug`, `issue` or `feature_request`. Describe what you expected, what happened and the smallest reproduction. The title is at most 160 characters and the description at most 8,000; both are trimmed, and control characters are rejected except line breaks and tabs in the description. Project, environment and operation references must belong to the supplied organization, and an environment or operation also needs its project. Omit optional references that do not apply.
+Choose `bug`, `issue` or `feature_request`. Describe what you expected, what happened and the smallest reproduction. The title is at most 160 characters and the description at most 8,000; both must be trimmed, and control characters are rejected except line breaks and tabs in the description. Project, environment and operation references must belong to the supplied organization, and an environment or operation also needs its project. Omit optional references that do not apply.
 
 MCP `feedback_submit` uses the same endpoint. Its schema identifies valid argument names. Use compact error/client-version identifiers without spaces, such as `cli/0.1.0`.
 
