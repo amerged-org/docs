@@ -893,7 +893,7 @@
     },
     {
       "name": "organization_use",
-      "description": "Bind a saved login that has no organization yet to one workspace, so later calls act inside it. A login already in another organization keeps it (profile_organization_fixed): add a login for the other workspace with OHMYHOST_ENVIRONMENT=production ohmyhost login --organization ULID --json. Read organization_list first, then github_status for the selected workspace and github_connect if needed; the identifier is the platform ULID, not the provider identifier. An OHMYHOST_TOKEN process cannot select anything and needs OHMYHOST_ENVIRONMENT=production ohmyhost login --json instead.",
+      "description": "Bind a saved login that has no organization yet to one workspace, so later calls act inside it. A login already in another organization keeps it (profile_organization_fixed): add a login for the other workspace as the same user with OHMYHOST_ENVIRONMENT=production ohmyhost login --organization ULID --user USER_ID --json. Read organization_list first, then github_status for the selected workspace and github_connect if needed; the identifier is the platform ULID, not the provider identifier. An OHMYHOST_TOKEN process cannot select anything and needs OHMYHOST_ENVIRONMENT=production ohmyhost login --json instead.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2924,7 +2924,7 @@
     },
     {
       "name": "secret_set_command",
-      "description": "Return the stdin-only CLI command for setting a secret; the value never enters MCP.",
+      "description": "Return the stdin-only CLI command for setting a secret; the value never enters MCP. The call runs as the chosen login and first reads the project, so an account that cannot see it answers resource_not_found. The command names that login with --profile-name; a server with OHMYHOST_TOKEN instead names its key's user and organization with --token-user and --token-organization, and the CLI then runs only with an OHMYHOST_TOKEN of that account. Either way the later write runs as exactly this account or not at all (acting_as shows which).",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2947,6 +2947,11 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 256
+          },
+          "profile_name": {
+            "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$"
           }
         },
         "required": [

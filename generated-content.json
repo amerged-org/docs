@@ -1,5 +1,5 @@
 {
-  "source_commit": "25a41210619c13fdbfbaa994f5bcb437e457af54",
+  "source_commit": "7be566d945f1239794608c7b236ddb4c813b5658",
   "source_dirty": false,
   "release": "0.1.20",
   "files": [
@@ -269,7 +269,7 @@
     },
     {
       "path": "skills/ohmyhost-get-started/SKILL.md",
-      "sha256": "406a29e63a722473b0204683799c07ace4e0b2f4f4c55e6e53c7ae745ede44c3"
+      "sha256": "34d58243f50c0167d12dc7406f73668c8e65e7c1ca22e6beaa4509c9812e3e42"
     },
     {
       "path": "skills/ohmyhost-get-started/references/harness-setup.md",
@@ -277,7 +277,7 @@
     },
     {
       "path": "skills/ohmyhost-get-started/references/surfaces.md",
-      "sha256": "4628aaa7d7afbe0065cabfbfa75be3754eb84e74362fa32f89117c4a01685bb2"
+      "sha256": "d10a69031a1a3acc7af210b9c3362d5ac9e1f8789b184e4f3d27f2cbfa17512c"
     },
     {
       "path": "skills/ohmyhost-manage-database/SKILL.md",
@@ -313,7 +313,7 @@
     },
     {
       "path": "mcp-tools.json",
-      "sha256": "8f1e2757156a86a7a9cbaea7ab1eca358ee061248d02a4a115d9ade02dd1f8d3"
+      "sha256": "dc6dbd8006bc561c82d270547f54170e1b00c71024bf6346bd50e33ba8f7edaf"
     },
     {
       "path": "mcp.json",
