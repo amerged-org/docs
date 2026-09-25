@@ -1,7 +1,7 @@
 {
-  "source_commit": "24bc1dc5341fad4aac49000699dcb6414b3d1992",
+  "source_commit": "25a41210619c13fdbfbaa994f5bcb437e457af54",
   "source_dirty": false,
-  "release": "0.1.19",
+  "release": "0.1.20",
   "files": [
     {
       "path": "snippets/credit-pricing-table.mdx",
@@ -321,11 +321,11 @@
     },
     {
       "path": "snippets/install-clients.mdx",
-      "sha256": "fa5fddf8b0c2305f44169bc13ed9da4061759938c178ad6492c20304d9fbd70d"
+      "sha256": "e538e4c5216b31dd708766c90e85f839ec5378bae54d7418b583903f2b9e3080"
     },
     {
       "path": "snippets/install-sdk.mdx",
-      "sha256": "a2877c3dccd5039cb4bbb0d5580dbd6b80dfcd1eb0f03ab33a03c266017e60cc"
+      "sha256": "9476917ebaa433dbd27bded2942edc5217a02146c0cdf56aec41727cd768cdd9"
     },
     {
       "path": "snippets/skill-catalog.mdx",
