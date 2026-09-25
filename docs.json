@@ -54,6 +54,7 @@
               "email",
               "status",
               "troubleshooting",
+              "support",
               "usage",
               "pricing",
               "budgets",
@@ -127,6 +128,10 @@
           {
             "label": "Brand",
             "href": "https://ohmyho.st/brand"
+          },
+          {
+            "label": "Support",
+            "href": "https://docs.ohmyho.st/support"
           },
           {
             "label": "Contact",
