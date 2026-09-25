@@ -80,7 +80,7 @@ and follow the returned schema rather than guessing arguments.
 - `ohmyhost delete` — ohmyhost delete --project ULID --if-match ETAG --confirmation-token TOKEN --idempotency-key KEY --yes --json
 - `ohmyhost secret list` — ohmyhost secret list --project ULID --environment ENVIRONMENT_ULID --json
 - `ohmyhost function runs` — ohmyhost function runs --project ULID --environment ENVIRONMENT_ULID [--limit 1-100] --json
-- `ohmyhost secret set` — printf '%s' "$SECRET_VALUE" | ohmyhost secret set NAME --project ULID --environment ENVIRONMENT_ULID --idempotency-key KEY [--token-user USER_ID --token-organization ULID] --stdin [--wait] --json (with --token-user and --token-organization it runs only with an OHMYHOST_TOKEN of that user and organization, never with a saved login)
+- `ohmyhost secret set` — printf '%s' "$SECRET_VALUE" | ohmyhost secret set NAME --project ULID --environment ENVIRONMENT_ULID --idempotency-key KEY [--profile-user USER_ID --profile-organization ULID | --token-user USER_ID --token-organization ULID] --stdin [--wait] --json (with --profile-user and --profile-organization the saved login that runs it must belong to that user and organization; with --token-user and --token-organization it runs only with an OHMYHOST_TOKEN of that user and organization, never with a saved login)
 - `ohmyhost secret delete` — ohmyhost secret delete NAME --project ULID --environment ENVIRONMENT_ULID --idempotency-key KEY [--wait] --json
 - `ohmyhost mail setup` — ohmyhost mail setup --project ULID --environment ULID --domain DOMAIN --sending true --receiving false --idempotency-key KEY --json
 - `ohmyhost mail status` — ohmyhost mail status --project ULID --environment ULID --json

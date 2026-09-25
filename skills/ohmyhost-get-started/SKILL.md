@@ -82,18 +82,21 @@ changes which account your command runs as.
   repeat the login.
 - `profile_selection_required` means several logins could run the command: ask the customer which
   account to use. `profile_not_found` names the login to add, `profile_context_mismatch` means the
-  request contradicts its binding or organization, and `environment_token_context_mismatch` means
-  `OHMYHOST_TOKEN` belongs to another account.
+  request contradicts its binding, organization or user, and `environment_token_context_mismatch`
+  means `OHMYHOST_TOKEN` belongs to another account.
 - A saved login never switches organizations. For another workspace, add its own login with
   `ohmyhost login --organization ORGANIZATION_ID --user USER_ID --json`.
   `ohmyhost logout --profile-name NAME` removes only that login.
 - `secret_set_command` takes `profile_name` like every tool and returns a command that names the
-  same login with `--profile-name`; an MCP server with `OHMYHOST_TOKEN` names its key's user and
+  same login with `--profile-name` plus its user and organization (`--profile-user`,
+  `--profile-organization`); an MCP server with `OHMYHOST_TOKEN` names its key's user and
   organization with `--token-user` and `--token-organization` instead. Keep those flags when you
-  run the command, so the secret is written as exactly this account. The key form runs only where
-  `OHMYHOST_TOKEN` holds a key of that user and organization, never with a saved login: it answers
-  `environment_token_required` without a key and `environment_token_context_mismatch` with another
-  account's key, and sends nothing in either case.
+  run the command, so the secret is written as exactly this account. A login of that name that
+  belongs to another user or organization, for example on another computer, answers
+  `profile_context_mismatch`. The key form runs only where `OHMYHOST_TOKEN` holds a key of that
+  user and organization, never with a saved login: it answers `environment_token_required` without
+  a key and `environment_token_context_mismatch` with another account's key. None of these
+  refusals reads the value or sends anything.
 - Tokens stay in the operating system's credential store; the list of saved logins (names, users
   and organizations, never a token) is kept in `~/.ohmyhost/profiles/`, so agents that sign in at
   the same moment never lose each other's login. One environment keeps up to 64 saved logins;

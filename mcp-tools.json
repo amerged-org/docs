@@ -2924,7 +2924,7 @@
     },
     {
       "name": "secret_set_command",
-      "description": "Return the stdin-only CLI command for setting a secret; the value never enters MCP. The call runs as the chosen login and first reads the project, so an account that cannot see it answers resource_not_found. The command names that login with --profile-name; a server with OHMYHOST_TOKEN instead names its key's user and organization with --token-user and --token-organization, and the CLI then runs only with an OHMYHOST_TOKEN of that account. Either way the later write runs as exactly this account or not at all (acting_as shows which).",
+      "description": "Return the stdin-only CLI command for setting a secret; the value never enters MCP. The call runs as the chosen login and first reads the project, so an account that cannot see it answers resource_not_found. The command names that login with --profile-name plus its user and organization (--profile-user, --profile-organization), so a login of the same name that belongs to anyone else is refused, for example on another computer; a server with OHMYHOST_TOKEN instead names its key's user and organization with --token-user and --token-organization, and the CLI then runs only with an OHMYHOST_TOKEN of that account. Either way the later write runs as exactly this account or not at all (acting_as shows which).",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
