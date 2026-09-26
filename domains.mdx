@@ -28,7 +28,7 @@ ohmyhost project handle set --project "$PROJECT_ID" --handle quiet-otter-waves \
 
 The old address stops answering as soon as the rename succeeds, and the name returns to the pool for any project to claim — links you already shared with it break, so rename before you publish an address, not after. A rename is refused while another operation is running for the project, for an address that is taken or unusable, and for the address the project already has. A Dev access link created before the rename points at the old Dev address and stops working with it; create a new one afterwards.
 
-A custom hostname requires Paid access and serves the project's Prod deployment. Use the real hostname you want to publish:
+A custom hostname requires Paid access, or a Free workspace whose project shows the ohmyho.st flag (below), and serves the project's Prod deployment. Use the real hostname you want to publish:
 
 ```sh
 ohmyhost domain paid plan --project "$PROJECT_ID" --hostname app.example.com --json
@@ -65,6 +65,17 @@ The sequence is plan, apply, authorize, authorization status, the same apply, th
 ## Other DNS providers
 
 Your agent returns the exact type, name, value and TTL from the API. Add those records with your DNS provider. Preserve existing mailbox MX and unrelated records. You do not need to move your domain to Cloudflare.
+
+## Show the ohmyho.st flag
+
+With the owner's consent, a project can show a small "Powered by ohmyho.st" flag on the right edge of its production site. It loads nothing and links to ohmyho.st. While it shows, a Free workspace may connect its own domain to that project, the custom hostname costs no credits on any plan, and each new Paid period adds 250 credits. Hiding the flag is refused with `powered_by_flag_required` while a Free workspace's domain depends on it.
+
+```sh
+ohmyhost project flag status --project "$PROJECT_ID" --json
+ohmyhost project flag set --project "$PROJECT_ID" --enabled true --idempotency-key "$FLAG_REQUEST_KEY" --json
+```
+
+Only an owner can switch it. Agents use MCP `powered_by_flag_get` and `powered_by_flag_set`. After an uncertain answer, repeat the same key and value; every new switch needs a new key.
 
 ## Check readiness
 

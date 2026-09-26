@@ -1,11 +1,11 @@
 ---
 name: ohmyhost-domains-and-mail
-description: Connect a custom domain or transactional email to ohmyho.st, provide manual DNS records, and check DNS, HTTPS or DKIM readiness. Use when a hostname or sender is being configured or is pending.
+description: Connect a custom domain or transactional email to ohmyho.st, provide manual DNS records, and check DNS, HTTPS or DKIM readiness. Use when a hostname or sender is being configured or is pending, or when a Free workspace wants its own domain through the ohmyho.st flag.
 ---
 
 # Connect domains and email
 
-Start with `project_context_get`, `domain_paid_status` and, when email is relevant, `mail_status`. Read the current tool schemas. A Free project already has a hosting address; a custom domain and managed transactional mail require Paid access. The hosting address does not enable sending, and there is no platform sender: mail needs the customer's own sender domain, configured here and verified through its DNS. Website hosting needs no mail domain; register one only when the customer asks for mail or the app declares `mail.enabled`, never automatically.
+Start with `project_context_get`, `domain_paid_status` and, when email is relevant, `mail_status`. Read the current tool schemas. A Free project already has a hosting address; a custom domain and managed transactional mail require Paid access. A Free workspace may still connect its own website domain to a project that shows the "Powered by ohmyho.st" flag (`powered_by_flag_get`/`powered_by_flag_set`, only with the customer's consent); the domain fee is then waived, and hiding the flag is refused with `powered_by_flag_required` while that domain depends on it. The hosting address does not enable sending, and there is no platform sender: mail needs the customer's own sender domain, configured here and verified through its DNS. Website hosting needs no mail domain; register one only when the customer asks for mail or the app declares `mail.enabled`, never automatically.
 
 ## Website domain
 

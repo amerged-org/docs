@@ -241,6 +241,56 @@
         "x-ohmyhost-resource-disclosure": "indistinguishable-not-found"
       }
     },
+    "/v1/organizations/{organization_id}/referral": {
+      "get": {
+        "operationId": "getOrganizationReferral",
+        "summary": "Read the workspace's referral link",
+        "description": "Any member may share it. A new user whose first workspace comes from this link starts with 30 days of Paid access and 1,000 credits; that workspace's first payment gives this workspace 1,000 credits and 30 more days of granted Paid access.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The workspace's referral link.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationReferral"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
     "/v1/organizations/{organization_id}/account": {
       "get": {
         "operationId": "getOrganizationAccount",
@@ -2545,6 +2595,104 @@
             "$ref": "#/components/responses/Problem"
           },
           "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/v1/projects/{project_id}/powered-by-flag": {
+      "get": {
+        "operationId": "getProjectPoweredByFlag",
+        "summary": "Read the \"Powered by ohmyho.st\" flag",
+        "description": "Whether the production site shows the opt-in flag for the current owner organization.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/ProjectId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current flag state.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PoweredByFlag"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
+      "put": {
+        "operationId": "setProjectPoweredByFlag",
+        "summary": "Show or hide the \"Powered by ohmyho.st\" flag",
+        "description": "Owner-only. The production site shows a small flag on its right edge that links to ohmyho.st. While it is on, a Free workspace may connect its own domain to this project and the custom-hostname fee is waived; Paid periods receive bonus credits. Hiding it is refused while a Free workspace's domain depends on it. A retry with the same Idempotency-Key and body returns the first result without switching again; a changed request under a used key returns idempotency_key_reused (409).",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/ProjectId"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetPoweredByFlagRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Current flag state.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PoweredByFlag"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
             "$ref": "#/components/responses/Problem"
           },
           "503": {
@@ -8193,11 +8341,17 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 16384,
-            "description": "The sanitized tail of the customer's own install/build output, newest lines last. Present only on a BUILD_FAILED diagnostic; terminal escapes and control characters are removed before storage."
+            "description": "The customer's own output with control characters removed before storage: on BUILD_FAILED the tail of the install/build output (newest lines last), on HEALTH_CHECK_FAILED the head of the body the health check was answered with (at most 4096 characters, never a header). A running application holds its environment's secrets and this answer is not scanned for them, so, like a query of the project's database, a HEALTH_CHECK_FAILED excerpt is returned only to an owner of the project; never answer a health check with a secret."
           },
           "excerpt_truncated": {
             "type": "boolean",
-            "description": "Whether earlier build output was omitted from excerpt. Present exactly when excerpt is present."
+            "description": "Whether output was omitted from excerpt (earlier build output, or the rest of the health answer). Present exactly when excerpt is present."
+          },
+          "status_code": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 599,
+            "description": "The HTTP status the health check was answered with; present only on HEALTH_CHECK_FAILED. The probe is a cookieless GET of route that follows no redirect, so a 3xx is unhealthy too."
           },
           "occurred_at": {
             "type": "string",
@@ -8586,6 +8740,61 @@
               "protected",
               "public"
             ]
+          }
+        }
+      },
+      "OrganizationReferral": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "organization_id",
+          "referral_url"
+        ],
+        "properties": {
+          "organization_id": {
+            "$ref": "#/components/schemas/Ulid"
+          },
+          "referral_url": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https://ohmyho\\.st/\\?r=ref-[0-7][0-9a-hjkmnp-tv-z]{25}$"
+          }
+        }
+      },
+      "SetPoweredByFlagRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "enabled"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PoweredByFlag": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "project_id",
+          "enabled",
+          "enabled_at"
+        ],
+        "properties": {
+          "project_id": {
+            "$ref": "#/components/schemas/Ulid"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "enabled_at": {
+            "description": "When the current owner switched the flag on; null while it is hidden.",
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
           }
         }
       },
@@ -9915,6 +10124,7 @@
               "cloudflare_authorization_closed",
               "project_notes_conflict",
               "project_export_not_ready",
+              "powered_by_flag_required",
               "interactive_login_required",
               "api_key_creation_uncertain",
               "api_key_permissions_unavailable",
@@ -9955,6 +10165,10 @@
         "properties": {
           "blocking_operation_id": {
             "description": "The active operation holding this queued operation's project mutation claim.",
+            "$ref": "#/components/schemas/Ulid"
+          },
+          "deployment_id": {
+            "description": "The deployment this operation created (deploy, promotion or rollback), in every state. After a failure, read its diagnostics with deployment logs.",
             "$ref": "#/components/schemas/Ulid"
           },
           "id": {

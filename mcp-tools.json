@@ -724,6 +724,34 @@
       }
     },
     {
+      "name": "referral_link_get",
+      "description": "Read the workspace's referral link to share. A new user whose first workspace comes from it starts with a free Paid month and 1,000 credits; that workspace's first payment gives this workspace the same. Any member may read it.",
+      "inputSchema": {
+        "type": "object",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "organization_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "profile_name": {
+            "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$"
+          }
+        },
+        "required": [
+          "organization_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
       "name": "organization_credits_get",
       "description": "Read the owner's shared organization credit pool, seven-day grace_started_at/grace_expires_at and published rate_cards. Existing services/domains are not immediately shut down at zero credit; an explicit project stop budget is separate. One credit is 1000000 microcredits. Each rate states credit_micros for units_per_charge; publication alone does not enable billing. active_meters identifies billed sources; provider outages and platform overrun are not customer debt. Works at zero credit.",
       "inputSchema": {
@@ -1821,6 +1849,72 @@
       }
     },
     {
+      "name": "powered_by_flag_get",
+      "description": "Read whether the production site shows the opt-in \"Powered by ohmyho.st\" flag.",
+      "inputSchema": {
+        "type": "object",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "profile_name": {
+            "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$"
+          }
+        },
+        "required": [
+          "project_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
+      "name": "powered_by_flag_set",
+      "description": "Owner only, ask the human first: show or hide a small \"Powered by ohmyho.st\" flag on the right edge of the production site. While it is on, a Free workspace may connect its own domain to this project free of the domain fee, and each Paid period adds 250 credits. Hiding it is refused while a Free workspace's domain depends on it.",
+      "inputSchema": {
+        "type": "object",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "profile_name": {
+            "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$"
+          }
+        },
+        "required": [
+          "project_id",
+          "enabled",
+          "idempotency_key"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
       "name": "project_dev_share_link_rotate",
       "description": "Owner only: replace the persistent Dev link and immediately revoke old links and sessions. Repeat the same key after uncertainty.",
       "inputSchema": {
@@ -2206,7 +2300,7 @@
     },
     {
       "name": "deployment_logs",
-      "description": "List the newest normalized diagnostics of one deployment (build, control, runtime and function failures with catalog codes). A BUILD_FAILED item carries excerpt: the sanitized tail of the customer's own install/build output, newest lines last, with excerpt_truncated when earlier output was omitted. Read it after build_failed before changing source; scheduled runs are in function_runs_list, not here.",
+      "description": "List the newest normalized diagnostics of one deployment (build, control, runtime and function failures with catalog codes). A failed operation_get names the deployment as deployment_id. A BUILD_FAILED item carries excerpt: the sanitized tail of the customer's own install/build output, newest lines last, with excerpt_truncated when earlier output was omitted. A HEALTH_CHECK_FAILED item carries the probed route and status_code and, only for a project owner, excerpt: the head (at most 4096 characters, control characters removed, never a header) of what the app answered. The probe is a cookieless GET that follows no redirect, 5 s per try and up to four tries, so a 3xx or an empty 503 is unhealthy too. Read the item before changing source; scheduled runs are in function_runs_list, not here.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2246,7 +2340,7 @@
     },
     {
       "name": "operation_get",
-      "description": "Get durable operation status and current deployment progress/reconciliation guidance. Follow progress.phase and progress.suggested_action. waiting_for_mail requires mail_domain_status now for the current verification issue and DNS records; publishing means the build completed but runtime preparation/publication is unfinished. Poll this operation after progress.next_poll_after_seconds. A queued/running operation with reconciliation.state=required needs one confirmed operation_reconcile using the same operation; pending means poll this operation after 60 seconds. Never infer deployment success from a completed reconciliation attempt or start another build to recover it.",
+      "description": "Get durable operation status and current deployment progress/reconciliation guidance. Follow progress.phase and progress.suggested_action. waiting_for_mail requires mail_domain_status now for the current verification issue and DNS records; publishing means the build completed but runtime preparation/publication is unfinished. Poll this operation after progress.next_poll_after_seconds. A queued/running operation with reconciliation.state=required needs one confirmed operation_reconcile using the same operation; pending means poll this operation after 60 seconds. Never infer deployment success from a completed reconciliation attempt or start another build to recover it. A deploy, promotion or rollback names its deployment_id in every state; when state is failed, read that deployment with deployment_logs and follow error.suggested_action before changing source.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
