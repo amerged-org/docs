@@ -17,6 +17,7 @@ and follow the returned schema rather than guessing arguments.
 - `ohmyhost export create` — ohmyhost export create --project ULID --idempotency-key KEY --stdin --json (password on stdin only; one accepted SQL ZIP per project per 24 hours)
 - `ohmyhost export get` — ohmyhost export get EXPORT_ULID --project ULID --json (poll the original job; signed ZIP download lasts 24 hours)
 - `ohmyhost credits account` — ohmyhost credits account --organization ULID --json
+- `ohmyhost referral link` — ohmyhost referral link --organization ULID --json (the workspace's link to share; a new user who signs up through it starts with a free Paid month and 1,000 credits, and their first payment gives this workspace the same)
 - `ohmyhost credits balance` — ohmyhost credits balance --organization ULID --json
 - `ohmyhost billing recharge get` — ohmyhost billing recharge get --organization ULID --json
 - `ohmyhost billing recharge set` — ohmyhost billing recharge set --organization ULID --enabled true|false --monthly-limit-minor CENTS --revision N --idempotency-key KEY [--consent off_session_v1] --json (explicit Owner consent required before enabling)
@@ -46,6 +47,8 @@ and follow the returned schema rather than guessing arguments.
 - `ohmyhost project dev-share rotate` — ohmyhost project dev-share rotate --project ULID --idempotency-key KEY --yes --json
 - `ohmyhost project dev-share revoke` — ohmyhost project dev-share revoke --project ULID --idempotency-key KEY --yes --json
 - `ohmyhost project dev-access mode` — ohmyhost project dev-access mode --project ULID --mode protected|public --idempotency-key KEY --yes --json
+- `ohmyhost project flag status` — ohmyhost project flag status --project ULID --json
+- `ohmyhost project flag set` — ohmyhost project flag set --project ULID --enabled true|false --idempotency-key KEY --json (shows the small Powered by ohmyho.st flag on the production site; while it shows, a Free workspace may connect its own domain without the domain fee and each Paid period adds 250 credits)
 - `ohmyhost project handle check` — ohmyhost project handle check --handle HANDLE --json (is this address free? answers with a reason and free alternatives; the address becomes HANDLE.check.omh.st)
 - `ohmyhost project handle set` — ohmyhost project handle set --project ULID --handle HANDLE --if-match ETAG --idempotency-key KEY --json (moves the project to a free address; the old one stops working and anyone may claim it)
 - `ohmyhost database compute set` — ohmyhost database compute set --project ULID --environment dev|prod --profile standard|performance --idempotency-key KEY --yes [--wait] --json
@@ -115,6 +118,7 @@ and follow the returned schema rather than guessing arguments.
 - `project_export_get` — Owner-only: read the original SQL ZIP export's progress/error and verified download URL.
 - `organization_usage_get` — Read posted UTC-month usage by project, environment and published meter/rate.
 - `organization_account_get` — Owner-only: read the effective Free/Paid plan, its Stripe or granted source, available expiring Free credits and purchased credits that never expire, reservations and next expiry.
+- `referral_link_get` — Read the workspace's referral link to share.
 - `organization_credits_get` — Read the owner's shared organization credit pool, seven-day grace_started_at/grace_expires_at and published rate_cards.
 - `project_budget_get` — Read the owner's project UTC-month budget, measured usage and open reservations.
 - `project_budget_set` — Set an owner's optional monthly project budget in microcredits (1000000 = one credit).
@@ -143,6 +147,8 @@ and follow the returned schema rather than guessing arguments.
 - `project_status` — Get source, both Dev/Prod environment IDs, deployment URLs, Dev access mode, latest operation and cleanup status.
 - `project_dev_share_link_get` — Owner only: get or create the persistent protected Dev link.
 - `project_dev_access_mode_set` — Owner only: choose public Dev (no platform token) or protected Dev (share link required).
+- `powered_by_flag_get` — Read whether the production site shows the opt-in "Powered by ohmyho.st" flag.
+- `powered_by_flag_set` — Owner only, ask the human first: show or hide a small "Powered by ohmyho.st" flag on the right edge of the production site.
 - `project_dev_share_link_rotate` — Owner only: replace the persistent Dev link and immediately revoke old links and sessions.
 - `project_dev_share_link_revoke` — Owner only: revoke the persistent Dev link and active sessions immediately; Dev stays protected until a new link is obtained.
 - `project_dev_access_create` — Create an owner-only one-hour single-use access link for the protected Dev app.

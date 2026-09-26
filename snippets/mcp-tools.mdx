@@ -19,6 +19,7 @@
 | `project_export_get` | `project_id`, `export_id` | Read |
 | `organization_usage_get` | `organization_id`, `month` | Read |
 | `organization_account_get` | `organization_id` | Read |
+| `referral_link_get` | `organization_id` | Read |
 | `organization_credits_get` | `organization_id` | Read |
 | `project_budget_get` | `project_id` | Read |
 | `project_budget_set` | `project_id`, `amount_micros`, `idempotency_key` | Change or prepare a change |
@@ -47,6 +48,8 @@
 | `project_status` | `project_id` | Read |
 | `project_dev_share_link_get` | `project_id` | Change or prepare a change |
 | `project_dev_access_mode_set` | `project_id`, `mode`, `idempotency_key` | Change or prepare a change |
+| `powered_by_flag_get` | `project_id` | Read |
+| `powered_by_flag_set` | `project_id`, `enabled`, `idempotency_key` | Change or prepare a change |
 | `project_dev_share_link_rotate` | `project_id`, `idempotency_key` | Change or prepare a change |
 | `project_dev_share_link_revoke` | `project_id`, `idempotency_key` | Change or prepare a change |
 | `project_dev_access_create` | `project_id` | Change or prepare a change |

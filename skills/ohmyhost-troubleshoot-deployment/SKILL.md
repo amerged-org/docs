@@ -1,22 +1,23 @@
 ---
 name: ohmyhost-troubleshoot-deployment
-description: Diagnose a failed or stalled ohmyho.st deployment, resume an eligible operation, or report a product bug or feature request. Use for queued, publishing, mail-wait and build errors; not for starting a new release.
+description: Diagnose a failed or stalled ohmyho.st deployment, resume an eligible operation, or report a product bug or feature request. Use for queued, publishing, mail-wait, build and health-check errors; a failed operation names its deployment_id, whose deployment_logs show the cause. Not for starting a new release.
 ---
 
 # Diagnose a deployment
 
-Read `project_context_get`, `project_status` and `operation_get` for the original operation. Inspect `operation_logs` for diagnostics; it returns the available event prefix within a ten-second collection window, not a wait for completion.
+Read `project_context_get`, `project_status` and `operation_get` for the original operation. A deploy, promotion or rollback names its `deployment_id`; `deployment_logs` for that deployment (CLI `ohmyhost deployment logs --project ULID --deployment ULID --follow --json`) returns its diagnostics, newest first. `operation_logs` returns the operation's event prefix within a ten-second collection window, not a wait for completion.
 
-| Observation                    | Next action                                                                                             |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| Queued or building             | Follow the operation's next polling interval; keep the same operation.                                  |
-| `waiting_for_mail`             | Read `mail_domain_status` now, then use the domains-and-mail Skill.                                     |
-| `publishing`                   | Build finished; inspect the same operation until application activation completes.                      |
-| Build failure                  | Read the safe error and logs; fix the reported source issue before planning a new commit.               |
-| `operation_events_unavailable` | Read operation status and retry the log read; do not redeploy for missing logs.                         |
-| Reconciliation `required`      | Within the customer's authorized recovery, use `operation_reconcile` with confirmation and a saved key. |
-| Reconciliation `pending`       | Poll the original operation after 60 seconds.                                                           |
-| `reconciliation_exhausted`     | Stop retrying and report the operation; a new deployment or deletion is not a recovery bypass.          |
+| Observation                    | Next action                                                                                                                                                                                                                      |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Queued or building             | Follow the operation's next polling interval; keep the same operation.                                                                                                                                                           |
+| `waiting_for_mail`             | Read `mail_domain_status` now, then use the domains-and-mail Skill.                                                                                                                                                              |
+| `publishing`                   | Build finished; inspect the same operation until application activation completes.                                                                                                                                               |
+| Build failure                  | Read the `BUILD_FAILED` excerpt in `deployment_logs`; fix the reported source issue before planning a new commit.                                                                                                                |
+| `runtime_candidate_failed`     | Read the `HEALTH_CHECK_FAILED` item: `route`, `status_code` and, for a project owner, `excerpt` show what the app answered to a cookieless `GET` that follows no redirect. Make that route answer `2xx`, then plan a new commit. |
+| `operation_events_unavailable` | Read operation status and retry the log read; do not redeploy for missing logs.                                                                                                                                                  |
+| Reconciliation `required`      | Within the customer's authorized recovery, use `operation_reconcile` with confirmation and a saved key.                                                                                                                          |
+| Reconciliation `pending`       | Poll the original operation after 60 seconds.                                                                                                                                                                                    |
+| `reconciliation_exhausted`     | Stop retrying and report the operation; a new deployment or deletion is not a recovery bypass.                                                                                                                                   |
 
 A completed reconciliation receipt is not the application result. Verify the original operation and the actual app. Distinguish a protected Dev 404 from an application failure: read `dev_access_mode` from `project_status`. For protected Dev, open the owner's link from `project_dev_share_link_get` before checking the clean Dev origin; public Dev opens at the clean URL.
 
