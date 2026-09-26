@@ -1,0 +1,32 @@
+---
+title: "Support"
+description: "Tell your agent what you need. It reports bugs, issues and feature requests to ohmyho.st and follows up on them."
+---
+
+Support runs through your coding agent. Describe the problem or the feature you need in plain words; the agent sends ohmyho.st a redacted report through the MCP server or the CLI and gives you a receipt ID.
+
+## Ask your agent
+
+```text
+My Prod deploy of shop-app failed. Report it to ohmyho.st support and give me the receipt ID.
+```
+
+```text
+Send ohmyho.st a feature request: exports straight to my own S3 bucket.
+```
+
+The agent files a `bug`, an `issue` (something looks wrong but is not confirmed) or a `feature_request` with MCP `feedback_submit` or `ohmyhost feedback submit`. It adds the workspace, project and operation IDs and the error code, and leaves out tokens, passwords, raw logs and customer records. Reports cost no credits and are never published.
+
+## Follow up
+
+Keep the receipt ID and ask for the status whenever you want an update:
+
+```text
+What is the status of my ohmyho.st report <receipt ID>?
+```
+
+The agent reads `feedback_status`: `received`, `in_review`, `planned`, `in_progress`, `resolved` with the release that contains the fix, or `closed` with an explanation. Replies from ohmyho.st appear there. You are not notified by email, and there is no list of past reports. [Report fields and status details](/feedback).
+
+## When your agent cannot report
+
+A report needs a signed-in agent with access to your workspace. Use the [contact form](https://ohmyho.st/contact) if you cannot sign in, if a billing error tells you to contact support, or for privacy and DPA questions.
