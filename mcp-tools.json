@@ -1550,7 +1550,7 @@
     },
     {
       "name": "feedback_submit",
-      "description": "Report a bug, suspected issue or feature request to ohmyho.st. Submit a redacted expected/actual description and minimal reproduction; never credentials, raw logs, environment dumps or personal records. Available at zero credits. Reuse the same key after uncertainty; only a returned receipt ID confirms submission, not triage or a fix.",
+      "description": "Report a bug, suspected issue or feature request to ohmyho.st. Submit a redacted expected/actual description and minimal reproduction; never credentials, raw logs, environment dumps or personal records. Available at zero credits. Reuse the same key after uncertainty; only a returned receipt ID confirms submission, not triage or a fix. This is ohmyho.st support for a signed-in agent: give the user the receipt ID and follow up with feedback_status (https://docs.ohmyho.st/support).",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -1878,7 +1878,7 @@
     },
     {
       "name": "powered_by_flag_set",
-      "description": "Owner only, ask the human first: show or hide a small \"Powered by ohmyho.st\" flag on the right edge of the production site. While it is on, a Free workspace may connect its own domain to this project free of the domain fee, and each Paid period adds 250 credits. Hiding it is refused while a Free workspace's domain depends on it.",
+      "description": "Owner only, ask the human first: show or hide a small \"Powered by ohmyho.st\" flag on the right edge of the production site. While it is on, a Free workspace may connect its own domain to this project free of the domain fee, and each Paid period adds 250 credits. Hiding it is refused while a Free workspace's domain depends on it. Replay the same key and value after uncertainty to get the first answer without switching again; every new switch needs a new key.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
