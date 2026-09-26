@@ -1,6 +1,6 @@
 ---
 name: ohmyhost-get-started
-description: Connect a customer agent to ohmyho.st. Determine what is already installed and signed in, guide the customer through the browser sign-in, and select an organization before the first GitHub deployment. Also use it when one computer holds the logins of several ohmyho.st accounts, or a prompt names the user and organization to work as. Use for first-time installation or login; use the deployment Skill once access is ready.
+description: Connect a customer agent to ohmyho.st. Determine what is already installed and signed in, guide the customer through the browser sign-in, and select an organization before the first GitHub deployment. Also use it when one computer holds the logins of several ohmyho.st accounts, or a prompt names the user and organization to work as, and when the customer asks how to get support. Use for first-time installation or login; use the deployment Skill once access is ready.
 ---
 
 # Start with ohmyho.st
@@ -232,3 +232,5 @@ MCP/REST returns these objects directly. CLI JSON wraps the handoff in `authoriz
 Use `projects_list` to reuse a project and `project_context_get` when resuming one. Preserve an existing project's region. For a new project, an explicit customer region wins; otherwise use a browser-location hint supplied in the customer's onboarding prompt and send that region explicitly. Without either, ask once for US or EU. Never infer customer location from the agent/server IP. The API default remains US; the selected region cannot change later.
 
 Continue with the **ohmyhost-deploy-github** Skill when a deployment is requested. Login, workspace creation, GitHub connection and project linking are distinct results; check each returned state rather than treating a completed browser page as deployment success.
+
+Support runs through this agent. When the customer needs help, reports a bug or asks for a feature, submit a redacted report with `feedback_submit` (CLI `ohmyhost feedback submit`), give the customer the receipt ID and read replies later with `feedback_status`; the **ohmyhost-troubleshoot-deployment** Skill describes a good report. Point the customer to https://ohmyho.st/contact only when they cannot sign in, a billing issue names `contact_support`, or they ask about privacy or the DPA. The customer page is https://docs.ohmyho.st/support.
