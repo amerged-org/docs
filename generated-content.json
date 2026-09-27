@@ -1,5 +1,5 @@
 {
-  "source_commit": "71564facc6a0cc0ea28e7715796fe8044f176bd6",
+  "source_commit": "dfd7bdd31dde6793adca2fd1f64d6adf9d22aae8",
   "source_dirty": false,
   "release": "0.1.22",
   "files": [
@@ -281,7 +281,7 @@
     },
     {
       "path": "skills/ohmyhost-get-started/references/surfaces.md",
-      "sha256": "832ba81e092c1c070b1ff6bf4a37ff1467aa6dbc09f9fd4f69d01df1e64cb34c"
+      "sha256": "d22a4cec4061101eca44bf182cc551cf2c5d143f19c2715af0c54ed0e225fb74"
     },
     {
       "path": "skills/ohmyhost-manage-database/SKILL.md",
@@ -305,19 +305,19 @@
     },
     {
       "path": "skills/ohmyhost-usage-and-budgets/SKILL.md",
-      "sha256": "ef6eb10d07345b60e4decfeebb83acfaee78f63decfe6ab0cbd52b504b6ba97c"
+      "sha256": "53487db5bc55d522b381860c1fbf3cebe354be2eb091afb4b27f196a9df037db"
     },
     {
       "path": "openapi.yaml",
-      "sha256": "26403ddcda23329969fee7ec35c89e7e14709e964a25169725296791668e63e6"
+      "sha256": "b6ff35abb7bf9f08f7a256c5ddfc1fd0d00564200c0c75a7a69285a2fda3dfe4"
     },
     {
       "path": "openapi.json",
-      "sha256": "f84073fbf2e724a41e423c77c031e8185027bd700c2b69757b435bd51d643f4c"
+      "sha256": "321582118166f9d5dc6fb367c32c401132f76bae650f05d2169600c56244f783"
     },
     {
       "path": "mcp-tools.json",
-      "sha256": "bc2f569f479db3ed81822b97d24fb22270920a49069301a87e0ea710445e4068"
+      "sha256": "b5afa4f3877ccb313b3872c3b49205a35d8319f2f7a6b63c45785fe2b89e2377"
     },
     {
       "path": "mcp.json",
