@@ -3,7 +3,7 @@ title: "Purchases, invoices and auto-recharge"
 description: "See the real plan and credit buckets, then manage explicitly authorized payments."
 ---
 
-[Billing](https://app.ohmyho.st/billing) shows effective Free/Paid access, Free credits with their expiry and purchased credits, which never expire. A Granted badge means Paid features were granted; it does not represent a Stripe subscription or add another monthly Paid allowance.
+[Billing](https://app.ohmyho.st/billing) shows effective Free/Paid access, monthly credits with their expiry and top-up balances. Monthly subscription credits expire at billing-period end. Only Paid users can buy top-ups or enable auto-recharge. Top-ups never expire during uninterrupted Paid membership; remaining top-up/recharge credits expire when the workspace returns to Free and do not return on a later upgrade. A Stripe renewal counts once its invoice is paid, so top-ups stay usable for 24 hours after a Stripe period ends; without a renewal they expire then. A Granted badge means Paid features were granted; it does not represent a Stripe subscription or add another monthly Paid allowance.
 
 ## Make a purchase
 
@@ -17,7 +17,7 @@ Follow the returned checkout ID with `billing status`. A top-up adds credits and
 
 ## Auto-recharge
 
-When enabled, a refill adds **1,000 non-expiring credits for USD 9 plus tax** after the available balance falls below 100 credits. You explicitly authorize recurring off-session charges and choose a gross UTC-month limit including tax.
+When enabled, a refill adds **1,000 top-up credits for USD 9 plus tax** after the available balance falls below 100 credits. You explicitly authorize recurring off-session charges and choose a gross UTC-month limit including tax. Without active Paid access no refill starts and Billing shows auto-recharge as Paused; your consent stays until you turn it off.
 
 ```sh
 ohmyhost billing recharge get --organization "$ORGANIZATION_ID" --json

@@ -12,15 +12,15 @@ One credit has a nominal value of **USD 0.01**. At the standard purchase rate, 1
 | Purchase | Before tax | Credits | Expiry |
 | --- | --- | --- | --- |
 | Free | USD 0 | 200 per UTC month | End of that month |
-| Paid | USD 10/month | 1,000 per paid period | Never, credits stack |
-| One-time top-up | USD 10 per pack | 100 per dollar through USD 100; 125 per dollar for the part above USD 100 | Never |
-| Optional automatic recharge | USD 9 per refill | 1,000 when the available balance falls below 100 | Never |
+| Paid | USD 10/month | 1,000 per paid period | End of the billing period; no rollover |
+| One-time top-up | USD 10 per pack | 100 per dollar through USD 100; 125 per dollar for the part above USD 100 | On downgrade to Free |
+| Optional automatic recharge | USD 9 per refill | 1,000 when the available balance falls below 100 | On downgrade to Free |
 
-Purchased credits never expire: every paid period adds 1,000 credits on top of what is left. Only the Free monthly grant expires; unused Free credits end when a paid period starts, and Free credits are spent first. Automatic recharge requires the workspace Owner's consent and a monthly spending limit. A larger top-up changes how many credits you receive; it does not change consumption rates. [Purchases and recharge](/billing).
+Monthly Paid credits expire at billing-period end without rollover. Free credits expire at UTC month end; unused Free credits end when a Paid period starts. Monthly credits are spent before top-ups. Only active Paid users can buy top-ups or enable automatic recharge. Top-ups never expire during uninterrupted Paid membership, but remaining top-up/recharge credits expire on the effective downgrade to Free and do not return after a later upgrade. After a Stripe period ends, top-ups stay usable for 24 hours while its renewal is collected. Requesting cancellation alone does not end the already-paid period. Automatic recharge requires the workspace Owner's consent and a monthly spending limit. A larger top-up changes how many credits you receive; it does not change consumption rates. [Purchases and recharge](/billing).
 
 ## Flag and referral credits
 
-A project that shows the opt-in "Powered by ohmyho.st" flag adds 250 credits to each new Paid period, and its custom hostname costs no credits ([Connect a domain](/domains)). Every workspace also has a referral link: `ohmyhost referral link --organization "$ORGANIZATION_ID" --json`, MCP `referral_link_get`, or **Refer and earn** in the portal account menu. A new user whose first workspace comes from your link or your flag starts with 1,000 credits and 30 days of Paid. That workspace's first payment gives your workspace 1,000 credits, and 30 more days of Paid unless a Stripe subscription or an unlimited grant already covers it. These credits never expire.
+A project that shows the opt-in "Powered by ohmyho.st" flag adds 250 credits until the end of each new Paid period, and its custom hostname costs no credits ([Connect a domain](/domains)). Every workspace also has a referral link: `ohmyhost referral link --organization "$ORGANIZATION_ID" --json`, MCP `referral_link_get`, or **Refer and earn** in the portal account menu. A new user whose first workspace comes from your link or your flag starts with 1,000 credits and 30 days of Paid. That workspace's first payment gives your workspace 1,000 credits, and 30 more days of Paid unless a Stripe subscription or an unlimited grant already covers it. These referral credits have no expiry.
 
 ## Usage rates
 

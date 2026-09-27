@@ -117,7 +117,7 @@ and follow the returned schema rather than guessing arguments.
 - `project_export_create` — Owner-only: request an asynchronous password-encrypted SQL ZIP, including at zero credits.
 - `project_export_get` — Owner-only: read the original SQL ZIP export's progress/error and verified download URL.
 - `organization_usage_get` — Read posted UTC-month usage by project, environment and published meter/rate.
-- `organization_account_get` — Owner-only: read the effective Free/Paid plan, its Stripe or granted source, available expiring Free credits and purchased credits that never expire, reservations and next expiry.
+- `organization_account_get` — Owner-only: read the effective Free/Paid plan, its Stripe or granted source, available monthly credits that expire at period end and top-up credits that carry over while Paid but expire on downgrade to Free, reservations and next expiry.
 - `referral_link_get` — Read the workspace's referral link to share.
 - `organization_credits_get` — Read the owner's shared organization credit pool, seven-day grace_started_at/grace_expires_at and published rate_cards.
 - `project_budget_get` — Read the owner's project UTC-month budget, measured usage and open reservations.
