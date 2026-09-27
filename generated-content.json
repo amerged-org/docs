@@ -1,7 +1,7 @@
 {
-  "source_commit": "dfd7bdd31dde6793adca2fd1f64d6adf9d22aae8",
+  "source_commit": "caa4206545cb7a8b081fa79dc9170cee8b8dce73",
   "source_dirty": false,
-  "release": "0.1.22",
+  "release": "0.1.23",
   "files": [
     {
       "path": "snippets/credit-pricing-table.mdx",
@@ -305,7 +305,7 @@
     },
     {
       "path": "skills/ohmyhost-usage-and-budgets/SKILL.md",
-      "sha256": "53487db5bc55d522b381860c1fbf3cebe354be2eb091afb4b27f196a9df037db"
+      "sha256": "5d091d1131b255e6ab5c38f7c625c9ca9890528abacb7deb1d6d06791247b57a"
     },
     {
       "path": "openapi.yaml",
@@ -325,11 +325,11 @@
     },
     {
       "path": "snippets/install-clients.mdx",
-      "sha256": "cc03fb1dc8b6e76d63911a57910305da56dbbad5325253a052493ed1789a33a0"
+      "sha256": "93d5149a8e73eb76bd48cf1024df13b1719494e083fa9e6d041b66428dc56d02"
     },
     {
       "path": "snippets/install-sdk.mdx",
-      "sha256": "4763e25b9099452c2c5653c138aebb7812be1385dd74d33063f63e7035ed6a65"
+      "sha256": "b0b95ac55f702ee6c5efd3c360046fd9d71b0dd0c74319259a42f870cf10b7d1"
     },
     {
       "path": "snippets/skill-catalog.mdx",
