@@ -3,10 +3,10 @@ title: "Project budget exceeded"
 description: "What the `project_budget_exceeded` error means and what to do next."
 ---
 
-The API, CLI and MCP return `project_budget_exceeded` with HTTP 402. Retrying the same request unchanged does not help.
+The API, CLI and MCP return `project_budget_exceeded` with HTTP 402. Repeating the same request unchanged does not help.
 
 ## What to do
 
-Raise the project's stop budget or select continue, then retry the same request.
+This project's Stop budget for the current UTC month is reached; nothing was started. Show the customer 'ohmyhost budget get --project ULID --json'. Only on their request raise the limit or switch the mode to continue with 'ohmyhost budget set', then retry the same request; otherwise wait for the next UTC month.
 
-Keep the `request_id` from the error when you [report the problem](/feedback).
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

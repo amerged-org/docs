@@ -1,0 +1,12 @@
+---
+title: "Data change blocked"
+description: "What the `data_change_blocked` error means and what to do next."
+---
+
+The API, CLI and MCP return `data_change_blocked` with HTTP 409. Repeating the same request, with the same idempotency key, after a wait can succeed.
+
+## What to do
+
+An operation of this project is still running. Wait until 'ohmyhost operation get OPERATION_ULID --json' shows it finished, plan the data change again and confirm it with the new ETag and token.
+
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

@@ -3,10 +3,10 @@ title: "Project handle unavailable"
 description: "What the `project_handle_unavailable` error means and what to do next."
 ---
 
-The API, CLI and MCP return `project_handle_unavailable` with HTTP 503. Retrying the same request with backoff can succeed.
+The API, CLI and MCP return `project_handle_unavailable` with HTTP 503. Repeating the same request, with the same idempotency key, after a wait can succeed.
 
 ## What to do
 
 Retry project creation with the same idempotency key.
 
-Keep the `request_id` from the error when you [report the problem](/feedback).
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

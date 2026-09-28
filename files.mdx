@@ -3,7 +3,7 @@ title: "Private application files"
 description: "Upload, inspect, read and clean up files through the managed storage client."
 ---
 
-Declare private storage only when the application needs it. `storage.jurisdiction` in `ohmyhost.yaml` must match the project's chosen US or EU region. Run `ohmyhost init --dry-run --json` after adding the capability; the inspection reports a missing runtime client instead of treating configuration alone as a working upload.
+Declare private storage only when the application needs it. `storage.jurisdiction` must equal the immutable project region; offline init defaults to us unless --region eu is supplied and preserves existing config. Run `ohmyhost init --dry-run --json` after adding the capability; the inspection reports a missing runtime client instead of treating configuration alone as a working upload.
 
 ## Use the private runtime client
 
@@ -22,11 +22,37 @@ const files = createPrivateStorageClient({
 
 The gateway URL supplies the request origin for its private Service Binding; it is not a public endpoint to fetch directly. The platform supplies the binding and storage key. There is no raw `FILES` bucket or customer-managed R2 credential to copy into the app.
 
-Use `upload`, or `reserveUpload` followed by its signed PUT and `completeUpload`. A pending completion still needs observation. `createSignedRead` provides a short-lived read capability; `deleteObject` releases stored quota. Keep signed URLs and keys out of source, logs and project notes.
+Use `upload`, or `reserveUpload` followed by its signed PUT and `completeUpload`. A pending completion still needs observation. Repeat `upload()` after uncertain completion with the same bytes, `objectKey` and `idempotencyKey`: the create-only PUT's 412 completes the existing reservation. Signed upload rejection is retryable only for 5xx or 429; durable multi-object workflows persist transfer IDs before PUT and reconcile `completeUpload(transferId)`. `createSignedRead` provides a short-lived read capability; confirmed `deleteObject` completion releases stored quota. Keep signed URLs and keys out of source, logs and project notes.
+
+Files are create-once logical names per immutable data identity. Shared Dev/Prod use one namespace; isolated data uses separate namespaces. Deleting an object or letting a reservation expire never permits reuse in the same identity. A [Dev reset](/environments#change-data-assignments) assigns a fresh empty namespace, where the same logical name is reusable. Assignment changes keep existing physical locators without copying/moving blobs.
+
+The physical bucket quota is 1 GiB including open reservations; `storage_quota_exceeded` needs cleanup or a smaller upload. Object keys are 1–512 UTF-8 bytes, slash-separated segments of 1–128 letters/digits/._- starting and ending with a letter/digit. Idempotency keys use 1–128 letters/digits/._:-, and `contentType` is lowercase type/subtype with no parameters. Bad input is `gateway_request_invalid`; reused names or conflicting idempotency requests are `storage_conflict`. Expired uploads need both a new `objectKey` and `idempotencyKey`. Signed PUT/GET capabilities last at most five minutes; mint reads per response, not long-lived cache entries. Delete-pending waits until `retryAt` before the same delete key is retried. A `data_change_in_progress` response means wait for that operation; `storage_binding_data_changed` needs redeployment of that environment.
+
+## Read or delete several objects
+
+Keep the application manifest of logical keys in its own database; the runtime exposes no bucket-list API. `readMany` and `deleteMany` each accept 1–4,000 distinct keys and at most 4 MiB control JSON/framing. Object payloads stream separately:
+
+```ts
+const results = await files.readMany({ objectKeys });
+for await (const result of results) {
+  if (result.state === "not_found") continue;
+  await saveBoundedObject(result.objectKey, result.body);
+}
+const deleted = await files.deleteMany({
+  objects: objectKeys.map((objectKey) => ({
+    objectKey,
+    idempotencyKey: deleteKeys[objectKey],
+  })),
+});
+```
+
+The application's saveBoundedObject must consume the body before advancing; cancellation drains that body's bytes. Complete iteration validates the final frame and exact EOF. Truncated, oversized or malformed framing throws `gateway_response_invalid`; a cancelled/incomplete read is never a successful batch. Each found result includes `contentType`, `contentLength` and etag plus the stream. Delete idempotency keys must also be distinct within the batch. Ordered outcomes are completed, pending with `retryAt`, or failed with code/retryable. Persist each outcome; retry only pending/retryable work with its original per-object key. Batch/page selection so the complete invocation fits its ten-subrequest and CPU limits.
+
+A completed deletion verifies that the file's payload is erased and prior conditional uploads cannot restore it. An accepted request, elapsed upload link or old absence receipt alone does not establish completed payload erasure. Large or interrupted batches may complete only some objects; keep all original keys to resume the rest. `deleteMany` uses one configured timeout across headers and complete JSON. A timeout may leave durable progress, so observe/retry the original operation rather than assuming that nothing happened. Binary `readMany` uses an idle timeout for each underlying stream read, rather than an absolute timeout for a whole frame or stream, and requires complete iteration.
 
 ## Browser uploads and inspection
 
-If the application's browser policy permits only same-origin requests, use a bounded application upload route. Bind an opaque capability to an authorized reservation, tenant, expected MIME, size and expiry. The route forwards bytes through the private storage client; provider URLs and keys stay on the server. Replaying the same completed upload can confirm success without writing again; different bytes must not replace it.
+With the default restrictive [browser policy](/browser-security), use a bounded application upload route. Bind an opaque capability to an authorized reservation, tenant, expected MIME, size and expiry. The route forwards bytes through the private storage client; provider URLs and keys stay on the server. Replaying the same completed upload can confirm success without writing again; different bytes must not replace it.
 
 For files that require inspection, use a separate staging key for each upload capability. Read the staged ETag conditionally, inspect the bytes, write a distinct final object and verify its metadata before committing the application record. Retain staging until the commit is durable. A bounded [scheduled cleanup](/functions) removes abandoned or completed staging objects and preserves final originals.
 

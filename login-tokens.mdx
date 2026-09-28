@@ -7,12 +7,9 @@ description: "Create a non-expiring automation token, save it once and revoke it
 
 A user API token is a complete credential. Set `OHMYHOST_TOKEN` and the CLI, the MCP server and the REST API all accept it — no login, no browser, no saved session. Where the variable is set it wins over any saved login. New tokens do not expire until you revoke them.
 
-A token carries every action permission your account has, except token management. Your organization membership and role still apply.
+A token acts only in the workspace it was created for, with every action permission your account has there except workspace and token management. Membership and role still apply. A command naming another account through `--organization`, `--profile-name`, `OHMYHOST_PROFILE` or a checkout linked to another organization stops as `environment_token_context_mismatch` before sending.
 
-Four commands need an interactive login and will fail with a token:
-
-- `organization create` — 403 `forbidden`
-- `token create`, `token list`, `token revoke` — 403 `interactive_login_required`
+Six commands require an interactive login: `organization create`, `organization list`, `organization use`, `token create`, `token list` and `token revoke`. CLI/MCP return `interactive_login_required` while `OHMYHOST_TOKEN` is set. Run these in a process without that variable; direct REST organization creation with a token returns 403 `forbidden`.
 
 `ohmyhost login` and `ohmyhost logout` also refuse to run while `OHMYHOST_TOKEN` is set, and exit with `environment_token_active`. Run all of these from a shell where the variable is unset; your token file is not touched.
 
@@ -23,7 +20,17 @@ ohmyhost login --json
 ohmyhost whoami --json
 ```
 
-Complete the returned link and confirm the selected organization. A first sign-in normally creates **My workspace**; `ohmyhost whoami --json` confirms it. Reuse it instead of creating another. Existing customers can return through [login](https://app.ohmyho.st/login).
+Open the returned link and sign in or sign up. Direct signup, including a malformed referral source, creates a Free **My workspace**; a valid referral may add its configured benefit. `ohmyhost whoami --json` confirms the actual selection. Reuse an existing workspace. With several organizations, bind an unbound login using `ohmyhost organization use --organization ULID --json`; if none exists, use `organization create`. A saved login keeps its workspace (`profile_organization_fixed`): add a separate login with `ohmyhost login --organization ULID --json` for another workspace. Existing customers can return through [login](https://app.ohmyho.st/login).
+
+Sessions are kept in the operating system's credential store, also read by local MCP. On `credential_store_unavailable`, unlock the desktop store and retry; a headless/CI host can use a private `OHMYHOST_TOKEN` from the portal instead. `logout --json` removes the selected saved login; `--revoke` also ends its server session. Neither revokes an API token.
+
+## Several accounts on one computer
+
+Each saved login identifies one user in one organization and platform. List them with `ohmyhost profile list --json`; select one with `--profile-name NAME`, MCP `profile_name` or `OHMYHOST_PROFILE=NAME`. A checkout linked to that organization can choose the login automatically, including with explicit `--project`. Otherwise multiple plausible logins require an explicit selection (`profile_selection_required`). Verify `whoami` before changing a project.
+
+Add a login for a different user/workspace with `ohmyhost login --organization ULID --user USER_ID --json`. Do not rename or move an existing login to change accounts. Names use lowercase letters, digits, hyphens and underscores, start with a letter or digit, and are at most 63 characters. A name conflict preserves the existing login; choose an unused `--profile-name`. The first command after upgrading a legacy login needs network access to bind its named profile.
+
+A portal prompt naming only a user can match or create an organizationless login; select/create the intended workspace afterward. Account IDs in a prompt identify context, never grant authority.
 
 ## Create a token in the portal
 

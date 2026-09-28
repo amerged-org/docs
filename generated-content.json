@@ -1,7 +1,7 @@
 {
-  "source_commit": "caa4206545cb7a8b081fa79dc9170cee8b8dce73",
+  "source_commit": "54d4309f8b4014b1c208ad087a09c50af700ad68",
   "source_dirty": false,
-  "release": "0.1.23",
+  "release": "0.1.24",
   "files": [
     {
       "path": "snippets/credit-pricing-table.mdx",
@@ -9,291 +9,319 @@
     },
     {
       "path": "errors/api-key-creation-uncertain.mdx",
-      "sha256": "8d9afdd2444cd4483d5cb45a5d750fa9ff015ed806ef46b9115c9a7a06bb22a3"
+      "sha256": "441f7353885e20b761ec3a5390a06f617478866e1dea44de32d3bd98a41679a9"
     },
     {
       "path": "errors/api-key-permissions-unavailable.mdx",
-      "sha256": "a283fb8b5715cc6bea9239154f980d7eeacc310f68d028affed89754570e50b6"
+      "sha256": "35a2f770ee094e30ea112ae67d04cfd1820a9bc40a7a6dad7c0b6115fd5e7881"
     },
     {
       "path": "errors/billing-purchase-conflict.mdx",
-      "sha256": "8e8b0a3efae06ff1570e8140ee1b1d00260c050bdca03650ddc1f478f73c237a"
+      "sha256": "41a7a37d423e7a7b48ebad1b95fb2df76fc520a2f6db6bca399c9c2a869c0928"
     },
     {
       "path": "errors/billing-recharge-conflict.mdx",
-      "sha256": "594b3b60dbd757bb592f899bf49321c0ca8cf953b2cb099abaa1e8fbe2fde7b7"
+      "sha256": "f58f409c4a32741c5ee3414e775c84efdadda5e1a2cf8ab5f6b0135033632da6"
     },
     {
       "path": "errors/cloudflare-authorization-closed.mdx",
-      "sha256": "5246f747f20ef20b729347bade461ad24c580b7abbe22b8b2b52098fbc9452f6"
+      "sha256": "d3f8e145ad156e51e920e29d610d0795b2d1c42684b0401b7e182602321ec88f"
     },
     {
       "path": "errors/cloudflare-zone-not-bound.mdx",
-      "sha256": "8d0a7ccd3ef889534f741a0fcaa4f32d2df4d237d9f3ce72a78684acf1ae05a0"
+      "sha256": "32ef150629a70fb7bfa294086147a45ff9d2e4c8caa144a9c0abfc46a89ec9c7"
     },
     {
       "path": "errors/compute-change-conflict.mdx",
-      "sha256": "9a8e58c526a70a8a752256ffe290546d672240c52572e400446987d3d246173a"
+      "sha256": "e99004fdb350a534c5d25651d6fc688e2e99db4b519428540e0f227dfd558064"
     },
     {
       "path": "errors/compute-change-pending.mdx",
-      "sha256": "0c16fbe46447ed073f368a38cbca5103121e591707ba06234605f28355a098d8"
+      "sha256": "cdf700c37934d8e602b26850bc3d29b1f52582bf55bd536f1119e0b61af33ade"
     },
     {
       "path": "errors/compute-performance-paid-required.mdx",
-      "sha256": "cd2fd4a5cd0d1e070e917bbe60c5e803568e201b7abc15233736d6f5fd815c8b"
+      "sha256": "970017d958889aca48aa3a211c4ede9499f07f6f773626fd36db5cd14d248c52"
     },
     {
       "path": "errors/compute-performance-unavailable.mdx",
-      "sha256": "8a27897052a7a8b8d63cbda56ea89e7ff9fd22571699780b38018adf5484a967"
+      "sha256": "07b08be07dded56c9daacbc3654c65d4ffdcee5ea1172f45920e175ef2e88f4b"
     },
     {
       "path": "errors/confirmation-expired.mdx",
-      "sha256": "a544938bec74705e5db884df84c4c6e657746b69a6620ebe1e77980d11448ba5"
+      "sha256": "6e5e1384fbfacfb866bc4462245c9aa3632825de5dcf5af720ffd4c39872e4b8"
     },
     {
       "path": "errors/confirmation-invalid.mdx",
-      "sha256": "38dedcdd28eaaef437fd0a24d4003122e1c1deb5582948e5fb5f0e5de3a9e29b"
+      "sha256": "fab90f2d96bceb90fd64c1f88bddbc95997de6bd10d4e3a9706c0b2b51c9bc9d"
+    },
+    {
+      "path": "errors/data-change-blocked.mdx",
+      "sha256": "259c8833241bf8c6ad826519e5392b466517f36f1c438de2b7b64ccdd866364b"
+    },
+    {
+      "path": "errors/data-change-in-progress.mdx",
+      "sha256": "e9ef9d345d9cb801be09119fdd5b5d42e8f990a5f576ad85182e7057811f2ffb"
+    },
+    {
+      "path": "errors/data-change-not-applicable.mdx",
+      "sha256": "74d950a9171d55a2cfb8abfc749277e80293f9ebba4083616ce8840d0f1d6ba0"
     },
     {
       "path": "errors/database-access-limit.mdx",
-      "sha256": "a37060971ea0d236ad685f2f592881db68873fce524e0cebff320ec52fa9a82b"
+      "sha256": "3eb2f39041ea354605b2d4d7d89ce6c60cfeaedadf8dc8809b2e39165f061669"
     },
     {
       "path": "errors/database-write-pending.mdx",
-      "sha256": "011c71bc3773cb9aa28bbbc503323a74f620f7a9ab8a9c2311bddf34b94a4ddb"
+      "sha256": "0f1d45b64c78e5280b952c690f85078edc6ae20750e42fa523e81385a77e10fe"
     },
     {
       "path": "errors/deployment-plan-expired.mdx",
-      "sha256": "ab8d11c68624bdf1e0ad90f4b760c308b74bf4838ca9134dc3b41dadb50b4f0a"
+      "sha256": "8a6c7dcd5b87b7210a6c872aa2063751d12968c7df7755c638806b03c2501def"
     },
     {
       "path": "errors/deployment-plan-incompatible.mdx",
-      "sha256": "8535fde4abacb7c11d557aaa5bb9084e212e3bdfa8b8614c9f5d6c7c8c91cb84"
+      "sha256": "91fae220ebb24f0da0f8e1268d22fc59cbc9c836e97222eea5f855fbacebc55a"
+    },
+    {
+      "path": "errors/domain-hostname-taken.mdx",
+      "sha256": "8f1a8612bc981e46e007f5c0dc221ef4440d409eab53f131de1da8e2091060bc"
     },
     {
       "path": "errors/environment-secret-mutation-blocked.mdx",
-      "sha256": "05fdacf736ec16649d80fe156dc4edad5b744159821336a52621d5497df33329"
+      "sha256": "83a76d602f6b5833ce11a26ec09f2c70e9856b724a2d71cdac555ef037d398ee"
     },
     {
       "path": "errors/etag-mismatch.mdx",
-      "sha256": "f43a97c8eca05fb4beddcad6dc660431be002769ecce877b2f4a147bb61413c0"
+      "sha256": "87880881a50202269f10d12642373b6c1a663940878dc872e75bcbfefb71279d"
     },
     {
       "path": "errors/forbidden.mdx",
-      "sha256": "ee2f425d317dce27a5743dae923d3111ec3a00ee135ab73bc9a48b7e080a3a5d"
+      "sha256": "bae64f4b4265217ab23ccb8cd7495938a3431c5388992774ec406878e8be4fb5"
     },
     {
       "path": "errors/framework-conversion-required.mdx",
-      "sha256": "7a2ff45216acaab8e4bfa110bec48bc5441a27057ad0e92bc91cdaf445b2cedf"
+      "sha256": "00c598e48354eb5f4be769c9c114d537dafac3c440e2b7de4e17daed9666c5b7"
     },
     {
       "path": "errors/github-connection-required.mdx",
-      "sha256": "603072602c1460c882d1cdd0dbfa8699be08c5b8dc1c04de8b38a5a5da72ad53"
+      "sha256": "f9f0e97b12c30eb5209150d7cfb8ed53cbdea260c78b43787455da273329a433"
     },
     {
       "path": "errors/github-connection-revoked.mdx",
-      "sha256": "f3b4b98d47b019187db59db13baca816653bc9c29835c587e6be812c9d86eb6c"
+      "sha256": "4133b9646589e27458c981bb1f2c18c7ab65655189cc9f310867c48aff90e8d0"
     },
     {
       "path": "errors/idempotency-key-reused.mdx",
-      "sha256": "93ba687f74c73dd925b1e92d52f3ded7ad717a03c2e4b06ed7449e3b13d3f060"
+      "sha256": "a720921296eb239c9a48efe1cbc634b154c4eaa51a6a9e5d346af7f6e0a52070"
     },
     {
       "path": "errors/insufficient-organization-credits.mdx",
-      "sha256": "b0d07d7a24f8c3ff394182d26dbdddfabdac6734490e42331dbc404e70636a8d"
+      "sha256": "516284cbcb28a894d6921d34fa44409aa052904e66fd76efdbf00463f7ffc2cf"
     },
     {
       "path": "errors/interactive-login-required.mdx",
-      "sha256": "4b135f101fb5e03db87c3b82366808669309fd6f753d445d4f0840c4dab2248f"
+      "sha256": "6c16a3aa5356152a808a1489cb62b389035fd7aba198aad61b97d80508e06657"
     },
     {
       "path": "errors/invalid-request.mdx",
-      "sha256": "bba2deb1bd34df6e6cd9183099540ebf6cddffff08c13c4f4d3c234d47827c3a"
+      "sha256": "2c081a5dae54c6e3c0af4e3a5afde616e1829d7d48fcc1187ca3bb5fa20ae696"
     },
     {
       "path": "errors/mail-capacity-unavailable.mdx",
-      "sha256": "791e4bf2c1ca17dd0707eda0d826c851ee33dad6fca2067ef8346720d7a998a6"
+      "sha256": "1fb1996476d48cf4e9a345b434aa478a952b48a35d6242fe7ece426cfdf7d695"
     },
     {
       "path": "errors/mail-domain-conflict.mdx",
-      "sha256": "3cac54af841759e4eecec451a12f7c1bbf5ed29b551c49b26faa717e298d363c"
+      "sha256": "c3da5c7b8e9916147c4e8bc9c5c9b41d1684564b52298a1d0c81bc31190254bf"
     },
     {
       "path": "errors/mail-domain-required.mdx",
-      "sha256": "08b2f79461870ee49c62e28aea6a114a836d117408ca100f6534f9591596d716"
+      "sha256": "26a85e28fd5ff18b0b18a9dd1e571e28a7bd148aea0670e92bec5c58eeca3376"
     },
     {
       "path": "errors/migration-filename-noncanonical.mdx",
-      "sha256": "01e8324eade05a96eb6abdaae4ffd47a63aa5ccc7683079de6c4d0e4b4582747"
+      "sha256": "d0cc2010dc8a068fc0fbe79eb34a683fdb264393a6d13cbce7bb7da11c53be0a"
     },
     {
       "path": "errors/organization-required.mdx",
-      "sha256": "9dd0a0b2c292331ecb2f313095256827d424d769ffddcbb8ef94b216f7a2add0"
+      "sha256": "e37a96c89a47360cbfbb8c8f845d3d5ca8ccfa760d5c2ec27133bd68e92c1340"
     },
     {
       "path": "errors/paid-plan-required.mdx",
-      "sha256": "fc52091aa30af16245b64778e467d1436ebc969d51aa9c10359e9c7132d517d9"
+      "sha256": "ed286ae8751f3c0105b9f6d574791d6498e24652238353b4b77a04ed97fac63c"
     },
     {
       "path": "errors/payload-too-large.mdx",
-      "sha256": "c19f2c105afeca00e6dcd7a59506bcd4b6f3d863d099c6005ea845aa5773bcbe"
+      "sha256": "8510decb8be012a9865ad362bc7d8c37e62e3be7445265c6e444d517ef9c568a"
     },
     {
       "path": "errors/powered-by-flag-required.mdx",
-      "sha256": "f7c37865b09b1a57e842af881ad118ebb3dbc93d8bb954af3870c9b03a34e6bf"
+      "sha256": "23b1b03cc0578595e2ca7e193b0efe4d2bd415c0ef7dc123dd3e6aa79fc39fb0"
     },
     {
       "path": "errors/production-deployment-required.mdx",
-      "sha256": "e57ff42030f5b7ba5622ab254950a7f1df28b3a05c06c28ff09ba8413fdee46e"
+      "sha256": "c3f2bc913aa56a7981af639bb746883f3dfc378aea2d2a62fb60456f3d919b2a"
     },
     {
       "path": "errors/project-budget-exceeded.mdx",
-      "sha256": "010de943f4cbbdb0e81940f072bfefe7fd1317997d351f3434f1277d0acff110"
+      "sha256": "86437023ddc8086cfba597bf090de370ee8e4b0dedf76d7d0bc374625eaf689b"
+    },
+    {
+      "path": "errors/project-domain-delete-required.mdx",
+      "sha256": "ff872c85788a183f82f3211636bb1269b4413bc30e220c0b272ca0ce3a416fa2"
     },
     {
       "path": "errors/project-export-not-ready.mdx",
-      "sha256": "e5c8ea578f9212b1724790945a7309c87bae15f5be8b7aaa38dcc3457ac2be3d"
+      "sha256": "1702c1f40bfde6540a8538521a402a1f1f23d6970033851f2b5d28d498c95a36"
     },
     {
       "path": "errors/project-handle-invalid.mdx",
-      "sha256": "ecf2fb6c90b7528b311ad3b1e56dab27c00095ba9736cbf5ddfe4eb10d09f76e"
+      "sha256": "bc201799a9029cd04b734545d734847fea882e357d076566e0a18508848788a4"
     },
     {
       "path": "errors/project-handle-taken.mdx",
-      "sha256": "728312cdc284cbe852b046c78237f448b3d09c4e0663d890bcfe11470a807072"
+      "sha256": "3e5fce66bc56dc39f8fc748a06de8389386d169fdcfc5d2e534e4468ccaff476"
     },
     {
       "path": "errors/project-handle-unavailable.mdx",
-      "sha256": "2ff12253518e1293c51135d86b0a692be3fd1eb44af84e38ac7c35b91f938c39"
+      "sha256": "4190a4dddb6026060d6e52b81b3e5b2b2105cde974909c58be7c4ab4ca264b98"
     },
     {
       "path": "errors/project-handle-unchanged.mdx",
-      "sha256": "665d2a9c04cf4b17b19a7bde75a27bc142019f83ac382b4a7f2d5bfcb3c2d4ce"
+      "sha256": "6695c2757f2454c98f36212226e080028393221ab3ee46eb97edfd2749c7b8c2"
     },
     {
       "path": "errors/project-identity-unavailable.mdx",
-      "sha256": "8782d4e554aff9ab0eec67880199f4ca17108144f2eeed79926a52da598e7ed8"
+      "sha256": "8da54ab6694b726a76e539f5b30704b3533df5bca445696e2c5b7a8edd3d74df"
     },
     {
       "path": "errors/project-notes-conflict.mdx",
-      "sha256": "4077be05c03d2ab896d350d16edede3c34cde7e7cf38f850a8fec9e53a0153df"
+      "sha256": "8e25e83c33425eed26a9141b25cd01cd25ce9517b2dd2d312a0e0dae0e5a99cb"
     },
     {
       "path": "errors/project-rename-blocked.mdx",
-      "sha256": "8970ce45676e1e0818fd9e7f194cfac577101c96465b6f899a42a788b293772c"
+      "sha256": "48760d93d2ba12e2a121c8fb4a4c62e9bc9ed84989fae29c7c7dda5f0b2c870d"
     },
     {
       "path": "errors/promotion-invalid-target.mdx",
-      "sha256": "cab81eb9845a4aa63872c00faf3d10d3ba70fc83034e8fe77e1dd01e0792a2c0"
+      "sha256": "66e92697c710b8aee9207ba467d97f3591ce4060f582255c3268a51e7e443497"
     },
     {
       "path": "errors/promotion-source-stale.mdx",
-      "sha256": "0b9eb9d430415db3bca08cbc6cc49ac9fbfb5ca7fee4b34c607737412663e36d"
+      "sha256": "62d4827493ecb53367b3cc5aadd5cc586740bba1ef58ceda78a0f8921213676b"
     },
     {
       "path": "errors/promotion-target-stale.mdx",
-      "sha256": "b3e803976cf386b43f103d9d25a99558a9632ab47bd0f3e150fa7980ed7a085e"
+      "sha256": "bea1cbe6e0796b220fad6110d25ad9d0ba8ef725cd59a6f0f3260d5185f5960a"
     },
     {
       "path": "errors/rate-limited.mdx",
-      "sha256": "9be056689a1b63755012e8773a67afad9b295312b8479d4ebce23bd4c8c63044"
+      "sha256": "6bd90d819e8571e30b161ba45afc9433e77b792c60ae7848bb35aa653ad7400c"
     },
     {
       "path": "errors/reconciliation-exhausted.mdx",
-      "sha256": "ede544821c6f94acd80a3b0e2076b0794c3f47891402ae7896b4537cbbeed72f"
+      "sha256": "77ddb535b9df64df363e42f7525604335f8243a999b781904f1505267f5abf0c"
     },
     {
       "path": "errors/repository-configuration-missing.mdx",
-      "sha256": "301fd8a8254254ea17891798aad5f268a5bc9fe91b52efd36683826274b3d512"
+      "sha256": "3b0d137a2b708dea6331a5d7024e03f647cbd9001124fab133957841ed249365"
     },
     {
       "path": "errors/repository-not-installed.mdx",
-      "sha256": "d4c9fd6c0b23240ee75a7d18cdfe18a0a1d0a5ca5e1f241f663b21d43090f18c"
+      "sha256": "d14ded44594943068383bfd91976bee86d0f4dfcc5b2d0ee001ab93f7c3351d3"
     },
     {
       "path": "errors/resource-not-found.mdx",
-      "sha256": "729a19ac958571a18973b25b5948480dfae17958e29f228d325e4be26a432423"
+      "sha256": "78c7ec489298ded1b2a1c39fd69fce5a20275bf64171411ba60dac109f35f47d"
+    },
+    {
+      "path": "errors/rollback-target-data-changed.mdx",
+      "sha256": "8a139ad06ae4dc41fe1502aea967e5aa5072fbb685d8d9eb3e382d92b7d04213"
     },
     {
       "path": "errors/service-unavailable.mdx",
-      "sha256": "b813755b771bcc35b588d3b6806265ed4437a1fb40d1ce325be0baab3e4e5573"
+      "sha256": "cbbf144a6f41a4e0b3d1994c7a9b2a46c577c6af32b25e772743c46f8dbdde43"
     },
     {
       "path": "errors/shared-data-requires-promotion.mdx",
-      "sha256": "3dc2f40298cdaf4348fff3f18be62205a68a3744c9ac077b6f098fdd759ed883"
+      "sha256": "1f389f776cd517972723b6c2b2a9538844f63f50e16d64fc32c8f93c7863ede7"
+    },
+    {
+      "path": "errors/source-commit-not-found.mdx",
+      "sha256": "cb55ffdac7e385784b2a704704b0c095b208c2765e0e830cb774376c7a634477"
     },
     {
       "path": "errors/storage-jurisdiction-conflict.mdx",
-      "sha256": "e0a941d648f623cddd07a25b2b93cadbc8a56af7ffe5fe27eaa6e2ba87b21dce"
+      "sha256": "17ae39adb007a404e478767d918f826f94b7ec02e191be91d7df3a4907184aea"
     },
     {
       "path": "errors/unauthenticated.mdx",
-      "sha256": "1549b8968cf03d66df0c5e63f5ee8f5ec48d78f475a1c1579113dbc508643817"
+      "sha256": "8e281a47c22cab2a33c13b8e26e1d118eec7188debc3b90aa2dac441f323fcdd"
     },
     {
       "path": "errors/workers-runtime-incompatible.mdx",
-      "sha256": "30ce9e41c898b2c4c3d771f086fc11db89145bc4f12488bf0d41a6df2819854d"
+      "sha256": "828b15170f4817f5740d05b21a8bcd2f9e6cfee49e3eeb6faf73b2ba6df22cc6"
     },
     {
       "path": "snippets/error-codes.mdx",
-      "sha256": "43e2f04e588406aa67a0d74b2ac0aae8bc80bd832c9c902ee0229778fd9393ef"
+      "sha256": "ef98a94fc056bb87a95a559eedbe01a4164e09e8204737d998b03342055ab398"
     },
     {
       "path": "skills/ohmyhost-build-portable-app/SKILL.md",
-      "sha256": "3cb737889f7817c34db060b12a23a33bf71b5ecb735af68a19483373751d3ef3"
+      "sha256": "259f72fefc5e6ee62ad05c8a5508e9080a07223d08343e48a5d9750bfe7e24db"
     },
     {
       "path": "skills/ohmyhost-build-portable-app/references/cli-deploy.md",
-      "sha256": "33a59eab5b8c3d94fb845d6f00f6f13a3f88ad5ea03cece1785fd36da7d9f2aa"
+      "sha256": "c261f61ac4ae3670bca456f09d2c3f58cc2e83e80876cb0b8633f392d2992072"
     },
     {
       "path": "skills/ohmyhost-build-portable-app/references/database-runtime.md",
-      "sha256": "5640471aa3530429fe13e19cd51b46f5a0bba38cd0a401e9fc912bfc36cdc7a5"
+      "sha256": "fa1fe182c2e6abfba139eee2ed7806d7e6e0febd4b8047478242e0f5b770c2a1"
     },
     {
       "path": "skills/ohmyhost-build-portable-app/references/mail.md",
-      "sha256": "d42bb0886fd0f421a05bce2e6d979ba2776b3101be06760c085b838577b45fba"
+      "sha256": "31b10783e45789beed0a782f60772d60ad1b3220418d3028611916742d93e884"
     },
     {
       "path": "skills/ohmyhost-build-portable-app/references/stack-contracts.md",
-      "sha256": "0bf90fc00eefa608291d156ec84377481124e304078fb73b4bb4b14c36b87802"
+      "sha256": "8fc22d2dbd9b2f22ec4d3fd2b475c7dde07c817959e0740e3908a574d6536b2a"
     },
     {
       "path": "skills/ohmyhost-deploy-github/SKILL.md",
-      "sha256": "c93f540f5ee7c120cd0e1389aa738fb0e6ecfb0c3aa746cfacce87054f83d75f"
+      "sha256": "36912e9dd1f0126878978f2f803a127668bc6e706bb09e9a394e0ccd407fdb5a"
     },
     {
       "path": "skills/ohmyhost-domains-and-mail/SKILL.md",
-      "sha256": "725cdd106d33ee91b840e287b2c19eb17cf710e61fce2e42cf564833aaec3679"
+      "sha256": "0f7a8544703d65be44a36b7c33740f48250047dbbacc6be1853a22c8a9e38f6f"
     },
     {
       "path": "skills/ohmyhost-export-database/SKILL.md",
-      "sha256": "1cdd6290bac45f8bb39e2b771d982c15f0c7a730e1ef880141843b765b3bcd24"
+      "sha256": "c86303a865cceca6eb8331759d6296caa0b1e88d8d042645de5ba1e73669c19a"
     },
     {
       "path": "skills/ohmyhost-get-started/SKILL.md",
-      "sha256": "a4cc37fd04f76dddb72d3bcf121e23ef7d126d11c0d977b089ec3b92b5a9cb2a"
+      "sha256": "cb514599bae0cafc55278233318a1c9fecf8359bc3531c114e0502c33c6d858c"
     },
     {
       "path": "skills/ohmyhost-get-started/references/harness-setup.md",
-      "sha256": "712f9e343cf5621db2cec59cc48a420691187fbfdaa4e4ff2f39dfbfbdf9938c"
+      "sha256": "6701546985048b753abc93f5a7e2544c2fa61d7a6f9c945e37b0563b6705232e"
     },
     {
       "path": "skills/ohmyhost-get-started/references/surfaces.md",
-      "sha256": "d22a4cec4061101eca44bf182cc551cf2c5d143f19c2715af0c54ed0e225fb74"
+      "sha256": "942dd18f24322f0fb9630c9c3f71115ad217677e38ed262ebabdbd4e8478709b"
     },
     {
       "path": "skills/ohmyhost-manage-database/SKILL.md",
-      "sha256": "49c9d817492f44cfe07a53db5d47a36e1b7b8d1ff647a922328f81e6dcb0a6e2"
+      "sha256": "46493f8bfc590b88913b781c3576db3bf985e3cd9e30b92b554bf43d39d6e995"
     },
     {
       "path": "skills/ohmyhost-migrate-supabase-postgres/SKILL.md",
-      "sha256": "1cd7230e96a1305f78e0d810970bcb8ef138d04105a92ebb61dd25d2e22a5164"
+      "sha256": "3841de3e08fc0f6b421fcb0612c7be99da0f85a5f92f648de5528a2d6371be17"
     },
     {
       "path": "skills/ohmyhost-migrate-supabase-postgres/references/provider-contracts.md",
-      "sha256": "3279b4535b56add9c40bb0569c40ca57e32165783d35b6294f4f59d6c9300978"
+      "sha256": "5a79d880e773490ab623c35b925d142251b59985ffad43b91e31f21b781d4e90"
     },
     {
       "path": "skills/ohmyhost-migrate-supabase-postgres/scripts/create-portable-baseline.mjs",
@@ -301,23 +329,23 @@
     },
     {
       "path": "skills/ohmyhost-troubleshoot-deployment/SKILL.md",
-      "sha256": "42ecd0e8109a4a8a46c4f47bf1dab7b7c600959328e9720cd3955964b4283d1c"
+      "sha256": "0eabbe9eb8270956b0d36c8feebcdeb477614d96faaad7935972309e310d8c56"
     },
     {
       "path": "skills/ohmyhost-usage-and-budgets/SKILL.md",
-      "sha256": "5d091d1131b255e6ab5c38f7c625c9ca9890528abacb7deb1d6d06791247b57a"
+      "sha256": "d8db8f522af418e4442186868d5583f49c96bc077552f33bfb038a3e7b939dc6"
     },
     {
       "path": "openapi.yaml",
-      "sha256": "b6ff35abb7bf9f08f7a256c5ddfc1fd0d00564200c0c75a7a69285a2fda3dfe4"
+      "sha256": "f77183b58ecf7cbef525c086e74702d19ba550ef1f3a9d98eff5ef9f2e25acee"
     },
     {
       "path": "openapi.json",
-      "sha256": "321582118166f9d5dc6fb367c32c401132f76bae650f05d2169600c56244f783"
+      "sha256": "11fd5886bfab2994c648b5afd093a12ecf57734683a949ef62b25f0aaf6c15f8"
     },
     {
       "path": "mcp-tools.json",
-      "sha256": "b5afa4f3877ccb313b3872c3b49205a35d8319f2f7a6b63c45785fe2b89e2377"
+      "sha256": "1ff60232f36756dc3314a5776dd3a41258a40e684fb1f9d48323fcfcdf0746a0"
     },
     {
       "path": "mcp.json",
@@ -325,19 +353,19 @@
     },
     {
       "path": "snippets/install-clients.mdx",
-      "sha256": "93d5149a8e73eb76bd48cf1024df13b1719494e083fa9e6d041b66428dc56d02"
+      "sha256": "975183e66f69839f73f7dad03d68d25672a2e8a8d0417df55b6f501f5747c474"
     },
     {
       "path": "snippets/install-sdk.mdx",
-      "sha256": "b0b95ac55f702ee6c5efd3c360046fd9d71b0dd0c74319259a42f870cf10b7d1"
+      "sha256": "a5005e8646f2ff39835e0502927ce77c1dfb2d2d5c245f74c03e390ddb9a8421"
     },
     {
       "path": "snippets/skill-catalog.mdx",
-      "sha256": "6cbc1e02bce7f4a1f8cfc8946415f34f1e7a53f63a150f4d6586b6a7a2e35522"
+      "sha256": "5f0a8955e75e67d741d1bac83eed543b40d774d1c23ed04b52d39d8b8b045cc1"
     },
     {
       "path": "snippets/mcp-tools.mdx",
-      "sha256": "2474dcf28dceb09c762720bc01fa1227a88e41efc7ff9197ad6acce1fcee1f9c"
+      "sha256": "52a6409cd94df7ecaafc82bfef50b3847fcdbd9251ada5d735076cf8f28279bc"
     },
     {
       "path": "logo/light.svg",

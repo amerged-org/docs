@@ -1,0 +1,12 @@
+---
+title: "Data change in progress"
+description: "What the `data_change_in_progress` error means and what to do next."
+---
+
+The API, CLI and MCP return `data_change_in_progress` with HTTP 409. Repeating the same request, with the same idempotency key, after a wait can succeed.
+
+## What to do
+
+A data change of this project is running. Wait until its operation has finished ('ohmyhost project status --project ULID --json'), then repeat the request unchanged.
+
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

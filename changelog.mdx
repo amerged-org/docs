@@ -7,10 +7,16 @@ description: "Read the current client contract and published service updates."
 
 [Current release](https://ohmyho.st/client-release.json) identifies the active version and immutable manifest. The manifest lists CLI, MCP, SDK and runtime archives with SHA-256 hashes. Only the current release is served; older release URLs return 404.
 
-## Current account workflows
+## Account workflows
+
+One computer can keep several saved logins, each bound to one user/organization. Select --profile-name, MCP `profile_name` or `OHMYHOST_PROFILE`; the first legacy-profile upgrade needs network access. After another login is saved, ambiguity needs an explicit choice. organization use binds only an unbound login; use login --organization ID for another workspace. [Several accounts](/login-tokens#several-accounts-on-one-computer).
 
 The portal provides projects, profile, Billing, Usage and user API Tokens. New keys remain valid until revoked; existing keys keep their recorded expiry. Granted Paid features are separate from Stripe subscriptions and monthly credit grants.
 
-The public service supports GitHub deployments, actual usage reporting, project budgets, database profiles, domain/mail readiness, shared project context, feedback and password-encrypted SQL exports. Read each task guide for its current limits and permissions.
+Task guides cover GitHub deployments into Dev or direct Prod, promotion/rollback, protected/public Dev links, immutable US/EU region, chosen project addresses, PostgreSQL and time-bound SQL access, private files, schedules, domains/mail, usage/budgets, project context, feedback and encrypted SQL exports. Read each task guide for its current limits and permissions.
+
+## Interface changes
+
+The accompanying release adds guarded Dev/Prod data assignment changes without copying records, a fresh file namespace after Dev reset, bulk `readMany`/`deleteMany` and explicit browser-origin declarations. Keep CLI/MCP/runtime together and read the linked current-release manifest; older clients can reject changed response shapes. These documentation changes do not establish a live application's behavior: verify its required flows after deploying.
 
 [Website changelog](https://ohmyho.st/changelog) · [API reference](/api) · [Report an issue](/feedback).

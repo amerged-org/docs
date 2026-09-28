@@ -3,10 +3,10 @@ title: "Billing recharge conflict"
 description: "What the `billing_recharge_conflict` error means and what to do next."
 ---
 
-The API, CLI and MCP return `billing_recharge_conflict` with HTTP 409. Retrying the same request unchanged does not help.
+The API, CLI and MCP return `billing_recharge_conflict` with HTTP 409. Repeating the same request unchanged does not help.
 
 ## What to do
 
-Read billing recharge get and the current revision. Preserve the original key after uncertainty; do not start a checkout or automatically re-enable charges.
+The auto-recharge settings changed since you read them, or this key was used with other settings. Run 'ohmyhost billing recharge get --organization ULID --json'. If it already shows the requested change, stop. Otherwise, only if the Owner still wants it, send the change again with the returned revision and a new idempotency key. Never re-enable charges without the Owner's approval.
 
-Keep the `request_id` from the error when you [report the problem](/feedback).
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

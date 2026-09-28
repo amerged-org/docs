@@ -3,10 +3,10 @@ title: "Compute performance paid required"
 description: "What the `compute_performance_paid_required` error means and what to do next."
 ---
 
-The API, CLI and MCP return `compute_performance_paid_required` with HTTP 403. Retrying the same request unchanged does not help.
+The API, CLI and MCP return `compute_performance_paid_required` with HTTP 403. Repeating the same request unchanged does not help.
 
 ## What to do
 
-Check Paid service and usable credits or grace, or choose standard compute.
+Performance compute needs active Paid and usable credits or grace; repeating unchanged does not help. Read 'ohmyhost credits account --organization ULID --json'. On Free, the Owner may start Paid with 'ohmyhost billing checkout --offer paid'; without usable credits, they may add credits. Until then, keep standard compute.
 
-Keep the `request_id` from the error when you [report the problem](/feedback).
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

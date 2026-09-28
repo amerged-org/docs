@@ -1,0 +1,12 @@
+---
+title: "Data change not applicable"
+description: "What the `data_change_not_applicable` error means and what to do next."
+---
+
+The API, CLI and MCP return `data_change_not_applicable` with HTTP 409. Repeating the same request unchanged does not help.
+
+## What to do
+
+Read 'ohmyhost project status --project ULID --json'. Isolation applies to shared projects; returning to shared needs a deployed Prod database, and reset_dev applies to isolated projects. If detail names an old database or storage binding, deploy the affected environment again before planning the change. Repeating unchanged does not help.
+
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

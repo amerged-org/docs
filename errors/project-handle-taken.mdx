@@ -3,10 +3,10 @@ title: "Project handle taken"
 description: "What the `project_handle_taken` error means and what to do next."
 ---
 
-The API, CLI and MCP return `project_handle_taken` with HTTP 409. Retrying the same request unchanged does not help.
+The API, CLI and MCP return `project_handle_taken` with HTTP 409. Repeating the same request unchanged does not help.
 
 ## What to do
 
-Run 'ohmyhost project handle check' for a free address, then rename to one of the alternatives it returns.
+Another project uses this address. Run 'ohmyhost project handle check --handle NAME --json' and offer the customer its alternatives; rename only to the one they choose.
 
-Keep the `request_id` from the error when you [report the problem](/feedback).
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

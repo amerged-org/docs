@@ -16,9 +16,9 @@ Run `ohmyhost login --json` and open the returned sign-in URL. The link already 
 The CLI accepts two credentials and picks in this order:
 
 1. `OHMYHOST_TOKEN` — a user API token. Set it and the CLI works immediately. No browser, no login.
-2. The session saved by `ohmyhost login` — used only when `OHMYHOST_TOKEN` is unset.
+2. A login saved by `ohmyhost login` — used only when `OHMYHOST_TOKEN` is unset. With several, choose `--profile-name NAME` or `OHMYHOST_PROFILE=NAME` ([saved accounts](/login-tokens#several-accounts-on-one-computer)).
 
-`OHMYHOST_TOKEN` wins whenever it is set; the saved session is not read at all. If the value is not a valid `sk_…` token the command fails with `invalid_environment_token` and does not fall back.
+`OHMYHOST_TOKEN` wins whenever set; no saved login is read. Naming another account or a checkout linked for another organization fails `environment_token_context_mismatch` before execution. If the value is not a valid `sk_…` token the command fails with `invalid_environment_token` and does not fall back.
 
 These commands need the interactive login and refuse a token: `login`, `logout`, `organization create|list|use`, and `token create|list|revoke`. Run those in a process without `OHMYHOST_TOKEN`; preserve the existing private token file. Other commands use the token's current permissions and workspace role.
 
@@ -31,7 +31,7 @@ ohmyhost init --dry-run --json
 ohmyhost project list --json
 ```
 
-Resolve actual blockers. Reuse an existing project, or create one after choosing isolated or shared data, protected or public Dev access, and setting `HOSTING_REGION` to the chosen `us` or `eu`:
+Resolve actual hosted blockers. Without a root `ohmyhost.yaml`, run `ohmyhost init --json` once blockers are resolved; `--root DIR` selects a nested app and `--region eu` prepares EU storage. Commit and push the file. Init never overwrites an existing configuration. Reuse an existing project, or create one after choosing isolated or shared data, protected or public Dev access, and setting `HOSTING_REGION` to the chosen `us` or `eu`:
 
 ```sh
 ohmyhost project create --organization "$ORGANIZATION_ID" --name "My app" --data-mode isolated --dev-access-mode protected --region "$HOSTING_REGION" --idempotency-key "$PROJECT_REQUEST_KEY" --json
@@ -58,7 +58,7 @@ Set `GITHUB_OWNER` and `GITHUB_REPOSITORY` to a repository covered by that insta
 ohmyhost link --project "$PROJECT_ID" --repository-owner "$GITHUB_OWNER" --repository-name "$GITHUB_REPOSITORY" --idempotency-key "$SOURCE_REQUEST_KEY" --json
 ```
 
-Observe the returned source-link operation; it needs no second browser authorization for a covered repository. Missing access is repaired through `github.connection.settings_url` returned by GitHub status, then the same link command/key. No build starts until you deploy a plan.
+Observe the returned source-link operation; it needs no second browser authorization for a covered repository. Missing access is repaired through `github.connection.settings_url` returned by GitHub status, then the same link command/key. No build starts until you deploy a plan. From the repository root, link also records `.ohmyhost/` and adds `/.ohmyhost/` to `.gitignore`. Later commands may omit `--project`; the CLI names the selected project on stderr. A checkout keeps one link per organization: when several match, supply `--project` or `--profile-name` (`linked_project_selection_required`).
 
 Use the full SHA of the pushed commit as `COMMIT_SHA`:
 
@@ -80,7 +80,7 @@ ohmyhost project status --project "$PROJECT_ID" --json
 ohmyhost project dev-share link --project "$PROJECT_ID" --json
 ```
 
-`OPERATION_ID` is the deploy response's `operation.id`. A wait timeout leaves the accepted operation running; inspect it without submitting another deployment. Follow returned polling guidance. If `dev_access_mode` is `protected`, open the reusable `share_url` and then test the clean Dev URL. If it is `public`, open the clean Dev URL directly. Keep the share link out of logs and project notes. The Owner can change the mode with `ohmyhost project dev-access mode`, replace the link with `ohmyhost project dev-share rotate`, or revoke it with `ohmyhost project dev-share revoke`.
+`OPERATION_ID` is the deploy response's `operation.id`. A wait timeout leaves the accepted operation running; inspect it without submitting another deployment. Follow returned polling guidance. If `dev_access_mode` is `protected`, the clean URL answers 404 without a session: open the reusable `share_url` first, then test the clean Dev URL. If it is `public`, open the clean Dev URL directly. Keep the share link out of logs and project notes. The Owner can change the mode with `ohmyhost project dev-access mode`, replace the link with `ohmyhost project dev-share rotate`, or revoke it with `ohmyhost project dev-share revoke`.
 
 ## Common follow-ups
 
@@ -91,5 +91,7 @@ ohmyhost project handle set --project "$PROJECT_ID" --handle quiet-otter-waves -
 ohmyhost credits account --organization "$ORGANIZATION_ID" --json
 ohmyhost budget get --project "$PROJECT_ID" --json
 ```
+
+`PROJECT_ETAG` is `project.etag` from project status. Renaming breaks links to the old address; read [project addresses](/domains) first.
 
 For later automation, create a token from Profile → API Tokens or the [token commands](/login-tokens). New tokens stay valid until revoked. [MCP setup](/agents/mcp) uses the same account access.

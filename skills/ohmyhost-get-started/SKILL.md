@@ -1,6 +1,6 @@
 ---
 name: ohmyhost-get-started
-description: Connect a customer agent to ohmyho.st. Determine what is already installed and signed in, guide the customer through the browser sign-in, and select an organization before the first GitHub deployment. Also use it when one computer holds the logins of several ohmyho.st accounts, or a prompt names the user and organization to work as, and when the customer asks how to get support. Use for first-time installation or login; use the deployment Skill once access is ready.
+description: Connect a customer agent to ohmyho.st. Determine what is already installed and signed in, guide the customer through browser sign-in, and select an organization before the first GitHub deployment. Also use when one computer holds several accounts, a prompt names the user and organization to work as, the customer needs support, or an automation needs a non-expiring API token. Use the deployment Skill once access is ready.
 ---
 
 # Start with ohmyho.st
@@ -23,7 +23,9 @@ Connect this agent to the customer's account, then continue with the selected Gi
 
 ## Step 1 — determine the state before doing anything
 
-Run these three checks first. They are cheap and decide everything that follows.
+If the customer's prompt names an account ("Use my ohmyho.st account user … in organization …"),
+read "Several accounts on one computer" first. Use that login's `--profile-name` on authenticated
+checks when needed. Then run these checks:
 
 ```sh
 ohmyhost --version
@@ -32,23 +34,24 @@ ohmyhost profile list --json
 ```
 
 Also list the MCP tools of the `ohmyho` server. A saved configuration alone is not a working connection.
-If the customer's prompt names an account ("Use my ohmyho.st account user … in organization …"),
-read "Several accounts on one computer" below before anything else.
 
 Read the result:
 
-| Observation                                               | State                   | Continue with    |
-| --------------------------------------------------------- | ----------------------- | ---------------- |
-| `ohmyhost` missing, or the MCP server exposes no tools    | not installed           | Step 2           |
-| `--version` is older than the published release           | outdated                | Step 2           |
-| CLI runs, `whoami` fails with `authentication_required`   | installed, signed out   | Step 3           |
-| `whoami` returns an identity with an organization         | ready                   | Step 5           |
-| `whoami` returns `next_action` instead of an organization | signed in, no workspace | Step 4           |
-| `whoami` fails with `profile_selection_required`          | several saved logins    | Several accounts |
+| Observation                                               | State                      | Continue with    |
+| --------------------------------------------------------- | -------------------------- | ---------------- |
+| `ohmyhost` missing, or the MCP server exposes no tools    | not installed              | Step 2           |
+| `--version` is older than the published release           | outdated                   | Step 2           |
+| CLI runs, `whoami` fails with `authentication_required`   | installed, signed out      | Step 3           |
+| `whoami` fails with `credential_store_unavailable`        | no usable credential store | Step 5           |
+| `whoami` returns an identity with an organization         | ready                      | Step 5           |
+| `whoami` returns `next_action` instead of an organization | signed in, no workspace    | Step 4           |
+| `whoami` fails with `profile_selection_required`          | several saved logins       | Several accounts |
 
 `whoami` selects the workspace itself when the customer has exactly one, so an identity that
-arrives with an organization needs nothing further. It reports `next_action` only when the choice
-would be a guess or when no workspace exists yet.
+arrives with an organization needs no workspace step. Without an organization, `next_action`
+means the choice would be a guess or no workspace exists yet. With an organization,
+`next_action` can name `github connect`: that workspace has no GitHub connection yet, and Step 6
+handles it.
 
 If `OHMYHOST_TOKEN` is set in this process, that token is the credential: the CLI and MCP ignore any
 saved login. Verify its returned identity, organization and selected platform against the task,
@@ -56,6 +59,8 @@ even if a browser is already signed in. If `whoami` succeeds for that account, g
 starting another login. If it fails, ask the customer to update the private credential source,
 not to paste a replacement value into chat.
 Do not send them to a sign-in link, because `ohmyhost login` refuses to run while the variable is set.
+With a working token, `profile list` can still answer `credential_store_unavailable` on a host
+without a credential store; no repair is needed unless the task names a saved login.
 
 Say nothing about a state that needs nothing from the customer. A ready agent deploys without a
 single question. Report a state only in the message that also asks them to act, so they never
@@ -68,9 +73,11 @@ system's credential store. `ohmyhost profile list --json` (MCP `profile_list`) s
 name, user and organization, never a token. There is no active login for the whole computer: with
 one saved login every command uses it; with several, every command names one with
 `--profile-name NAME`, MCP tools take `profile_name`, and `OHMYHOST_PROFILE=NAME` binds a whole
-process or MCP server. A command with `--organization` (MCP `organization_id`) or in a checkout
-linked for one organization uses that organization's login by itself. Another agent's choice never
-changes which account your command runs as.
+process or MCP server. A command with `--organization` (MCP `organization_id`) uses that
+organization's login by itself. A project command can also select it from a checkout link,
+including a link for its explicit `--project`; `whoami` and `project list` do not select a login
+from checkout links, so name one when several are saved. `ohmyhost init` uses no login and
+refuses `--profile-name`. Another agent's choice never changes which account your command runs as.
 
 - When the prompt names a user and an organization, act only as the saved login with exactly that
   user and organization, and confirm it with `whoami --profile-name NAME` before any change. These
@@ -80,6 +87,9 @@ changes which account your command runs as.
   signed in as another account, the login saves nothing and answers `login_account_mismatch`:
   ask the customer to switch the browser to the named account (or use a private window), then
   repeat the login.
+- When the prompt names only a user ("it has no organization yet"), use the saved login with that
+  user and no organization, confirmed with `whoami --profile-name NAME`. If none exists, add it
+  with `ohmyhost login --user USER_ID --json`, then continue with Step 4.
 - `profile_selection_required` means several logins could run the command: ask the customer which
   account to use. `profile_not_found` names the login to add, `profile_context_mismatch` means the
   request contradicts its binding, organization or user, and `environment_token_context_mismatch`
@@ -113,7 +123,17 @@ changes which account your command runs as.
 
 ## Step 2 — install what is missing
 
-Read <https://ohmyho.st/llms.txt> and the [CLI/MCP installation guide](https://docs.ohmyho.st/agents/mcp). Compare the installed CLI and MCP versions with the published one in <https://ohmyho.st/client-release.json> and install the published packages when they are missing or older, using the current archive URLs from that guide. An older client lacks commands the later steps use, and its failures look like platform faults.
+Read <https://ohmyho.st/llms.txt> and the [CLI/MCP installation guide](https://docs.ohmyho.st/agents/mcp).
+Compare the installed versions with <https://ohmyho.st/client-release.json>: `ohmyhost --version`
+names the CLI, and `npm ls --global --depth=0` lists both packages (`ohmyhost-mcp` has no
+`--version` flag; it starts the server). When either is missing or older, install both from the
+source already in use: the current archive URLs from that guide, or npm
+(`npm install --global @amerged/ohmyhost-cli @amerged/ohmyhost-mcp`). Both provide the same
+`ohmyhost` and `ohmyhost-mcp` commands, so uninstall one pair before switching to the other.
+An older client lacks commands and rejects newer server responses with `response_contract_invalid`;
+an older MCP server reports the same case as `client_request_failed` although connection and login
+work. Upgrade both clients and reload MCP before treating either as a platform fault; if both are
+current, report it with `feedback_submit`.
 
 Read [harness setup](references/harness-setup.md) and register the local `ohmyhost-mcp` command with this harness's documented settings. Preserve other MCP servers, model choices and permission settings. Use `OHMYHOST_ENVIRONMENT=production` for CLI and MCP unless the customer explicitly selected the development platform.
 
@@ -130,12 +150,17 @@ ohmyhost login --json
 When the prompt named a user and organization, add
 `--organization ORGANIZATION_ID --user USER_ID`, so nothing is saved unless the browser signs in
 as exactly that account. Each login is saved under a name derived from its organization;
-`--profile-name NAME` chooses another.
+`--profile-name NAME` chooses another (lowercase letters, digits, `-` and `_`, starting with a
+letter or digit, at most 63 characters; another name answers `invalid_command`). If that name
+already belongs to another saved login (`profile_name_conflict`), choose a different name;
+remove the other login only when the customer asks.
 
-While it waits, the command prints three things: a sign-in link, a confirmation code such as
-`ABCD-EFGH`, and how many minutes both stay valid. The sign-in page shows that same code and asks
-the customer to confirm it. Send one message that states what you found and contains the full link,
-the code and the validity. Then stop.
+Start it as a background process and read its output while it runs: a sign-in link, a confirmation
+code such as `ABCD-EFGH` and how many minutes both stay valid appear on stderr at once. The
+command waits up to 30 minutes for the customer and saves the login only when it ends by itself;
+a harness timeout that stops it earlier saves nothing. The sign-in page shows the same code and
+asks the customer to confirm it. Send one message with the full link, code and validity, then
+wait for the customer while leaving the command running.
 
 > I found no valid ohmyho.st login for this account on this computer. Open this link to connect it:
 >
@@ -162,9 +187,11 @@ Rules for this step:
   somewhere else to request access.
 - Wait for the customer. The command completes on its own once they finish; do not start a second
   login while the first is still open.
-- A confirmation code lives only a few minutes. If it expired while they were signing up, run
-  `ohmyhost login --json` again and send the new link and the new code the same way. This is
-  expected, not a failure: do not report an error and do not suggest they did something wrong.
+- A confirmation code lives only a few minutes. While `ohmyhost login --json` still runs, it
+  replaces a lapsed code by itself for up to 30 minutes and prints the new link and code: send
+  them the same way. Run the original login command again, keeping its account flags, only
+  after it ended with `device_authorization_expired`. This is expected, not a failure: do not
+  report an error or suggest the customer did something wrong.
 
 When the command returns, verify and continue:
 
@@ -180,7 +207,9 @@ the customer decides; with no workspace at all, create the first one. `organizat
 login that has no organization yet; a login that already has one keeps it (use a separate login
 for another workspace, see "Several accounts on one computer").
 
-Always look before creating. The customer may already have a workspace from an earlier session:
+Always look before creating. A verified first portal signup creates or reuses **My workspace**,
+including a direct signup or one with an invalid referral. The customer may also have a workspace
+from an earlier session:
 
 ```sh
 ohmyhost organization list --json
@@ -194,7 +223,16 @@ ohmyhost organization create --name "$ORGANIZATION_NAME" --source "$SIGNUP_SOURC
 ohmyhost whoami --json
 ```
 
-- `--source` is optional and is only where the customer came from. If the task mentioned a link like `https://ohmyho.st/?r=hostmebaby`, pass that single `r` value. Otherwise omit the flag. It grants nothing and is never a secret.
+- `--source` (MCP `signup_source`) is optional attribution. If the task mentioned a campaign,
+  referral (`https://ohmyho.st/?r=ref-…`) or flag (`https://ohmyho.st/?r=flag-…`) link, pass its
+  single accepted `r` value unchanged (lowercase letters, digits, `-` and `_`, starting with a
+  letter or digit, at most 64 characters); otherwise omit it. The portal treats a malformed
+  value as Direct, so missing or invalid attribution never blocks signup and earns no referral
+  bonus. The server decides any once-per-user benefit: an eligible
+  referral or active flag on the first workspace gives 1,000 credits and 30 days of Paid, and a
+  registered campaign can add credits; promise nothing else. Attribution is never an access
+  code or secret and is fixed per user: later workspaces pass the same Signup source shown on
+  the portal's Profile page (omit the flag for Direct); another value answers `forbidden`.
 - Reuse the same name, source and idempotency key after an interrupted response instead of creating a second organization.
 - Creating a workspace selects it immediately for a login that had none; `whoami` or `identity_get` confirms the selection before you create a project. A login already in another workspace keeps it, and the response names the `login` that adds one for the new workspace.
 - Over MCP, `organization_create`, `organization_list` and `organization_use` do the same and report the same `selected` workspace.
@@ -206,7 +244,23 @@ ohmyhost whoami --json
 
 The current CLI login is enough to continue; MCP uses it.
 
-For an automation platform the customer can create a user token: `token_create`, or `ohmyhost token create`. The full value appears exactly once. Save it once to the private env file the customer chooses, mode `600`, and configure the process to load that file. Preserve existing credentials and never put the value in chat, source or a command argument.
+`ohmyhost login` saves each login in the operating system's credential store, and MCP reads it
+there. `credential_store_unavailable` means the CLI cannot use that store. On a desktop, ask the
+customer to unlock it, then retry. In a container, CI runner or headless Linux, do not start a
+sign-in that cannot be saved: ask the customer to create a user token at
+<https://app.ohmyho.st/tokens> and load it as `OHMYHOST_TOKEN` from a private env file.
+
+For automation, use `token_create` with `out_file`, or
+`ohmyhost token create --organization ULID --name NAME --idempotency-key KEY --out .env.local --json`.
+The client appends `OHMYHOST_TOKEN` once to that private env file, sets mode `600` and returns
+only metadata; the value is never shown in the client result and cannot be read again. The file
+name must start or end with `.env`, be ignored by Git or lie outside the repository
+(`token_file_not_ignored`), and not already hold `OHMYHOST_TOKEN` (`token_file_has_token`).
+Configure the process to load it. Preserve existing credentials and never put the value in chat,
+source or a command argument. If `token_file_changed` names an issued key that could not be saved,
+revoke that key with `token_revoke` or the returned CLI command before creating a replacement
+with a new idempotency key; `token_value_unavailable` means use the original file or revoke and
+replace the key, since replay cannot reveal its value.
 
 `OHMYHOST_TOKEN` overrides the saved logins in any process where it is set. A token alone runs every
 command in these Skills except these, which need the interactive login: `login`, `logout` (including
@@ -227,7 +281,15 @@ ohmyhost github connect --organization "$ORGANIZATION_ID" --idempotency-key "$GI
 
 The one link handles the required installation/user authorization. Do not construct a second installation link, replay OAuth callbacks, or ask for an installation ID or provider token. Use the intended GitHub browser profile. A connected installation covers only its selected repositories; if one is missing, open `connection.settings_url` from status, add the repository and repeat its original source-link request/key.
 
-MCP/REST returns these objects directly. CLI JSON wraps the handoff in `authorization` and status in `github`: read `authorization.authorization_url` and `github.connection.settings_url`. For a failed or expired handoff, resolve `last_failure` and use a new connect key for the same workspace; do not poll a terminal failure forever.
+MCP/REST returns these objects directly. CLI JSON wraps the handoff in `authorization` and status
+in `github`: read `authorization.authorization_url` and `github.connection.settings_url`.
+The handoff lives 30 minutes (`expires_at`). While `pending`, a `last_failure` of
+`provider_unavailable` or `authorization_code_rejected` means reopen the returned
+`authorization_url` with the same key. `failed` or `expired` is final: `account_admin_required`
+needs the GitHub account owner or organization admin, `installation_access_required` means the
+App was not installed for that account, `session_inactive` needs a fresh login by a workspace
+Owner or Admin, and `denied` means the customer declined. Resolve the cause, then connect with a
+new key for the same workspace; never poll a terminal failure.
 
 Use `projects_list` to reuse a project and `project_context_get` when resuming one. Preserve an existing project's region. For a new project, an explicit customer region wins; otherwise use a browser-location hint supplied in the customer's onboarding prompt and send that region explicitly. Without either, ask once for US or EU. Never infer customer location from the agent/server IP. The API default remains US; the selected region cannot change later.
 

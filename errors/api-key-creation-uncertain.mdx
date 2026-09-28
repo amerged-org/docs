@@ -3,10 +3,10 @@ title: "Api key creation uncertain"
 description: "What the `api_key_creation_uncertain` error means and what to do next."
 ---
 
-The API, CLI and MCP return `api_key_creation_uncertain` with HTTP 503. Retrying the same request with backoff can succeed.
+The API, CLI and MCP return `api_key_creation_uncertain` with HTTP 503. Repeating the same request, with the same idempotency key, after a wait can succeed.
 
 ## What to do
 
 Repeat the original token name and Idempotency-Key to observe its result; do not blindly create another key.
 
-Keep the `request_id` from the error when you [report the problem](/feedback).
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

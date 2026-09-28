@@ -5,15 +5,19 @@ description: "Deploy a public frontend or a Vite app with its supported server c
 
 A public Vite application can deploy with hosting alone. Run `ohmyhost init --dry-run --json`, keep a pinned package manager and its matching lockfile, and follow the returned requirements.
 
+With or without a companion, a path matching no built file returns index.html with HTTP 200, so nested client-route reloads work. Render not-found in your client router. Keep Vite base unset or `/`; an application does not need a server merely for client routing.
+
 React, TanStack Router and TanStack Query can be part of a Vite frontend. Those packages do not by themselves turn it into TanStack Start.
 
 ## When the app needs a server
 
 Follow the actual same-origin API companion contract returned by inspection. Implement the routes the browser calls and configure private [runtime secrets](/secrets) for that server. `VITE_` variables are public build-time values; they must not contain private credentials.
 
-Retain the customer's selected auth provider. A frontend-only application must use the provider's public-client flow; server-only SDKs belong in a supported server component.
+Retain the customer's selected auth provider. A deliberately retained external browser SDK needs the exact committed [browser origins](/browser-security) and actual auth/data verification; a provider server route uses the separate thirteen-origin server egress list. Public client IDs remain public, while server-only SDKs belong in a supported server component.
 
-Scheduled work is declared as `functions.crons` and runs the companion's `scheduled` export; see [Functions and cron](/functions).
+Scheduled work is declared as `functions.crons` and runs the default export's scheduled handler in src/ohmyhost/companion.ts, with runtime.mode:edge; see [Functions and cron](/functions).
+
+Vite pages permit no inline script/style code. External resources follow the browser declarations; server HTML media/microphone uses the documented opt-in, while static pages cannot opt in.
 
 ## Verify the deployment
 

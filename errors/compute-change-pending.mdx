@@ -3,10 +3,10 @@ title: "Compute change pending"
 description: "What the `compute_change_pending` error means and what to do next."
 ---
 
-The API, CLI and MCP return `compute_change_pending` with HTTP 409. Retrying the same request unchanged does not help.
+The API, CLI and MCP return `compute_change_pending` with HTTP 409. Repeating the same request unchanged does not help.
 
 ## What to do
 
-Poll the existing operation after 60 seconds. Do not submit another size change, deletion or transfer while it runs.
+A database size change of this project is still running. Every 60 seconds read latest_operation from 'ohmyhost project status --project ULID --json', or 'ohmyhost operation get OPERATION_ID --json' for the change you started, until it ends, then repeat this request. Do not submit another size change or a deletion meanwhile.
 
-Keep the `request_id` from the error when you [report the problem](/feedback).
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

@@ -3,10 +3,10 @@ title: "Resource not found"
 description: "What the `resource_not_found` error means and what to do next."
 ---
 
-The API, CLI and MCP return `resource_not_found` with HTTP 404. Retrying the same request unchanged does not help.
+The API, CLI and MCP return `resource_not_found` with HTTP 404. Repeating the same request unchanged does not help.
 
 ## What to do
 
-Check the resource identifier and the account: a project is visible only to its own organization, and error.acting_as names the login this ran as. Use the login of the account that owns it.
+Check the resource identifier and the account: a project is visible only to its own organization, and error.acting_as in the CLI and MCP names the login this ran as. Use the login of the account that owns it.
 
-Keep the `request_id` from the error when you [report the problem](/feedback).
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

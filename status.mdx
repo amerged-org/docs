@@ -11,6 +11,8 @@ ohmyhost operation get "$OPERATION_ID" --json
 
 Use the operation ID returned by the mutation. `queued` or `running` means work remains; `succeeded`, `failed` and `cancelled` are terminal. Project status supplies actual environments, deployment heads and URLs.
 
+A queued operation with `blocking_operation_id` waits for that operation of the same project to end; inspect it instead of submitting again.
+
 ## Observe the next step
 
 During a deployment, `progress.phase` distinguishes building, publishing and waiting for mail. Follow `progress.next_poll_after_seconds` and the returned suggested action. Read sender or domain status when that dependency is pending.
@@ -27,6 +29,6 @@ MCP `operation_logs` returns a bounded snapshot. Use `operation_get` for current
 
 ## Verify success
 
-An operation marked succeeded must still produce the requested outcome. For protected Dev, open the Owner's Dev share link; for public Dev, open the clean URL. Then test the real application, or read back the changed domain, budget or compute settings.
+An operation marked succeeded must still produce the requested outcome. For up to thirty seconds after success, some requests can still reach the previous version or address; recheck before calling a change missing. For protected Dev, open the Owner's Dev share link; for public Dev, open the clean URL. Then test the real application, or read back the changed domain, budget or compute settings. A data-change operation requires the named environment to be redeployed; follow [its assignment plan](/environments#change-data-assignments).
 
 [Errors and recovery](/troubleshooting) · [Limits](/limits).

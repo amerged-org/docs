@@ -3,18 +3,18 @@ title: "Export your database"
 description: "Request a password-encrypted SQL ZIP and download it when ready."
 ---
 
-You choose and keep the export password. Save the exact password in a private UTF-8 file outside the application source; do not put it in chat or a command argument.
+You choose and keep the export password. Save it in a private UTF-8 file outside the application source; do not put it in chat or a command argument. Its exact bytes are the password (one to 1,024 bytes, not blank): a final line break is part of it. Save without that line break unless it is intentional.
 
 ```sh
 ohmyhost export create --project "$PROJECT_ID" --idempotency-key "$EXPORT_REQUEST_KEY" --stdin --json < "$BACKUP_PASSWORD_FILE"
 ohmyhost export get "$EXPORT_ID" --project "$PROJECT_ID" --json
 ```
 
-`EXPORT_ID` is the create response's operation ID. MCP `project_export_create` takes the private password-file path; the local server reads it without placing the password in MCP arguments. Poll `project_export_get` after the returned interval.
+`EXPORT_ID` is the create response's operation ID. MCP `project_export_create` takes `password_file`, the absolute path of an existing regular file that only its owner can access on macOS/Linux (`chmod 600`); otherwise it answers `export_password_file_invalid`. The local server reads the file without putting its password in MCP arguments. Poll `project_export_get` after the returned interval.
 
 ## What the ZIP contains
 
-SQL dumps only: isolated data uses `dev.sql` and/or `prod.sql`; shared data is exported once as `shared.sql`. The export contains no R2 files, application code, runtime secrets or configuration. The maximum plaintext SQL payload is 256 MiB.
+SQL dumps of the current assignments only: isolated data uses `dev.sql` and/or `prod.sql`; shared data is exported once as `shared.sql`. Retired databases are not included. The export contains no R2 files, application code, runtime secrets or configuration. The maximum plaintext SQL payload is 256 MiB. Before a destructive [data-assignment change](/environments#change-data-assignments), download any needed SQL export and use the application's own downloads for files.
 
 An AES-compatible ZIP tool such as 7-Zip opens it with your password. The service cannot recover a lost password.
 
@@ -22,7 +22,7 @@ An AES-compatible ZIP tool such as 7-Zip opens it with your password. The servic
 
 One accepted request per project per rolling 24 hours covers both environments; an accepted request that fails still uses that allowance. Retry uncertain creation using the same key, not a new export. Exports are Owner-only and remain available at zero credits.
 
-A completed ZIP is retained seven days. Its authorized signed download URL lasts 24 hours and is issued only when enough retention remains. Treat the URL as a bearer secret; do not save it in project notes, source or feedback.
+A completed ZIP is retained seven days. Its authorized signed download URL lasts 24 hours and is issued only while at least 24 hours of retention remain: download within the first six days. On the seventh day `export get` returns no new `download_url`. Treat the URL as a bearer secret; do not save it in project notes, source or feedback.
 
 ## Send it to your storage
 

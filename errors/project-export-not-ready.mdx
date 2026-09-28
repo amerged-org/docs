@@ -3,10 +3,10 @@ title: "Project export not ready"
 description: "What the `project_export_not_ready` error means and what to do next."
 ---
 
-The API, CLI and MCP return `project_export_not_ready` with HTTP 409. Retrying the same request unchanged does not help.
+The API, CLI and MCP return `project_export_not_ready` with HTTP 409. Repeating the same request unchanged does not help.
 
 ## What to do
 
-Finish database provisioning, then request the export again. No backup was accepted.
+No database of this project is ready, so no export was accepted. A database is created when a commit whose ohmyhost.yaml sets database.enabled: true is deployed; request the export again after that deployment succeeds ('ohmyhost operation get OPERATION_ID --json'). A project without a database has no SQL export.
 
-Keep the `request_id` from the error when you [report the problem](/feedback).
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

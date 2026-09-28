@@ -1,0 +1,12 @@
+---
+title: "Rollback target data changed"
+description: "What the `rollback_target_data_changed` error means and what to do next."
+---
+
+The API, CLI and MCP return `rollback_target_data_changed` with HTTP 409. Repeating the same request unchanged does not help.
+
+## What to do
+
+This deployment used a data area its environment no longer has. Deploy that commit again with a fresh plan instead of rolling back to its old bindings; repeating this rollback cannot work.
+
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

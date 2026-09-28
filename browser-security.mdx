@@ -1,0 +1,57 @@
+---
+title: "Browser origins and security"
+description: "Declare the external browser resources, embedding, workers and CORS your web app actually uses."
+---
+
+Next.js, TanStack Start and Vite applications use a restrictive browser policy by default. Declare required external resources in committed `ohmyhost.yaml`; the deployment stores the policy with its artifact. A declaration enables that interface, but does not prove an external SDK, OAuth flow or exported application works. Test the actual browser flow after deployment.
+
+```yaml
+runtime:
+  mode: edge
+  browser:
+    connect: [https://api.example.com, wss://events.example.com]
+    scripts: [https://cdn.example.com]
+    styles: [https://cdn.example.com]
+    images: [https://images.example.com]
+    fonts: [https://fonts.example.com]
+    frames: [https://embed.example.com]
+    frameAncestors: [https://portal.example.com]
+    workers: { self: true, blob: false }
+    cors:
+      origins: [https://portal.example.com]
+      credentials: false
+```
+
+These are examples: remove unused groups and use the exact origins your app needs. Each group permits at most sixteen distinct HTTPS origins; only `connect` also accepts WSS. No wildcard, URL path or inline/eval exception is accepted. Omitted groups retain restrictive defaults. Browser declarations do not authorize server `fetch`: that uses the separate `runtime.egress.allow` with at most thirteen exact HTTPS origins.
+
+| Declaration                            | Effect                                                              |
+| -------------------------------------- | ------------------------------------------------------------------- |
+| `connect`                              | External browser fetch/XHR/WebSocket destinations.                  |
+| `scripts`, `styles`, `images`, `fonts` | External resources in the matching CSP directive.                   |
+| `frames`                               | Origins the application may embed.                                  |
+| `frameAncestors`                       | Origins allowed to embed the application.                           |
+| `workers.self`, `workers.blob`         | Opt in to workers from the app origin or blob URLs.                 |
+| `cors.origins`                         | Origins permitted to call the application's HTTP API.               |
+| `cors.credentials`                     | Additional explicit consent for cross-origin requests with cookies. |
+
+## Nonces and cookies
+
+Next.js and TanStack Start HTML receive a fresh `x-nonce`; the platform sets it on every rendered script/style tag, including hand-written blocks, and supplies a `csp-nonce` meta tag. Inline style attributes and event handlers remain blocked. Tags later created by browser code need that nonce. Vite, with or without a companion, and static pages permit no inline script/style code. Prefer ordinary CSS and scripts, and never nonce untrusted user markup.
+
+The gateway replaces application CSP. It drops `Set-Cookie` with a Domain attribute, so use host-only, Secure, HttpOnly session cookies. Same-origin non-GET/HEAD requests carrying cookies must have the correct Origin. For a declared external origin, the application must also return that exact `Access-Control-Allow-Origin`, allowed methods/headers and, when selected, its own `Access-Control-Allow-Credentials: true`; a wildcard does not suffice. Undeclared CORS headers are removed. Keep the application's own authentication and authorization checks.
+
+A provider callback using a cross-origin form POST needs the matching declared origin/CORS policy. Register the actual Dev/Prod callback URLs and verify session creation, reload and logout. Do not infer compatibility from a redirect or a successful root page. External browser integrations, including a deliberately retained Supabase client, require their exact declared origins and their own application evidence; moving that service into managed Postgres is a separate decision.
+
+## Media and microphone
+
+Video/audio playback and microphone access require exactly this `public/_headers` opt-in on a server HTML runtime:
+
+```text
+/*
+  Content-Security-Policy: media-src 'self' blob:
+  Permissions-Policy: microphone=(self)
+```
+
+Redeploy after changing it. Static pages cannot opt in; camera and geolocation stay blocked. Media loads from the app origin or blob URLs, so serve private stored media through an authorized application route. Eval, browser WASM and service-worker behavior have no general support promise.
+
+[Frameworks](/frameworks/vite) · [Application auth](/application-auth) · [Private files](/files) · [Runtime limits](/limits).

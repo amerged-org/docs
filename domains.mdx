@@ -1,6 +1,6 @@
 ---
 title: "Connect a domain"
-description: "Use Cloudflare authorization or add the exact DNS records manually."
+description: "Choose a project address, connect a custom domain through Cloudflare or manual DNS, and show the opt-in ohmyho.st flag."
 ---
 
 Every project has a hosting address that the platform picks: a three-word handle served as `HANDLE.check.omh.st` for Prod and `dev-HANDLE.check.omh.st` for Dev. `ohmyhost project status` reports both. Before you name a specific address to someone, ask whether it is free:
@@ -26,9 +26,9 @@ ohmyhost project handle set --project "$PROJECT_ID" --handle quiet-otter-waves \
 
 `$PROJECT_ETAG` is `project.etag` from the CLI status response (`etag` in the REST or MCP response). Do not construct it yourself. Read it again before another rename; reuse the request key only when retrying the same rename. The command returns an operation: both gateways are re-published at the new address, and the new handle is stored only once Dev and Prod serve it. Follow it with `ohmyhost operation get` and wait for success before you quote the new URL. Agents use MCP `project_handle_set` or `PUT /v1/projects/{project_id}/handle`.
 
-The old address stops answering as soon as the rename succeeds, and the name returns to the pool for any project to claim — links you already shared with it break, so rename before you publish an address, not after. A rename is refused while another operation is running for the project, for an address that is taken or unusable, and for the address the project already has. A Dev access link created before the rename points at the old Dev address and stops working with it; create a new one afterwards.
+The old address stops answering within about thirty seconds of a successful rename, and the name returns to the pool for any project to claim — links you already shared with it break, so rename before you publish an address, not after. A rename is refused while another operation is running for the project, for an address that is taken or unusable, and for the address the project already has. Update callback URLs, trusted origins and base-URL secrets that name the old host. A Dev share link or ticket from before rename points there; read the share link again after success. Managed Better Auth needs another deployment/promotion to update its platform base URL. If rename ends `operation_abandoned`, no address changed: read fresh project.etag and retry with a new key.
 
-A custom hostname requires Paid access, or a Free workspace whose project shows the ohmyho.st flag (below), and serves the project's Prod deployment. Use the real hostname you want to publish:
+A custom hostname requires Paid access, or a Free workspace whose project shows the ohmyho.st flag (below), and serves the project's Prod deployment. Without Paid or the project flag, the custom hostname answers 402 `Project execution paused`; a funded platform address can keep serving. Use the real hostname you want to publish:
 
 ```sh
 ohmyhost domain paid plan --project "$PROJECT_ID" --hostname app.example.com --json
@@ -60,22 +60,22 @@ ohmyhost domain paid apply --project "$PROJECT_ID" --hostname app.example.com --
 ohmyhost domain paid status --project "$PROJECT_ID" --json
 ```
 
-The sequence is plan, apply, authorize, authorization status, the same apply, then domain status. Authorization alone does not make DNS or HTTPS ready.
+The sequence is plan, apply, authorize, authorization status, the same apply, then domain status. Authorization alone does not make DNS or HTTPS ready. The access token renews automatically; authorize again only when status says expired or revoked.
 
 ## Other DNS providers
 
-Your agent returns the exact type, name, value and TTL from the API. Add those records with your DNS provider. Preserve existing mailbox MX and unrelated records. You do not need to move your domain to Cloudflare.
+Your agent returns `validation_records` from paid apply/status: exact `type`, `name` and `content`. No TTL is returned; use the DNS provider's default. Add those records with your DNS provider. Preserve existing mailbox MX and unrelated records. You do not need to move your domain to Cloudflare.
 
 ## Show the ohmyho.st flag
 
-With the owner's consent, a project can show a small "Powered by ohmyho.st" flag on the right edge of its production site. It loads nothing and links to ohmyho.st. While it shows, a Free workspace may connect its own domain to that project, the custom hostname costs no credits on any plan, and each new Paid period adds 250 credits. Hiding the flag is refused with `powered_by_flag_required` while a Free workspace's domain depends on it.
+With the owner's consent, a project can show a small "Powered by ohmyho.st" flag on the right edge of its production site. It loads nothing and links to ohmyho.st. While it shows, a Free workspace may connect its own domain to that project, the custom hostname costs no credits on any plan, and each Paid period bought through Stripe adds 250 credits once per workspace, however many projects show the flag. Granted/referral Paid days add none (25% more monthly credits for a paid period). Hiding the flag is refused with `powered_by_flag_required` while a Free workspace's domain depends on it.
 
 ```sh
 ohmyhost project flag status --project "$PROJECT_ID" --json
 ohmyhost project flag set --project "$PROJECT_ID" --enabled true --idempotency-key "$FLAG_REQUEST_KEY" --json
 ```
 
-Only an owner can switch it. Agents use MCP `powered_by_flag_get` and `powered_by_flag_set`. After an uncertain answer, repeat the same key and value; every new switch needs a new key.
+Only an Owner switches it through those commands, `powered_by_flag_set` or **Show ohmyho.st flag** on the portal project card; `powered_by_flag_get` reads it. On Free, show the flag before applying the hostname. After uncertainty replay the same key/value; every new switch needs a new key. It appears within about thirty seconds on Prod HTML a browser opens, so check it in a browser. Its `https://ohmyho.st/?r=flag-<project>` link counts as a referral while the flag shows.
 
 ## Check readiness
 
@@ -87,3 +87,7 @@ ohmyhost mail status --project "$PROJECT_ID" --environment "$PROD_ENVIRONMENT_ID
 DNS, HTTPS and mail verification have separate statuses. Mail status returns `next_check_after_seconds` (currently 60 seconds while pending); domain status returns no interval, so ask your agent to check again once DNS changes have had time to propagate. Keep the original deployment and do not rebuild to poll DNS. [Email](/email) · [Project context](/project-context).
 
 When the final hostname is ready, configure it as the application's trusted public origin and update its auth callback/logout URLs. Verify login and one protected action there. A host-only session cookie may require a fresh login after changing domains; do not widen cookie domains or trust arbitrary request hosts to mask incorrect configuration.
+
+## Move or retire a hostname
+
+To move a domain to another project, run confirmed `ohmyhost domain paid delete --project "$OLD_PROJECT_ID" --hostname "$HOSTNAME" --idempotency-key "$DOMAIN_DELETE_KEY" --yes --json`, wait/read deletion, then plan/apply it on the new project. `domain_hostname_taken` means another project holds the hostname. An interrupted pending connection can also be deleted. This removes only the named connection and its owned DNS records, preserving unrelated mailbox MX.

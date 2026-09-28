@@ -80,7 +80,8 @@
                       "null"
                     ],
                     "minLength": 1,
-                    "maxLength": 64
+                    "maxLength": 64,
+                    "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
                   }
                 }
               }
@@ -1364,7 +1365,7 @@
       "get": {
         "operationId": "getBillingCheckout",
         "summary": "Observe and reconcile an owner's original checkout",
-        "description": "Reads Stripe and reconciles confirmed credits/refunds idempotently. payment_confirmed describes the original Checkout, not spendable credit or current Paid entitlement. Read organization credits for available funding; paid_until is the current paid coverage. No new purchase intent or payment is created; an uncertain original Checkout can resume using its stored identity.",
+        "description": "Reads Stripe and reconciles confirmed credits/refunds idempotently. payment_confirmed describes the original Checkout, not spendable credit or current Paid entitlement. Read organization credits for available funding and the organization account's effective plan for Paid coverage; paid_until is the paid Stripe period end, not the end of renewal grace. No new purchase intent or payment is created; an uncertain original Checkout can resume using its stored identity.",
         "parameters": [
           {
             "$ref": "#/components/parameters/RequestId"
@@ -2653,7 +2654,7 @@
       "put": {
         "operationId": "setProjectPoweredByFlag",
         "summary": "Show or hide the \"Powered by ohmyho.st\" flag",
-        "description": "Owner-only. The production site shows a small flag on its right edge that links to ohmyho.st. While it is on, a Free workspace may connect its own domain to this project and the custom-hostname fee is waived; Paid periods receive bonus credits. Hiding it is refused while a Free workspace's domain depends on it. A retry with the same Idempotency-Key and body returns the first result without switching again; a changed request under a used key returns idempotency_key_reused (409).",
+        "description": "Owner-only. The production site shows a small flag on its right edge that links to ohmyho.st. While it is on, a Free workspace may connect its own domain to this project and the custom-hostname fee is waived; each Paid period bought through Stripe adds 250 credits to the organization, however many of its projects show the flag. Hiding it is refused while a Free workspace's domain depends on it. A retry with the same Idempotency-Key and body returns the first result without switching again; a changed request under a used key returns idempotency_key_reused (409).",
         "parameters": [
           {
             "$ref": "#/components/parameters/RequestId"
@@ -3349,7 +3350,7 @@
       "put": {
         "operationId": "applyPaidProjectDomain",
         "summary": "Apply one Paid customer-owned hostname",
-        "description": "Requires a confirmed current Paid service period and no expired credit-exhaustion grace. Returns paid_plan_required without a Paid period, or insufficient_organization_credits after seven days with no available credits, without provider mutation. Top-ups restore exhausted Paid access but do not create or extend a Paid service period. After the Paid check, a project whose Prod environment has no active deployment returns production_deployment_required (409) without claiming the hostname or any provider mutation; a changed request under a used key returns idempotency_key_reused (409).",
+        "description": "Requires Paid access (a Stripe period or a grant) or, for a Free workspace, a project that currently shows the powered-by flag, and no expired credit-exhaustion grace. Returns paid_plan_required otherwise, or insufficient_organization_credits after seven days with no available credits, without provider mutation. Top-ups lift a credit-exhaustion block but never start or extend Paid access. After that check, a project whose Prod environment has no active deployment returns production_deployment_required (409) without claiming the hostname or any provider mutation; a changed request under a used key returns idempotency_key_reused (409).",
         "parameters": [
           {
             "$ref": "#/components/parameters/RequestId"
@@ -5694,12 +5695,145 @@
         },
         "x-ohmyhost-resource-disclosure": "indistinguishable-not-found"
       }
+    },
+    "/v1/projects/{project_id}/data-changes:plan": {
+      "post": {
+        "operationId": "planProjectDataChange",
+        "summary": "Plan a Dev and Prod data assignment change",
+        "description": "Plans one of four Owner-only changes without copying data and issues a ten-minute action-bound confirmation token. shared remains the default at project creation. A Dev reset preserves secrets and access mode and renews a protected share link.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/ProjectId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The data assignment plan and its exact destructive effects.",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/XRequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectDataChangePlan"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/ResourceNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-ohmyhost-resource-disclosure": "indistinguishable-not-found",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectDataChangeRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/projects/{project_id}/data-changes": {
+      "post": {
+        "operationId": "createProjectDataChange",
+        "summary": "Execute a confirmed Dev and Prod data assignment change",
+        "description": "Accepts an asynchronous Owner-only data change with the plan ETag, X-Confirmation-Token and Idempotency-Key. It never deletes the data area Prod keeps. Retired Dev resources are removed after access and outstanding upload capabilities are fenced; uncertain effects remain reconcilable.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/ProjectId"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/IfMatch"
+          },
+          {
+            "$ref": "#/components/parameters/ConfirmationToken"
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/AcceptedOperation"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/ResourceNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-ohmyhost-idempotency": {
+          "canonicalRequestVersion": "v1",
+          "identicalRequest": "replay-stored-response",
+          "changedRequest": "409-idempotency-key-reused"
+        },
+        "x-ohmyhost-resource-disclosure": "indistinguishable-not-found",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectDataChangeRequest"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "headers": {
       "ETag": {
-        "description": "Opaque current resource version used by If-Match.",
+        "description": "Opaque version of this response body. Not accepted as If-Match.",
         "required": true,
         "schema": {
           "type": "string",
@@ -5754,7 +5888,7 @@
       "IfMatch": {
         "name": "If-Match",
         "in": "header",
-        "description": "Exact ETag returned for the current project or deployment state.",
+        "description": "Use resource_etag from a fresh rollback, promotion, deletion or data-change plan. For a project address change, use etag from project status; an ETag from another representation is not accepted.",
         "required": true,
         "schema": {
           "type": "string",
@@ -8686,6 +8820,7 @@
               "expired",
               "budget",
               "creation_failed",
+              "data_change",
               null
             ]
           }
@@ -9220,7 +9355,8 @@
           "resource_etag": {
             "type": "string",
             "minLength": 3,
-            "maxLength": 128
+            "maxLength": 128,
+            "description": "Send as If-Match with this plan's confirmation token."
           },
           "effects": {
             "type": "array",
@@ -9341,7 +9477,7 @@
           "isolated"
         ],
         "default": "shared",
-        "description": "Chosen when the project is created. shared uses one database and a shared file namespace across Dev/Prod; isolated keeps their database/Auth records and files separate. Skills recommend isolated development, but the customer chooses the additional measured database consumption. Promotion applies pending schema migrations to an isolated Prod database without copying Dev data. Changing an established mode requires an explicit data migration."
+        "description": "Optional at creation, default shared. shared uses one data area across Dev/Prod; isolated gives each environment its own database/Auth records and file namespace. The four Owner-confirmed data-change actions reassign or reset areas without copying data or files and without a special change fee; ordinary measured resource consumption still applies. A reset or merge removes the named Dev resources. Promotion applies pending schema migrations to isolated Prod without copying Dev data."
       },
       "HostingRegion": {
         "type": "string",
@@ -9578,7 +9714,7 @@
             "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
             "minLength": 1,
             "maxLength": 64,
-            "description": "Optional public acquisition source from a link's r parameter. Signup is open and this value grants nothing; omit it when the customer arrived directly. Promotional credits are server-configured, attribution is fixed for the user, and rewards are never multiplied by retries or additional organizations."
+            "description": "Optional public acquisition source from a link's r parameter; never a secret or an access code. Omit it when the customer arrived directly. A workspace referral value (ref-...) or a flag value (flag-..., while that project still shows the flag) gives the user's first workspace 1,000 credits and 30 days of granted Paid access; other promotional credits are server-configured. Direct signup and invalid referral values create a Free workspace without a referral reward. Attribution is fixed for the user, and rewards are never multiplied by retries or additional organizations."
           },
           "name": {
             "type": "string",
@@ -9737,7 +9873,8 @@
               "string",
               "null"
             ],
-            "format": "date-time"
+            "format": "date-time",
+            "description": "End of the paid Stripe billing period or the applicable grant; null on Free or for an unbounded grant. During an unpaid renewal the effective Paid plan may remain available for up to 14 days after this Stripe period end, without new monthly credits."
           },
           "available_micros": {
             "$ref": "#/components/schemas/CreditMicros"
@@ -10135,7 +10272,14 @@
               "api_key_creation_uncertain",
               "api_key_permissions_unavailable",
               "reconciliation_exhausted",
-              "service_unavailable"
+              "service_unavailable",
+              "source_commit_not_found",
+              "domain_hostname_taken",
+              "data_change_blocked",
+              "data_change_in_progress",
+              "data_change_not_applicable",
+              "rollback_target_data_changed",
+              "project_domain_delete_required"
             ]
           },
           "request_id": {
@@ -10734,7 +10878,10 @@
               "runtime_candidate_failed",
               "runtime_candidate_rejected",
               "storage_jurisdiction_conflict",
-              "provider_state_absent"
+              "provider_state_absent",
+              "auto_deploy_plan_rejected",
+              "promotion_source_stale",
+              "promotion_target_stale"
             ]
           },
           "message": {
@@ -10837,6 +10984,129 @@
       "Ulid": {
         "type": "string",
         "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+      },
+      "ProjectDataChangeKind": {
+        "type": "string",
+        "enum": [
+          "isolate_prod_keeps_data",
+          "isolate_dev_keeps_data",
+          "share_prod_keeps_data",
+          "reset_dev"
+        ],
+        "description": "Owner-confirmed assignment change. No application data is copied; physical resources are provisioned lazily."
+      },
+      "ProjectDataChangeRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "change"
+        ],
+        "properties": {
+          "change": {
+            "$ref": "#/components/schemas/ProjectDataChangeKind"
+          }
+        }
+      },
+      "ProjectDataChangePlan": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "action",
+          "project_id",
+          "change",
+          "data_mode_before",
+          "data_mode_after",
+          "effects",
+          "destructive_effects",
+          "redeploy_environments",
+          "risks",
+          "resource_etag",
+          "confirmation_token",
+          "created_at",
+          "expires_at"
+        ],
+        "properties": {
+          "action": {
+            "type": "string",
+            "const": "data_change"
+          },
+          "project_id": {
+            "$ref": "#/components/schemas/Ulid"
+          },
+          "change": {
+            "$ref": "#/components/schemas/ProjectDataChangeKind"
+          },
+          "data_mode_before": {
+            "type": "string",
+            "enum": [
+              "shared",
+              "isolated"
+            ]
+          },
+          "data_mode_after": {
+            "type": "string",
+            "enum": [
+              "shared",
+              "isolated"
+            ]
+          },
+          "effects": {
+            "type": "array",
+            "maxItems": 32,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            }
+          },
+          "destructive_effects": {
+            "type": "array",
+            "maxItems": 32,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            }
+          },
+          "redeploy_environments": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1,
+            "items": {
+              "type": "string",
+              "enum": [
+                "dev",
+                "prod"
+              ]
+            }
+          },
+          "risks": {
+            "type": "array",
+            "maxItems": 32,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            }
+          },
+          "resource_etag": {
+            "type": "string",
+            "pattern": "^\"sha256-[a-f0-9]{64}\"$",
+            "description": "Send as If-Match with this plan's confirmation token."
+          },
+          "confirmation_token": {
+            "$ref": "#/components/schemas/ConfirmationToken"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "description": "An action-bound ten-minute plan naming retained, retired and lazily created data areas. The workspace Owner confirms its destructive effects before execution."
       }
     }
   }

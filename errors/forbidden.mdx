@@ -3,10 +3,10 @@ title: "Forbidden"
 description: "What the `forbidden` error means and what to do next."
 ---
 
-The API, CLI and MCP return `forbidden` with HTTP 403. Retrying the same request unchanged does not help.
+The API, CLI and MCP return `forbidden` with HTTP 403. Repeating the same request unchanged does not help.
 
 ## What to do
 
-Check organization access.
+This login may not do this; repeating unchanged does not help. error.acting_as names the login used: use a workspace this login belongs to ('ohmyhost whoami --json'), or the login of the account that owns it. For 'organization create', pass --source exactly as the Signup source on the portal Profile page, or omit it when that page shows Direct.
 
-Keep the `request_id` from the error when you [report the problem](/feedback).
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

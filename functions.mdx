@@ -16,13 +16,13 @@ export default {
 };
 ```
 
-`fetch` answers every request of the environment. The module receives the same bindings as a framework app: the application database, files, mail, [runtime secrets](/secrets) and the declared egress origins. There is no `build.command` and no `build.output`; `ohmyhost init --dry-run --json` reports a missing module as a blocker.
+`fetch` is required even for a schedules-only app and answers every request of the environment. The module receives the same bindings as a framework app: the application database, files, mail, [runtime secrets](/secrets) and the declared egress origins. Server fetch reaches only `runtime.egress.allow`: at most thirteen exact public HTTPS origins, no path, trailing slash, credentials, port, IP literal or local name. Undeclared is 403 Egress denied; a redirect or unreachable upstream is 502 Egress upstream unavailable (304 preserved). There is no build.command or build.output; `ohmyhost init --dry-run --json` reports a missing module as a blocker.
 
 ## Returning HTML
 
-The gateway applies a strict Content Security Policy and supplies a fresh request nonce in `x-nonce`. Use that nonce on inline `<script>` and `<style>` elements in your own trusted templates. Inline `style` attributes and event-handler attributes are blocked: move them into nonced stylesheets and script listeners. Keep fonts, scripts and styles on the same origin; an external font link is not permitted by the browser policy. Never add a nonce to untrusted user markup or relax CSP to make a page render.
+The gateway applies a strict Content Security Policy and supplies a fresh request nonce in `x-nonce`. Use that nonce on inline `<script>` and `<style>` elements in your own trusted templates. Inline `style` attributes and event-handler attributes are blocked: move them into nonced stylesheets and script listeners. External fonts, scripts, styles, images, connections, frames and workers require the corresponding committed [browser declaration](/browser-security). Nonces do not enable eval or authorize arbitrary destinations. Never add a nonce to untrusted user markup or relax CSP to make a page render.
 
-Validate the rendered page in a real browser after deployment: styles, one interactive action, native form submission and session persistence after reload. An HTTP `200` alone does not prove any of these. Application login handlers must still validate the request origin, and session cookies should remain host-only, `Secure` and `HttpOnly`. After an address change, test a fresh login on the returned URL.
+Validate the rendered page in a real browser after deployment: styles, one interactive action, native form submission and session persistence after reload. An HTTP `200` alone does not prove any of these. Keep application origin/session checks. Non-GET/HEAD requests with cookies need an authorized Origin; external browser callers also need explicit configured CORS and matching application response headers. Domain cookies are dropped, so keep host-only, Secure, HttpOnly sessions. After an address change, test a fresh login on the returned URL.
 
 ## Declare schedules
 
@@ -33,15 +33,15 @@ functions:
     - "*/15 * * * *"
 ```
 
-Between one and eight unique five-field UTC crons; the shortest interval is five minutes. Declared crons work on every edge runtime. The functions runtime, Next.js and TanStack Start keep `scheduled` in the default export of `src/ohmyhost/worker.ts`; a Vite app keeps it in the default export of its companion `src/ohmyhost/companion.ts`. Named exports are never invoked. Init blocks a module without a default export (`worker_module_default_export_required`) and a declaration without the handler (`scheduled_handler_required`).
+Declare one to eight unique five-field UTC schedules with single spaces. Minute is one canonical number or `*/N` with N from 5 to 59, never bare `*`. Hour (0–23), day (1–31), month (1–12) and weekday (0–6, Sunday 0) each use `*` or one number without leading zeroes. All five fields must match, including day and weekday. Lists, ranges, names, other steps and `@daily` are refused; declare separate schedules instead. Crons need `runtime.mode: edge` or `functions`: the functions runtime, Next.js and TanStack use the default `scheduled` in `src/ohmyhost/worker.ts`; Vite uses the default `scheduled` in `src/ohmyhost/companion.ts`. Named exports are never called. Init errors are `worker_module_default_export_required`, `scheduled_handler_missing` and `scheduled_functions_runtime_unsupported`; planning returns `framework_conversion_required` naming the file.
 
-The platform bundles `src/ohmyhost/worker.ts` on its own, outside the framework build. tsconfig `paths` resolve; Vite-only aliases, framework virtual modules and modules that declare TanStack Start server functions or Next.js route handlers do not. Import plain application modules and the generated runtime clients, and keep framework entry code out of the Worker module. A script the runtime cannot start fails the deployment terminally; `operation get` reports `error.code: runtime_candidate_rejected`.
+The platform bundles `src/ohmyhost/worker.ts` on its own, outside the framework build. tsconfig `paths` resolve; Vite-only aliases, framework virtual modules and modules that declare TanStack Start server functions or Next.js route handlers do not. Import plain application modules and the `@ohmyhost/customer-runtime/database`, `/storage` and `/mail` clients, and keep framework entry code out of the Worker module. A script the runtime cannot start fails the deployment terminally; `operation get` reports `error.code: runtime_candidate_rejected`.
 
 Use narrow imports: a convenience barrel can pull framework route code into an otherwise plain scheduled module. Claims, retries and cleanup progress belong in durable application records. Choose a small batch and individual provider timeouts that fit the complete 120-second run; close database connections before network work. A declared cron or an unconsumed outbox event does not prove that background work is running.
 
 ## How a run executes
 
-Every minute the platform starts one run per declared cron that is due. The handler receives `controller.cron`, `controller.scheduledTime` and `controller.noRetry()` together with the environment bindings. A run may take up to 120 seconds. A thrown error or a platform failure is retried in the following minutes up to three attempts; calling `controller.noRetry()` before throwing stops the retries. Promotion and rollback switch the crons together with the deployment, and deleting the project removes them.
+Every minute the platform starts one run per declared cron that is due. The handler receives `controller.cron`, `controller.scheduledTime` and `controller.noRetry()` together with the environment bindings. A run has 120 seconds of wall-clock time, 50 ms of CPU time and ten subrequests, like HTTP customer invocations; network waiting is not CPU. A thrown error or a platform failure is retried in the following minutes up to three attempts; calling `controller.noRetry()` before throwing stops retries. A 120-second timeout also retries with the same `controller.scheduledTime`, so make side effects idempotent. Dev/Prod each run schedules from their own active deployment and can both write shared data. Promotion and rollback switch the crons together with the deployment, and deleting the project removes them.
 
 ## Observe runs
 
@@ -51,7 +51,7 @@ Scheduled runs are not deployment log events. Read them per environment, newest 
 ohmyhost function runs --project "$PROJECT_ID" --environment "$ENVIRONMENT_ID" --limit 20 --json
 ```
 
-The MCP tool `function_runs_list` and `GET /v1/projects/{project_id}/environments/{environment_id}/function-runs` return the same list. Each run carries its cron, the scheduled UTC minute, `state` (`due`, `running`, `retry`, `succeeded`, `failed`), the attempt, the status the handler returned (`204` for a completed handler, `422` when it called `controller.noRetry()` and threw, `500` for a thrown error) and its start and finish times. A declared cron with no run for a past due minute means the environment had no active deployment with that cron at the time.
+The MCP tool `function_runs_list` and `GET /v1/projects/{project_id}/environments/{environment_id}/function-runs` return the same list. Each run carries its cron, the scheduled UTC minute, `state` (`due`, `running`, `retry`, `succeeded`, `failed`), the attempt, the status the handler returned (`204` for a completed handler, `422` when it called `controller.noRetry()` and threw, `500` for a thrown error) and its start and finish times. `status_code` is null until the attempt returns, and also for timeout or a handler never reached. Finished runs are retained seven days. A due minute with no run within that window means the environment had no active deployment declaring the cron then.
 
 ## Cost
 

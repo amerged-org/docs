@@ -17,10 +17,12 @@ Read [provider contracts](references/provider-contracts.md) only for the affecte
 
 ## Convert the selected capabilities
 
-- Replace selected Supabase-specific database calls with typed SQL or narrow repositories through the supported managed database binding. Preserve transaction boundaries, constraints and tenant filtering.
-- Review SQL functions and RLS-dependent assumptions explicitly. Keep versioned migration filenames in the required `YYYYMMDDHHMMSS_name.sql` format; prefer additive changes and test existing records.
+- Replace selected Supabase-specific database calls with typed SQL or narrow repositories through `createPrivateDatabaseClient` and `OHMYHOST_DATABASE`. Use `transaction()` for predefined statements and bounded `withConnection()` for read-decide-write; see [database runtime](../ohmyhost-build-portable-app/references/database-runtime.md). Preserve transaction boundaries, constraints and tenant filtering.
+- Review SQL functions and RLS-dependent assumptions explicitly. Keep immutable migrations in `YYYYMMDDHHMMSS_name.sql` format and follow [expand-only admission](../ohmyhost-manage-database/SKILL.md). Row changes, DROP, CREATE OR REPLACE, roles/grants and changes to existing constraints are refused. Do not convert RLS/JWT helpers into browser-controlled authority or add a Clerk/RLS integration as an incidental migration.
 - Preserve or integrate the customer-chosen application auth. Configure its callback URLs and private server secrets. Test login, protected access, session refresh/reload and logout; hosting login is separate.
 - Convert selected Storage, Functions and Realtime behavior only when the current runtime contract supports the equivalent application behavior. If it does not, state the gap and agree on the feature decision instead of inserting a fake success or silent fallback.
+- Selected Edge Functions become authenticated framework-native server routes or plain Worker handlers. Declare schedules through `functions.crons`; the platform owns cron delivery/retries, rather than customer Queue/Workflow bindings. Existing external functions may stay when the customer chooses them and their declared interfaces are verified.
+- Optional managed Better Auth uses explicit `auth.provider: better-auth`, database and `mail.enabled: true`: its managed bridge always sends verification/reset mail through the private mail capability and needs Paid/verified sender. Missing mail fails early as `managed_auth_mail_required`. To retain application-owned Better Auth or external sending, use `auth.provider: none`; SDK dependency detection alone selects no managed capability. Preserve external auth-provider mail when the customer chooses it.
 - Keep application runtime secrets separate from repository/build inputs. Use `secret_set_command` and the intended environment ID for private values.
 
 ## Verify and deploy
