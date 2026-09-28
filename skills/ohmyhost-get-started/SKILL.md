@@ -7,6 +7,55 @@ description: Connect a customer agent to ohmyho.st. Determine what is already in
 
 Connect this agent to the customer's account, then continue with the selected GitHub app.
 
+## What ohmyho.st is and what you can do with it
+
+ohmyho.st hosts a customer's GitHub app: Vite/React, TanStack Start, Next.js or a plain Worker
+module with HTTP handlers and optional cron schedules. Their coding agent operates it through the local
+MCP server or CLI, both calling the same REST API. Deploy a pushed commit to Dev or Prod,
+verify the app, and promote a tested Dev artifact when appropriate. Dev is protected by default;
+the deployment Skill handles public Dev, data choices and the shared-database promotion rule.
+You can also give the app Postgres, private runtime secrets, Cloudflare R2 files, optional
+transactional mail and a custom domain, export its database as an encrypted SQL ZIP, and read
+usage, credits and project budgets. The customer keeps their own application authentication;
+nothing here replaces it. Sign-up is open and free to start.
+
+The initial connection normally asks the customer to sign in and authorize GitHub for the
+workspace. A working saved login or API token can avoid another sign-in, and a connected
+workspace can reuse its GitHub connection. Optional payments, DNS/account consent or harness
+reloads can require further customer action; use the relevant Skill for the feature they chose.
+
+The whole path, and the proof that each step is done:
+
+| Step | Result                                                        | Proof                                                                                                                         | Section      |
+| ---- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| 1    | You know what is installed and who is signed in               | `ohmyhost --version`, `ohmyhost whoami --json` or MCP `identity_get`, and the MCP tool list                                   | Step 1       |
+| 2    | CLI and MCP are current and registered                        | Installed versions match the published release; the harness's MCP `tools/list` exposes the tools after any required reload    | Step 2       |
+| 3    | The intended account is authenticated                         | `ohmyhost whoami --json` or MCP `identity_get` returns the intended user                                                      | Step 3       |
+| 4    | A workspace is selected                                       | The identity returns the intended organization                                                                                | Step 4       |
+| 5    | Access survives this session                                  | The same identity check succeeds from a fresh process with its chosen login or private token source                           | Step 5       |
+| 6    | GitHub is connected and existing projects are known           | MCP `github_status` returns `connected`; `projects_list` identifies a project to reuse                                        | Step 6       |
+| 7    | The repository is linked and the app is deployed and verified | MCP `source_get` confirms the linked repository; the deployment operation succeeds and the selected app URL passes its checks | Deploy Skill |
+
+Each step is a separate result. Confirm it using the Proof column; a completed browser page,
+a saved MCP configuration or a started process does not substitute for its returned state.
+
+Which Skill to read next:
+
+| The customer wants to …                                          | Skill                              |
+| ---------------------------------------------------------------- | ---------------------------------- |
+| prepare or adapt an app so it runs here                          | ohmyhost-build-portable-app        |
+| convert a real Supabase database, Auth, Storage or Functions use | ohmyhost-migrate-supabase-postgres |
+| deploy a commit, verify it, promote Dev to Prod                  | ohmyhost-deploy-github             |
+| understand a queued, stuck or failed deployment, or report a bug | ohmyhost-troubleshoot-deployment   |
+| read or change data, database size or Dev-to-Prod migrations     | ohmyhost-manage-database           |
+| connect a custom domain or mail sender                           | ohmyhost-domains-and-mail          |
+| export the database as an encrypted backup                       | ohmyhost-export-database           |
+| see usage, credits or set a spending limit                       | ohmyhost-usage-and-budgets         |
+
+Users normally reach this Skill from a prompt such as "connect this agent to ohmyho.st and deploy
+this project". In that case finish Steps 1 to 6 with as few messages as possible, then continue
+with the deployment Skill without asking again for anything already decided.
+
 ## How to talk to the customer here
 
 - One action per message, in short plain sentences. Give the link, then what they will see.

@@ -2070,9 +2070,9 @@ paths:
         Resolves immutable inputs and estimates effects without provider mutation or billable
         work. The plan targets Dev unless `environment` is `prod`; a Prod plan builds straight into
         Prod, except that a project with shared data and a database only reaches Prod through
-        promotion. Mail and the currently supported mail-backed Better Auth contract require a
-        confirmed Paid service period; it is checked again before build reservation. An old sender
-        configuration is not Paid authority.
+        promotion. Managed mail requires a confirmed Paid service period; it is checked again before
+        build reservation. Selecting the managed Better Auth bridge does not require managed mail
+        or Paid access. An old sender configuration is not Paid authority.
       parameters:
         - $ref: "#/components/parameters/RequestId"
         - $ref: "#/components/parameters/ProjectId"
