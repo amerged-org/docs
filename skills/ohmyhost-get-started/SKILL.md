@@ -344,4 +344,10 @@ Use `projects_list` to reuse a project and `project_context_get` when resuming o
 
 Continue with the **ohmyhost-deploy-github** Skill when a deployment is requested. Login, workspace creation, GitHub connection and project linking are distinct results; check each returned state rather than treating a completed browser page as deployment success.
 
+For a repository containing several apps, run local `init` from its Git root and check that the
+repository-root `ohmyhost.yaml` selects the intended `applicationRoot` before planning the pushed
+commit. For example, `applicationRoot: apps/web` selects that app's sources and migrations;
+an `ohmyhost.yaml` inside `apps/web` does not override the repository's selection. Compare the
+local result with the plan's `application_root` and keep any admission diagnostic visible.
+
 Support runs through this agent. When the customer needs help, reports a bug or asks for a feature, submit a redacted report with `feedback_submit` (CLI `ohmyhost feedback submit`), give the customer the receipt ID and read replies later with `feedback_status`; the **ohmyhost-troubleshoot-deployment** Skill describes a good report. Point the customer to https://ohmyho.st/contact only when they cannot sign in, a billing issue names `contact_support`, or they ask about privacy or the DPA. The customer page is https://docs.ohmyho.st/support.
