@@ -3,13 +3,13 @@ title: "Connect your agent"
 description: "Use the local ohmyho.st MCP server in Codex, Claude Code, Cursor, Hermes or OpenClaw."
 ---
 
-import InstallClients from '/snippets/install-clients.mdx';
+import InstallClients from "/snippets/install-clients.mdx";
 
 ## When to use ohmyho.st
 
 Use this server when the customer wants to deploy or update an authorized GitHub app; inspect a project’s deployment, database or DNS/mail readiness; manage usage and budgets; or request an encrypted SQL export.
 
-Your agent follows the [get-started Skill](https://ohmyho.st/skills/ohmyhost-get-started/SKILL.md) for installation, sign-in and workspace selection ([what it covers](/skills#start-with-the-get-started-skill)).
+Your agent follows the [get-started Skill](https://ohmyho.st/skills/ohmyhost-get-started/SKILL.md) for installation, sign-in and workspace selection before its first deployment ([what it covers](/skills#start-with-the-get-started-skill)).
 
 Start with `identity_get`, select the customer’s project using `projects_list`, then read `project_context_get` before acting. Configure only the capabilities the application needs and keep its chosen authentication provider. Use the matching [task Skill](/skills) for the workflow.
 
@@ -19,15 +19,15 @@ For a new project, ask whether Dev should be protected or public before `project
 
 <InstallClients />
 
-The MCP server uses `OHMYHOST_TOKEN` when that variable is set in the server process, and otherwise your local `ohmyhost login`. A token on its own is enough — no login and no browser. Put it in the same `env` block as `OHMYHOST_ENVIRONMENT`; the server reads no `.env` file and never calls the CLI.
+The MCP server uses `OHMYHOST_TOKEN` when that variable is set in the server process, and otherwise the logins saved by ohmyhost login. With several, pass `profile_name` per call (`profile_list` shows names) or bind the server to `OHMYHOST_PROFILE`=NAME; another requested profile fails `profile_context_mismatch`. A login added later works on the next call without restarting. A token on its own is enough — no login and no browser. Put it in the same `env` block as `OHMYHOST_ENVIRONMENT`; the server reads no `.env` file and never calls the CLI.
 
 With a token, every tool works except `organization_create`, `organization_list`, `organization_use`, `token_create`, `tokens_list` and `token_revoke`. Those need an interactive login: run the matching `ohmyhost` command in a shell without `OHMYHOST_TOKEN`.
 
 After installing or upgrading the clients, restart the MCP server. A running server keeps the tool list it started with, so newly published tools stay invisible until it restarts.
 
-Keep existing servers, models and permission settings. If a server named `ohmyho` is already configured, inspect it before changing that entry.
+Keep existing servers, models and permission settings. If a server named `ohmyho` is already configured, inspect it before changing that entry. An old npx configuration pinning a versioned release URL stops when that archive is superseded; use the installed ohmyhost-mcp command. Preserve harness approval policy; rejected mutations are not platform failures, and switching transport cannot bypass approval.
 
-The server's source is published with every release at [amerged-org/ohmyhost-mcp](https://github.com/amerged-org/ohmyhost-mcp), mirrored byte for byte from the npm package `@amerged/ohmyhost-mcp`. For help, ask your agent: it reports through `feedback_submit` and follows up with `feedback_status` ([Support](/support)).
+The server's source is published with every release at [amerged-org/ohmyhost-mcp](https://github.com/amerged-org/ohmyhost-mcp), every file of @amerged/ohmyhost-mcp except its built dist bundle and README, byte for byte. release.json records full-package npm integrity and the SHA-256 of omitted files. For help, ask your agent: it reports through `feedback_submit` and follows up with `feedback_status` ([Support](/support)).
 
 ## Codex
 

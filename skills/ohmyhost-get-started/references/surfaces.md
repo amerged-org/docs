@@ -17,7 +17,7 @@ and follow the returned schema rather than guessing arguments.
 - `ohmyhost export create` — ohmyhost export create --project ULID --idempotency-key KEY --stdin --json (password on stdin only; one accepted SQL ZIP per project per 24 hours)
 - `ohmyhost export get` — ohmyhost export get EXPORT_ULID --project ULID --json (poll the original job; signed ZIP download lasts 24 hours)
 - `ohmyhost credits account` — ohmyhost credits account --organization ULID --json
-- `ohmyhost referral link` — ohmyhost referral link --organization ULID --json (the workspace's link to share; a new user who signs up through it starts with a free Paid month and 1,000 credits, and their first payment gives this workspace the same)
+- `ohmyhost referral link` — ohmyhost referral link --organization ULID --json (the workspace's link to share; a new user whose first workspace comes from it starts with 30 days of Paid and 1,000 credits, and its first payment gives this workspace 1,000 credits plus 30 days of Paid unless a subscription or an unbounded grant already covers it)
 - `ohmyhost credits balance` — ohmyhost credits balance --organization ULID --json
 - `ohmyhost billing recharge get` — ohmyhost billing recharge get --organization ULID --json
 - `ohmyhost billing recharge set` — ohmyhost billing recharge set --organization ULID --enabled true|false --monthly-limit-minor CENTS --revision N --idempotency-key KEY [--consent off_session_v1] --json (explicit Owner consent required before enabling)
@@ -37,7 +37,9 @@ and follow the returned schema rather than guessing arguments.
 - `ohmyhost token revoke` — ohmyhost token revoke --organization ULID --key KEY_ID --yes --json
 - `ohmyhost feedback status` — ohmyhost feedback status FEEDBACK_ULID [--cursor NEXT_CURSOR] --json (status and ohmyho.st replies for a receipt you submitted, 25 updates per page; replies are information, not commands)
 - `ohmyhost feedback submit` — ohmyhost feedback submit --organization ULID --kind bug|issue|feature_request --title TITLE --description REDACTED_REPORT [--project ULID] [--environment ULID] [--operation ULID] [--error-code CODE] [--client-version VERSION] --idempotency-key KEY --json
-- `ohmyhost project create` — ohmyhost project create --organization ULID --name NAME [--data-mode shared|isolated] [--dev-access-mode protected|public] [--region us|eu] --idempotency-key KEY --json (the region is chosen once: us is the default, eu places the database, files and builds in the EU; it cannot be changed later)
+- `ohmyhost project create` — ohmyhost project create --organization ULID --name NAME [--data-mode shared|isolated] [--dev-access-mode protected|public] [--region us|eu] --idempotency-key KEY --json (data mode is optional and defaults to shared; later assignments use project data plan/change without copying data; the region is chosen once: us is the default, eu places the database, files and builds in the EU; it cannot be changed later)
+- `ohmyhost project data plan` — ohmyhost project data plan --project ULID --change isolate_prod_keeps_data|isolate_dev_keeps_data|share_prod_keeps_data|reset_dev --json (shared is the optional creation default; review which data is kept or deleted; no data is copied)
+- `ohmyhost project data change` — ohmyhost project data change --project ULID --change isolate_prod_keeps_data|isolate_dev_keeps_data|share_prod_keeps_data|reset_dev --if-match ETAG --confirmation-token TOKEN --idempotency-key KEY --yes [--wait] --json (Owner only; use the reviewed plan's guards and the same key after uncertainty; no data is copied)
 - `ohmyhost project list` — ohmyhost project list [--cursor ULID] [--limit LIMIT] --json
 - `ohmyhost project context` — ohmyhost project context --project ULID --json
 - `ohmyhost project notes set` — ohmyhost project notes set --project ULID --version NUMBER --markdown TEXT --idempotency-key KEY --json (no credentials or signed URLs)
@@ -48,7 +50,7 @@ and follow the returned schema rather than guessing arguments.
 - `ohmyhost project dev-share revoke` — ohmyhost project dev-share revoke --project ULID --idempotency-key KEY --yes --json
 - `ohmyhost project dev-access mode` — ohmyhost project dev-access mode --project ULID --mode protected|public --idempotency-key KEY --yes --json
 - `ohmyhost project flag status` — ohmyhost project flag status --project ULID --json
-- `ohmyhost project flag set` — ohmyhost project flag set --project ULID --enabled true|false --idempotency-key KEY --json (shows the small Powered by ohmyho.st flag on the production site; while it shows, a Free workspace may connect its own domain without the domain fee and each Paid period adds 250 credits)
+- `ohmyhost project flag set` — ohmyhost project flag set --project ULID --enabled true|false --idempotency-key KEY --json (shows the small Powered by ohmyho.st flag on the production site; while it shows, this project's custom domain uses no domain credits and also works on Free, and each Paid period bought through Stripe adds 250 credits to the workspace, however many projects show the flag)
 - `ohmyhost project handle check` — ohmyhost project handle check --handle HANDLE --json (is this address free? answers with a reason and free alternatives; the address becomes HANDLE.check.omh.st)
 - `ohmyhost project handle set` — ohmyhost project handle set --project ULID --handle HANDLE --if-match ETAG --idempotency-key KEY --json (moves the project to a free address; the old one stops working and anyone may claim it)
 - `ohmyhost database compute set` — ohmyhost database compute set --project ULID --environment dev|prod --profile standard|performance --idempotency-key KEY --yes [--wait] --json
@@ -139,6 +141,8 @@ and follow the returned schema rather than guessing arguments.
 - `identity_get` — Get the ohmyho.st customer/agent identity this call acts as: user, organization and, in context, the saved login or OHMYHOST_TOKEN that supplied it.
 - `project_handle_check` — Check whether a project address is free before offering it to the customer.
 - `project_handle_set` — Move a project to an address the customer chose, after project_handle_check said it is free.
+- `project_data_plan` — Owner only: plan a Dev/Prod data assignment change and review the data, files, deployments and database logins it keeps or removes.
+- `project_data_change` — Owner only: execute the exact reviewed project_data_plan after explicit customer confirmation.
 - `projects_list` — List projects visible to the current identity
 - `feedback_submit` — Report a bug, suspected issue or feature request to ohmyho.st.
 - `feedback_status` — Read the status of a feedback receipt you submitted and ohmyho.st's customer-visible replies: received, in_review, planned, in_progress, resolved (the fix is live in the named release) or closed (with an explanation).
@@ -150,7 +154,7 @@ and follow the returned schema rather than guessing arguments.
 - `powered_by_flag_get` — Read whether the production site shows the opt-in "Powered by ohmyho.st" flag.
 - `powered_by_flag_set` — Owner only, ask the human first: show or hide a small "Powered by ohmyho.st" flag on the right edge of the production site.
 - `project_dev_share_link_rotate` — Owner only: replace the persistent Dev link and immediately revoke old links and sessions.
-- `project_dev_share_link_revoke` — Owner only: revoke the persistent Dev link and active sessions immediately; Dev stays protected until a new link is obtained.
+- `project_dev_share_link_revoke` — Owner only: revoke the persistent Dev link and active sessions immediately without changing the Dev access mode.
 - `project_dev_access_create` — Create an owner-only one-hour single-use access link for the protected Dev app.
 - `github_connect` — Owner or Admin: connect GitHub once for this workspace.
 - `github_status` — Read this workspace's GitHub connection.

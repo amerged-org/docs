@@ -5,20 +5,21 @@ description: "Read measured monthly consumption and the shared organization bala
 
 ```sh
 ohmyhost credits account --organization "$ORGANIZATION_ID" --json
+ohmyhost credits balance --organization "$ORGANIZATION_ID" --json
 ohmyhost credits usage --organization "$ORGANIZATION_ID" --month "$UTC_MONTH" --json
 ```
 
-Use `UTC_MONTH` in `YYYY-MM` format. The account reports available credits and applicable rates; usage reports measured consumption. Follow the returned cursor to read subsequent pages.
+Use `UTC_MONTH` in `YYYY-MM` format. `credits account` reports the effective Free/Paid plan, available credit lots and their next expiry. `credits balance` reports reservations, the seven-day credit-grace deadline and active meters with their versioned rate cards; `credits usage` reports measured consumption. Follow the returned cursor to read subsequent pages.
 
 ## What contributes to consumption
 
-Builds, active database compute, storage and supported service operations are measured through their actual meters. [Published credit prices](/pricing) list each measured quantity and its rate. Quiet databases can suspend compute, while retained storage/history still costs credits. A query may wake a suspended database.
+Builds, active database compute, storage and supported service operations are measured through their actual meters. [Published credit prices](/pricing) list each quantity and rate. Quiet databases can suspend compute, while retained storage/history and deployed scripts still cost credits. A query may wake a suspended database. Shared Dev/Prod use one data area; isolated areas are metered separately. [Change data assignments](/environments#change-data-assignments) explains the four confirmed actions without copying data or changing rates.
 
 Performance database pricing changes the database-compute rate. Do not multiply the complete bill or already valued usage again.
 
 ## Read the balance correctly
 
-Monthly Free and Paid credits expire on the date shown in Billing and are spent before top-ups. Paid-only top-ups and recharges carry over during uninterrupted Paid membership; their remaining balance expires on downgrade to Free and cannot return after a later upgrade. Signup/referral grants keep their recorded terms. Internal reservations protect in-flight work and remain available in the API; portal Billing and Usage keep the display simple.
+Monthly Free and Paid credits expire on the date shown in Billing and are spent before top-ups. Paid-only top-ups and recharges carry over during uninterrupted Paid membership; their remaining balance expires on downgrade to Free and cannot return after a later upgrade. An unpaid Stripe renewal keeps Paid features and top-ups for up to fourteen days after period end, with no new Paid or Free monthly allowance; cancellation ends Paid at the paid period end. `paid_until` remains the real invoice period end during renewal grace, so use the account's effective plan/source. Signup/referral grants keep their recorded terms. In-flight reservations appear as `reserved_micros` in `credits account` and `credits balance`; the portal does not show them.
 
 Some measurements arrive later than the original operation. A low current total is not a guarantee that all running work has settled. [Project budgets](/budgets) control the intended monthly limit and its Continue/Stop behavior.
 

@@ -3,10 +3,10 @@ title: "Github connection required"
 description: "What the `github_connection_required` error means and what to do next."
 ---
 
-The API, CLI and MCP return `github_connection_required` with HTTP 409. Retrying the same request unchanged does not help.
+The API, CLI and MCP return `github_connection_required` with HTTP 409. Repeating the same request unchanged does not help.
 
 ## What to do
 
-This workspace has no GitHub connection yet. Run 'ohmyhost github connect --organization ULID --idempotency-key KEY --json' for it, complete its browser link, then repeat the original source link. If the project belongs to another account, use that account's login instead; error.acting_as names the login this ran as.
+This workspace has no GitHub connection yet. Run 'ohmyhost github connect --organization ULID --idempotency-key KEY --json' for it, complete its browser link, then repeat the original source link. If the project belongs to another account, use that account's login instead; error.acting_as in the CLI and MCP names the login this ran as.
 
-Keep the `request_id` from the error when you [report the problem](/feedback).
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

@@ -7,15 +7,17 @@ Run `ohmyhost init --dry-run --json` in the Next.js project. Keep an exact packa
 
 ## Keep the app portable
 
-Use ordinary Next.js routes and configuration. The hosting service supplies its build adapter; do not create a customer Wrangler project merely to make deployment work. Private auth credentials and database access belong in the server runtime, not `NEXT_PUBLIC_` values.
+Use ordinary Next.js routes/configuration. `scripts.build` is exactly `next build` or `next build --webpack`; React and react-dom need exact versions. `next.config` must export default its configuration without `output: standalone`/`export`, `cacheComponents: true` or non-root `basePath`/`assetPrefix`. Current admission is Next 15.5.x or 16.0.0–16.3.4; only exact fixture versions are verified, other admitted versions remain experimental. The hosting service supplies its build adapter; do not create a customer Wrangler project merely to make deployment work. Private auth credentials and database access belong in the server runtime, not `NEXT_PUBLIC_` values.
 
 Keep existing authentication unless you choose to replace it. Configure exact callback and logout URLs for the environment you are testing. [Application authentication](/application-auth) · [Runtime secrets](/secrets).
 
 Hosted server code reads private bindings through `getCloudflareContext({ async: true }).env`. A localhost-only runtime factory is a test adapter, not a production backend. Preserve ordinary route handlers and use the [application database client](/database) and [private file client](/files) from that context.
 
-For a library that uses WebAssembly, prefer a runtime-specific package export: a `workerd` entry can statically import the pinned `.wasm` modules, while a separate Node entry loads the same bytes locally. Preserve the library's license and real validation. The platform carries these modules with the deployment artifact; a successful Node build alone does not prove the Worker module can start.
+For a library that uses WebAssembly, prefer a runtime-specific package export: a `workerd` entry can statically import the pinned `.wasm` modules, while a separate Node entry loads the same bytes locally. Preserve the library's license and real validation. The shared build pipeline carries validated Workers-compatible JavaScript, MJS and WASM modules for Next.js, TanStack Start edge, Vite edge companions and plain functions Workers. Auxiliary modules are at most 5 MiB each; the Worker and artifact budgets still apply. The immutable artifact keeps those modules together; a successful Node build alone does not prove the Worker module can start.
 
 Scheduled work is declared as `functions.crons` and runs `scheduled` from the default export of `src/ohmyhost/worker.ts`, a module the platform bundles outside the Next.js build; see [Functions and cron](/functions).
+
+Next.js SSR receives a fresh nonce on every rendered script/style tag; style attributes, event handlers and later client-created unnonced tags remain blocked. External connections/resources/frames/workers need explicit [browser declarations](/browser-security); media/microphone needs the server HTML opt-in.
 
 ## Verify after deployment
 

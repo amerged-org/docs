@@ -24,7 +24,7 @@ Accepted asynchronous mutations return an operation ID. Read `GET /v1/operations
 
 ## Errors and pagination
 
-The API returns a stable error code and suggested action. Handle `401` by checking account access; `403` by checking the concrete organization/action; `409` by inspecting the existing operation or version; `429` by respecting `Retry-After`. Do not retry every error as a new mutation.
+An error uses `application/problem+json` with a stable `code`, `retryable`, `suggested_action` and `request_id`; `type` links the page for that code. Decide by `code`, not HTTP status alone. `402` means credits, Paid access or a Stop budget block the request. `409` means a prerequisite must change, for example `github_connection_required`, `mail_domain_required`, `deployment_plan_expired` or `etag_mismatch`. Repeat an unchanged request only when `retryable` is true; for `429`, wait for `Retry-After`. An uncertain mutation keeps its original request and key; never retry every error as new work.
 
 List endpoints return their documented cursor. Send that cursor on the next request and stop when it is absent. [Errors, limits and polling](/limits).
 

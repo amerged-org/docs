@@ -3,10 +3,10 @@ title: "Storage jurisdiction conflict"
 description: "What the `storage_jurisdiction_conflict` error means and what to do next."
 ---
 
-The API, CLI and MCP return `storage_jurisdiction_conflict` with HTTP 409. Retrying the same request unchanged does not help.
+The API, CLI and MCP return `storage_jurisdiction_conflict` with HTTP 409. Repeating the same request unchanged does not help.
 
 ## What to do
 
-Set storage.jurisdiction in ohmyhost.yaml to the project's hosting region shown by project status, then plan again.
+Set storage.jurisdiction in ohmyhost.yaml to the project's region (us or eu) shown by 'ohmyhost project status', commit and push, then plan the new commit (for a promotion, deploy it to Dev and promote again); the unchanged commit fails again. A project cannot move its files between regions; do not delete or recreate the project to change it.
 
-Keep the `request_id` from the error when you [report the problem](/feedback).
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

@@ -1,9 +1,9 @@
 ---
 title: "Dev and Prod"
-description: "Choose isolated or shared data, deploy to Prod or promote without copying production records."
+description: "Choose shared or isolated data, change assignments or reset Dev, select US or EU and Dev access, then deploy, promote, roll back or delete."
 ---
 
-Each project has Dev and Prod under one organization credit balance. Choose `isolated` or `shared` data when creating the project.
+Each project has Dev and Prod under one organization credit balance. Choose `isolated` or `shared` data when creating the project (`--data-mode`); the optional default is `shared`. [Confirmed assignment changes](#change-data-assignments) can change it later without copying data.
 
 | Mode     | Databases and files             | Implication                                                  |
 | -------- | ------------------------------- | ------------------------------------------------------------ |
@@ -18,7 +18,7 @@ Before creating a project, your agent asks whether Dev should be **protected** o
 
 For protected Dev, the Owner gets one reusable bearer link with `ohmyhost project dev-share link --project "$PROJECT_ID" --json` or MCP `project_dev_share_link_get`. The same `share_url` works for multiple visitors and has no automatic expiry. Opening it starts a 12-hour browser session and redirects to the clean Dev URL; the link can be opened again after that session ends. Keep it with the people you intend to admit, and do not put it in source, logs or project notes.
 
-The Owner can change the mode with `ohmyhost project dev-access mode --project "$PROJECT_ID" --mode public|protected --idempotency-key "$KEY" --yes --json` (MCP `project_dev_access_mode_set`). `ohmyhost project dev-share rotate` (MCP `project_dev_share_link_rotate`) replaces the link; `ohmyhost project dev-share revoke` (MCP `project_dev_share_link_revoke`) removes access until a new link is obtained. Both actions block old links and browser sessions on their next request. A revoked browser navigation goes to ohmyho.st without forwarding its path or token. The link never grants Prod or account administration access.
+The Owner can change the mode with `ohmyhost project dev-access mode --project "$PROJECT_ID" --mode public|protected --idempotency-key "$KEY" --yes --json` (MCP `project_dev_access_mode_set`). `ohmyhost project dev-share rotate` (MCP `project_dev_share_link_rotate`) replaces the link; `ohmyhost project dev-share revoke` (MCP `project_dev_share_link_revoke`) removes access until a new link is obtained. Both actions block old links and browser sessions on their next request. A revoked browser navigation goes to ohmyho.st without forwarding its path or token. The link never grants Prod or account administration access. Protected Dev returns 404 to every request without a link session, including third-party webhooks; use public Dev or Prod for those integrations. Access is checked on every request, with about 1,200 requests/minute per project without a share session (including public Dev), or per session; every asset counts. A limit or unavailable check returns 503, so wait/retry and load-test Prod. Switching public revokes the link; its old URL opens public Dev, while switching back to protected issues a new link. Rotating a public Dev link returns `share_url: null` and changes nothing. Revoking a public Dev link also leaves it public.
 
 ## Choose a hosting region once
 
@@ -37,7 +37,7 @@ Use the returned environment IDs for secrets and the returned logical environmen
 
 ## Deploy to Prod
 
-A deployment builds into Dev unless you name Prod. With isolated data, you can build one commit straight into Prod without a Dev deployment:
+A deployment builds into Dev unless you name Prod. Unless Dev and Prod share a database, you can build one commit straight into Prod without a Dev deployment:
 
 ```sh
 ohmyhost plan --project "$PROJECT_ID" --commit "$COMMIT_SHA" --environment prod --json
@@ -52,8 +52,52 @@ MCP `deployment_plan` takes the same `environment: "prod"`. A project whose Dev 
 ohmyhost deployment promote plan --project "$PROJECT_ID" --deployment "$DEV_DEPLOYMENT_ID" --json
 ```
 
-Review the result, including migration effects, then use the returned ETag and confirmation token with the documented `deployment promote` command. Those values belong to this exact plan and are not account credentials.
+Review migration effects, then within ten minutes pass the plan's `resource_etag` as `--if-match` and `confirmation_token` to `deployment promote`. After expiry, plan again. Those values belong to this exact plan and are not account credentials.
 
 Promotion reuses the verified artifact and applies versioned migrations. It does not copy Dev records or secrets into an isolated Prod database. Keep app secrets and callback URLs appropriate for each environment and verify existing Prod records after the change.
+
+## Change data assignments
+
+The Owner first reviews a concrete plan; each action names which data survives and which environment needs redeployment.
+
+| Change                    | Starting mode                  | Outcome                                                                                                                       |
+| ------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `isolate_prod_keeps_data` | shared                         | Prod keeps the current database/files; Dev gets a fresh empty data area. Redeploy Dev.                                        |
+| `isolate_dev_keeps_data`  | shared                         | Dev keeps the current database/files; Prod gets a fresh empty data area. Redeploy Prod.                                       |
+| `share_prod_keeps_data`   | isolated, Prod database exists | Dev joins Prod; Dev-only database/files and Dev deployment and retained rollback scripts are deleted. Redeploy Dev.           |
+| `reset_dev`               | isolated                       | Delete Dev-only database/files and Dev deployment and retained rollback scripts; assign a fresh empty Dev area. Redeploy Dev. |
+
+```sh
+ohmyhost project data plan --project "$PROJECT_ID" --change reset_dev --json
+ohmyhost project data change --project "$PROJECT_ID" --change reset_dev --if-match "$RESOURCE_ETAG" --confirmation-token "$CONFIRMATION_TOKEN" --idempotency-key "$DATA_CHANGE_KEY" --yes --wait --json
+```
+
+Choose the action you intend; `reset_dev` above is a destructive example. `RESOURCE_ETAG` and `CONFIRMATION_TOKEN` come from that exact plan and expire after ten minutes. MCP uses `project_data_plan` and `project_data_change` with `confirmed: true`. Poll the returned operation; after uncertainty retain the same action, guards and key. A fresh key is a new action, not a safe reset retry.
+
+No action copies records, users, auth sessions or files. New databases are provisioned lazily on the next deployment that needs one, replaying the repository's admitted migrations. Files follow the data identity and retain exact physical locators without moving blobs. In a fresh empty identity, logical names such as `avatar.png` are reusable; deletion alone does not make a name reusable in the same identity.
+
+Reset/share preserve runtime secrets and Dev access mode and renew a protected share link. Losing Worker bindings, held connections and time-bound SQL logins are revoked before reassignment/purge. The operation never redeploys automatically: use `redeploy_environments` from its result and read fresh project status. Existing retained-side bindings remain usable only with the same target and continuous authorization. A reverted mode cannot restore deleted data/files. Reset on shared data is refused because it would delete Prod's data. Ordinary usage rates apply; a second database consumes credits independently.
+
+To copy selected records when explicitly requested, use reviewed portable SQL through separately authorized [time-bound psql access](/database#connect-with-psql-or-a-sql-client) to the source and destination. Preserve tenant/schema checks and verify destination rows. This is a separate task; promotion and assignment changes never perform a data or session copy, and files need a separately authorized transfer.
+
+## Roll back
+
+```sh
+ohmyhost rollback plan --project "$PROJECT_ID" --deployment "$EARLIER_DEPLOYMENT_ID" --json
+ohmyhost rollback --project "$PROJECT_ID" --deployment "$EARLIER_DEPLOYMENT_ID" --if-match "$RESOURCE_ETAG" --confirmation-token "$CONFIRMATION_TOKEN" --idempotency-key "$ROLLBACK_REQUEST_KEY" --yes --json
+```
+
+Choose an earlier deployment with `status: rolled_back` from `deployments_list`: it was previously live in that environment. Pass that plan's unchanged ten-minute guards. Rollback reactivates the artifact and its crons without a rebuild and never reverts migrations; older code must work with current schema. Read its operation to terminal state. A failed candidate health check keeps the current deployment serving and returns `runtime_candidate_failed`. If reassignment makes the old artifact's data binding stale, rollback returns `rollback_target_data_changed`: plan and redeploy that commit against the current assignment instead of reactivating the old target.
+
+## Delete a project
+
+Remove a live custom hostname first with confirmed `domain paid delete`; otherwise the plan returns `project_domain_delete_required`. Then review the project deletion plan:
+
+```sh
+ohmyhost delete plan --project "$PROJECT_ID" --json
+ohmyhost delete --project "$PROJECT_ID" --if-match "$RESOURCE_ETAG" --confirmation-token "$CONFIRMATION_TOKEN" --idempotency-key "$DELETE_REQUEST_KEY" --yes --json
+```
+
+Use the exact plan guards within ten minutes. Deletion removes both environments, all current and historical data identities, files, deployments, schedules, stored SQL exports and the platform-owned mail/DNS resources. Both addresses stop serving. It cannot be undone: download a [SQL export](/backups) first if needed, and remember it contains no files. MCP uses `delete_plan` and `delete_execute`. Keep the original key after uncertainty; a terminal failure needs its stated action and a fresh reviewed plan once no operation is running.
 
 [Schema migrations](/migrations) · [Database profiles](/database) · [Dev access](/cli#verify-progress-and-the-application).

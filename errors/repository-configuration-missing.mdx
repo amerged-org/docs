@@ -3,10 +3,10 @@ title: "Repository configuration missing"
 description: "What the `repository_configuration_missing` error means and what to do next."
 ---
 
-The API, CLI and MCP return `repository_configuration_missing` with HTTP 409. Retrying the same request unchanged does not help.
+The API, CLI and MCP return `repository_configuration_missing` with HTTP 409. Repeating the same request unchanged does not help.
 
 ## What to do
 
-Place ohmyhost.yaml at the Git repository root and set applicationRoot to the application directory (for example website). Commit and push the change, then plan the new commit.
+The planned commit has no ohmyhost.yaml at the Git repository root. If the repository has none, run 'ohmyhost init --json' at the root (--root DIR when the app lives in a subdirectory, --region eu for an EU project). Otherwise move the existing file to the root and set applicationRoot to the app directory, for example website. Commit and push, then plan the new commit.
 
-Keep the `request_id` from the error when you [report the problem](/feedback).
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

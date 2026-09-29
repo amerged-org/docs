@@ -3,10 +3,10 @@ title: "Invalid request"
 description: "What the `invalid_request` error means and what to do next."
 ---
 
-The API, CLI and MCP return `invalid_request` with HTTP 400. Retrying the same request unchanged does not help.
+The API, CLI and MCP return `invalid_request` with HTTP 400. Repeating the same request unchanged does not help.
 
 ## What to do
 
-Check the request and retry.
+The server rejected this request; repeating it unchanged fails again. Check every argument against the command usage or the tool schema. For 'mail webhook verify' and mail receiving, the app's webhook route must answer the signed test with 2xx using the installed signing secret; receiving needs a verified webhook. For 'database query', send one read-only SELECT or WITH statement that runs on the current schema.
 
-Keep the `request_id` from the error when you [report the problem](/feedback).
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

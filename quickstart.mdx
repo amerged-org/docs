@@ -19,11 +19,11 @@ Read the organizations returned by `whoami` and reuse the workspace for this app
 ohmyhost init --dry-run --json
 ```
 
-The result identifies the framework, requirements and concrete blockers. Resolve the reported issue and repeat inspection. Keep one pinned package manager and its matching lockfile. Preserve application auth and existing migrations; a package name alone does not require replacing them.
+The result identifies the framework, requirements and concrete blockers. Resolve the reported issue and repeat inspection. When no blockers remain and the repository has no `ohmyhost.yaml`, run `ohmyhost init --json` at the repository root (`--root DIR` for a nested app, `--region eu` for an EU project). It writes the file without overwriting an existing one. Commit and push it: a commit without that root file fails planning as `repository_configuration_missing`. Keep one pinned package manager and its matching lockfile. Preserve application auth and existing migrations; a package name alone does not require replacing them.
 
-Upgrade the CLI and MCP to the [current release](/cli) first. When the result reports `companion.packages.customerRuntime` (or `worker.packages.customerRuntime`), install the application runtime under its import name as exactly that npm alias, for example `"@ohmyhost/customer-runtime": "npm:@amerged/ohmyhost-runtime@<version>"` in `package.json`, then refresh and commit the lockfile. Every `@ohmyhost/customer-runtime/*` import stays unchanged. A bare `@ohmyhost/customer-runtime` version fails the platform build. Replace a runtime pinned to an `ohmyho.st/releases/` URL with the alias: only the current release is served there, and older versions carry no compatibility promise.
+Upgrade the CLI and MCP to the [current release](/cli) first. When the result reports `runtime.packages.customerRuntime` for any framework (also exposed under companion/worker packages), install the application runtime under its import name as exactly that npm alias, for example `"@ohmyhost/customer-runtime": "npm:@amerged/ohmyhost-runtime@<version>"` in `package.json`, then refresh and commit the lockfile. Every `@ohmyhost/customer-runtime/*` import stays unchanged. A bare `@ohmyhost/customer-runtime` version fails the platform build. Replace a runtime pinned to an `ohmyho.st/releases/` URL with the alias: only the current release is served there, and older versions carry no compatibility promise.
 
-For data-backed apps, choose isolated Dev/Prod databases and files or explicitly shared data. Isolation is recommended; two databases consume credits independently. [How environments work](/environments).
+For data-backed apps, choose isolated Dev/Prod databases and files or shared data. Creation defaults to shared when `data_mode` is omitted; later guarded [data changes](/environments#change-data-assignments) never copy data. Isolation is recommended; two databases consume credits independently. [How environments work](/environments).
 
 Choose whether the Dev URL should be protected by a reusable share link (the default) or public without a platform token. The agent asks before creating a project and records the choice.
 
@@ -50,7 +50,7 @@ When you request publication, the agent creates a promotion plan and publishes t
 ## If something needs time
 
 - Build or deployment pending: follow the operation's returned polling interval.
-- DNS or mail verification pending: apply the exact records and check again after the returned interval; mail status currently returns 60 seconds.
+- DNS or mail verification pending: apply the exact records and check again after the returned interval; mail status currently returns 60 seconds; hostname status has no hint, so check DNS/TLS after sixty minutes.
 - An error without a useful next action: use the [troubleshooting Skill](/troubleshooting) and report the operation through [feedback](/feedback).
 
 You finish with a verified application URL, deployed commit and any clearly stated pending action.

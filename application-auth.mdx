@@ -1,5 +1,5 @@
 ---
-title: "Bring your application\u2019s auth"
+title: "Bring your application’s auth"
 description: "Keep application users and sessions separate from your hosting account."
 ---
 
@@ -7,20 +7,27 @@ Your ohmyho.st login authorizes hosting operations. Your application chooses its
 
 ## Choose the integration your app already uses
 
-Better Auth and customer-owned WorkOS are the verified integration targets. Any other OAuth or OIDC provider is hosted the same way as an ordinary application dependency, without a completed support claim. Support is checked against the actual framework, runtime, secrets and callback behavior. Read the returned compatibility result; one verified framework combination does not establish every combination.
+Better Auth has retained integration proof; customer-owned WorkOS Next.js has hosted proof. Other framework/provider combinations need their own verification. Any other OAuth or OIDC provider is hosted the same way as an ordinary application dependency, without a completed support claim. Support is checked against the actual framework, runtime, secrets and callback behavior. Read the returned compatibility result; one verified framework combination does not establish every combination.
 
 - **Better Auth:** keep its server handler, schema and base URL in the supported app runtime.
 - **WorkOS:** use your application's own client ID, private server key where needed, callback URL and logout URL.
 - **Other providers:** use the application type matching your architecture; public clients cannot hold a client secret, and server SDKs read their private values from runtime secrets.
 
-For application-owned Better Auth, use an application secret such as `APP_AUTH_SECRET` and pass it explicitly to Better Auth's `secret` option. `BETTER_AUTH_SECRET` is reserved for the optional platform-managed integration; the customer secret command intentionally rejects that name. Keeping your own auth does not require enabling the managed integration.
+For application-owned Better Auth with `auth.provider: none`, use an application secret such as `APP_AUTH_SECRET` and pass it explicitly to Better Auth's `secret` option. `BETTER_AUTH_SECRET` is reserved for the optional platform-managed integration; the customer secret command intentionally rejects that name. Keeping your own auth does not select managed mail or auth.
+
+To choose the managed bridge, set `auth.provider: better-auth` and `database.enabled: true`, and pin Better Auth exactly to `1.7.1`. Managed mail is optional for existing verified-user sign-in, sessions and token validation. The managed bridge's verification/reset send actions use ohmyho.st Mail and need `mail.enabled: true`, Paid access and your verified sender. For your own Resend callback or sender, keep an application-owned Better Auth handler with `auth.provider: none`; this leaves Better Auth and application login enabled. SDK package detection alone enables no capability. The platform supplies the managed `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL`.
+
+The public `@amerged/ohmyhost-auth` helper accepts an optional `email.send` callback, including your own Resend sender. Initialization, existing verified-user sign-in, sessions and validation of an already issued token need no sender. Sign-up, resend verification and password-reset requests need one; its final reset also sends a password-change notification. Missing sender returns `503 AUTH_EMAIL_SENDER_NOT_CONFIGURED` before those operations write. Email verification stays required; without a sender, unverified sign-in returns `403 EMAIL_NOT_VERIFIED` and sends no email. The helper's pg-pool constructor is not a Workers RPC adapter; use the actual database integration for your application.
+
+The optional [Kysely dialect](/database#optional-kysely-dialect) implements the leased transaction protocol. For application-owned Better Auth `1.7.1`, use its own migrated schema, normally `public`: `database: { db: db.withSchema("public"), type: "postgres", transaction: true }` with that Kysely instance. This is separate from the managed auth-lane bridge; `auth.provider: none` provisions no auth tables. Library transaction behavior does not establish hosted signup or mail delivery; verify those application flows. Do not assume an unverified Drizzle or pg-proxy adapter supplies equivalent transactions.
 
 ## Set up an environment
 
 1. Select Dev or Prod and read its actual URL.
-2. Configure the exact callback, logout and allowed origins in your auth provider.
-3. Deliver private values with [runtime secrets](/secrets). Keep public identifiers separate from server credentials.
-4. Test login, callback, a protected page, reload and logout. Confirm protected access is denied after logout.
+2. Configure exact callback/logout/allowed origins and an application-owned `APP_URL` for the same trusted environment origin. The runtime injects no general public URL; managed Better Auth alone receives its reserved base URL. Cross-origin form-post callbacks need the explicit [browser origin/CORS policy](/browser-security), and Domain cookies are dropped.
+3. List server provider calls in `runtime.egress.allow`: at most thirteen exact HTTPS origins, no paths/ports/IPs; an omitted origin answers 403 Egress denied. Browser SDK calls use separate `runtime.browser` groups.
+4. Deliver private values with [runtime secrets](/secrets). Keep public identifiers separate from server credentials.
+5. Test login, callback, a protected page, reload and logout. Confirm protected access is denied after logout.
 
 Use the hosted framework context for bindings and private configuration. A factory restricted to test mode or localhost cannot provide a production session. For Next.js, resolve `getCloudflareContext({ async: true }).env`; keep local test configuration separate. Route health and application session repositories through the same supported database adapter.
 
@@ -28,8 +35,10 @@ Use the hosted framework context for bindings and private configuration. A facto
 
 An isolated Prod database receives schema migrations, not Dev users or tenant configuration. If the application needs a first administrator or tenant, run its existing, authorized bootstrap script or private administrative workflow with the auth library's real password hashing and membership rules. Do not create a public bootstrap endpoint or enable test mode in production. Keep credentials out of source, logs and project notes.
 
+An authorized local bootstrap uses time-bound SQL access, such as `ohmyhost database access create --project "$PROJECT_ID" --environment prod --mode write --ttl 1h --yes --json`; revoke when finished. [SQL access](/database#connect-with-psql-or-a-sql-client).
+
 A health response can succeed while no application user can sign in. Verify the first login and one protected business action on the final application origin before handing over access.
 
-The provider may send its own account-verification email; this does not automatically require managed ohmyho.st mail. The managed Better Auth integration needs its database, not mail. Only an app that sends its verification or reset email through ohmyho.st declares `mail.enabled`, and then it needs your own [verified sender domain](/email); otherwise the plan returns `mail_domain_required`. Report that dependency instead of turning off email verification or other security checks. Keep existing auth unless you explicitly decide to change it.
+The provider may send its own account-verification email; this does not automatically require managed ohmyho.st mail. The managed bridge uses the database and needs its configured platform sender only for email actions. An application-owned Better Auth handler can keep your chosen Resend callback or sender; only deliberately invoked ohmyho.st mail needs `mail.enabled`, Paid and your [verified sender domain](/email). A missing sender for a bridge email action returns HTTP 503 `AUTH_EMAIL_SENDER_NOT_CONFIGURED` before writes. When you select managed mail, its missing sender configuration returns `mail_domain_required`, and missing Paid access returns `paid_plan_required`. Report that dependency instead of turning off email verification or other security checks. Keep existing auth unless you explicitly decide to change it.
 
 [Next.js](/frameworks/nextjs) · [Vite](/frameworks/vite) · [TanStack](/frameworks/tanstack).

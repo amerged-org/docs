@@ -71,7 +71,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -145,7 +145,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -185,7 +185,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -235,7 +235,7 @@
     },
     {
       "name": "domain_paid_plan",
-      "description": "Plan a customer-owned production hostname and return the manual CNAME/validation instructions. This does not activate or change DNS. Free projects use their platform domain without customer DNS authorization. production_deployment_required means Prod has no active deployment: deploy to Prod or promote the current Dev deployment, then plan again.",
+      "description": "Plan a customer-owned production hostname and return the manual CNAME/validation instructions. This does not activate or change DNS. Without Paid, only a project that shows the powered-by flag (powered_by_flag_get) can activate its own hostname; for any other Free project domain_paid_apply answers paid_plan_required. production_deployment_required means Prod has no active deployment: deploy to Prod or promote the current Dev deployment, then plan again.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -268,7 +268,7 @@
     },
     {
       "name": "domain_paid_apply",
-      "description": "Activate the explicitly requested customer hostname. Requires Paid; the backend may reuse only its scoped customer OAuth grant. After domain_cloudflare_status is authorized, replay the original hostname/key to reconcile its exact DNS records. Otherwise return the manual DNS records to the human. Preserve the original hostname/key after uncertainty; no arbitrary DNS or provider credentials are accepted. production_deployment_required changed nothing: deploy to Prod or promote Dev first, then repeat the same hostname/key.",
+      "description": "Activate the explicitly requested customer hostname. Requires Paid access, or a Free workspace whose project shows the powered-by flag (powered_by_flag_set, only with the owner's consent); otherwise it answers paid_plan_required. The backend may reuse only its scoped customer OAuth grant. After domain_cloudflare_status is authorized, replay the original hostname/key to reconcile its exact DNS records. Otherwise return the manual DNS records to the human. Preserve the original hostname/key after uncertainty; no arbitrary DNS or provider credentials are accepted. production_deployment_required changed nothing: deploy to Prod or promote Dev first, then repeat the same hostname/key.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -285,7 +285,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "confirm": {
             "type": "boolean",
@@ -312,7 +312,7 @@
     },
     {
       "name": "domain_paid_status",
-      "description": "Read DNS/TLS and effective Paid-domain access. suspended is not active: use suspension_reason to request Paid checkout, replenish organization credits or change an explicit stop budget. Do not delete or redeploy to resolve a billing outage. Existing status remains readable without Paid; TLS alone does not prove application readiness.",
+      "description": "Read DNS/TLS and effective Paid-domain access. suspended is not active: for paid_plan_required start Paid checkout or, on a Free workspace and with the owner's consent, show the powered-by flag on this project; for insufficient_organization_credits add credits; for project_budget_exceeded raise the stop budget or select continue. Do not delete or redeploy to resolve a billing outage. Existing status remains readable without Paid; TLS alone does not prove application readiness.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -357,7 +357,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "confirm": {
             "type": "boolean",
@@ -425,14 +425,14 @@
         ]
       },
       "annotations": {
-        "readOnlyHint": true,
+        "readOnlyHint": false,
         "destructiveHint": false,
         "idempotentHint": true
       }
     },
     {
       "name": "billing_checkout_get",
-      "description": "Owner-only: observe the original checkout and reconcile confirmed credits/refunds, without another purchase. payment_confirmed is historical; read organization_credits_get for spendable funds and paid_until for coverage. Follow required_action: complete_checkout means give its URL to the human; open_billing_portal means call billing_portal_create and give that fresh URL to the human to resolve payment. contact_support means contact https://ohmyho.st/contact about the original invoice; none means no human payment step now, not proof of current Paid coverage. Never start a second subscription to repair a failed renewal. Follow billing_issue when tax needs attention: use billing_portal_create for open_billing_portal, or https://ohmyho.st/contact for contact_support; retain the original invoice and never disable tax. Retry the same checkout after an outage. state=expired ends this attempt; use a new key only for an explicitly requested new purchase, never automatically after an error or timeout.",
+      "description": "Owner-only: observe the original checkout and reconcile confirmed credits/refunds, without another purchase. payment_confirmed is historical; read organization_credits_get for spendable funds and organization_account_get's effective plan for Paid coverage; paid_until remains the paid Stripe period end during renewal grace. Follow required_action: complete_checkout means give its URL to the human; open_billing_portal means call billing_portal_create and give that fresh URL to the human to resolve payment. contact_support means contact https://ohmyho.st/contact about the original invoice; none means no human payment step now, not proof of current Paid coverage. Never start a second subscription to repair a failed renewal. Follow billing_issue when tax needs attention: use billing_portal_create for open_billing_portal, or https://ohmyho.st/contact for contact_support; retain the original invoice and never disable tax. Retry the same checkout after an outage. state=expired ends this attempt; use a new key only for an explicitly requested new purchase, never automatically after an error or timeout.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -577,14 +577,14 @@
         ]
       },
       "annotations": {
-        "readOnlyHint": true,
+        "readOnlyHint": false,
         "destructiveHint": false,
         "idempotentHint": true
       }
     },
     {
       "name": "project_export_create",
-      "description": "Owner-only: request an asynchronous password-encrypted SQL ZIP, including at zero credits. password_file is an absolute path to the user's existing private UTF-8 password file (1–1024 bytes, no added newline); the local MCP client reads it and sends its contents directly through the API. Never pass the password itself through MCP arguments, prompts or logs. The user stores/remembers the password; no Keychain or password vault. Includes managed SQL only, isolated Dev/Prod or one shared dump, never files/source/config. Maximum one accepted job per project per rolling 24 hours, including failed jobs. Replay the same key after uncertainty; poll project_export_get using the returned operation ID.",
+      "description": "Owner-only: request an asynchronous password-encrypted SQL ZIP, including at zero credits. password_file is an absolute path to the user's existing owner-only (chmod 600 on macOS and Linux) UTF-8 password file of 1–1024 bytes, not a symlink; its exact bytes, including a final line break, are the password. The local MCP client reads it and sends its contents directly through the API. Never pass the password itself through MCP arguments, prompts or logs. The user stores/remembers the password; no Keychain or password vault. Includes managed SQL only, isolated Dev/Prod or one shared dump, never files/source/config. Maximum one accepted job per project per rolling 24 hours, including failed jobs. Replay the same key after uncertainty; poll project_export_get using the returned operation ID.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -602,7 +602,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -697,7 +697,7 @@
     },
     {
       "name": "organization_account_get",
-      "description": "Owner-only: read the effective Free/Paid plan, its Stripe or granted source, available monthly credits that expire at period end and top-up credits that carry over while Paid but expire on downgrade to Free, reservations and next expiry. Granted Paid features do not imply a Stripe subscription or extra monthly Paid allowance. This read grants no access or credits.",
+      "description": "Owner-only: read the effective Free/Paid plan, its Stripe or granted source, available monthly credits that expire at period end and top-up credits that carry over while Paid but expire on downgrade to Free, reservations and next expiry. Granted Paid features do not imply a Stripe subscription or extra monthly Paid allowance. paid_until is the paid Stripe period end or grant end; null on Free or for an unbounded grant. An unpaid renewal may retain Paid features for up to 14 days after that Stripe period end, without new monthly credits. This read grants no access or credits.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -725,7 +725,7 @@
     },
     {
       "name": "referral_link_get",
-      "description": "Read the workspace's referral link to share. A new user whose first workspace comes from it starts with a free Paid month and 1,000 credits; that workspace's first payment gives this workspace the same. Any member may read it.",
+      "description": "Read the workspace's referral link to share. A new user whose first workspace comes from it starts with 30 days of Paid and 1,000 credits; that workspace's first payment gives this workspace 1,000 credits, plus 30 days of Paid unless a Stripe subscription or an unbounded grant already covers it. Any member may read it.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -880,7 +880,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -1058,7 +1058,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "confirmed": {
             "type": "boolean",
@@ -1208,7 +1208,7 @@
       },
       "annotations": {
         "readOnlyHint": false,
-        "destructiveHint": false,
+        "destructiveHint": true,
         "idempotentHint": true
       }
     },
@@ -1276,7 +1276,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "confirmed": {
             "type": "boolean",
@@ -1323,7 +1323,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "out_file": {
             "type": "string",
@@ -1497,7 +1497,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -1513,8 +1513,107 @@
         ]
       },
       "annotations": {
-        "readOnlyHint": true,
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true
+      }
+    },
+    {
+      "name": "project_data_plan",
+      "description": "Owner only: plan a Dev/Prod data assignment change and review the data, files, deployments and database logins it keeps or removes. isolate_prod_keeps_data keeps existing data with Prod and gives Dev an empty area; isolate_dev_keeps_data keeps it with Dev and gives Prod an empty area; share_prod_keeps_data keeps Prod and removes Dev-only data, files and deployment; reset_dev removes isolated Dev data, files and deployment while preserving secrets and access mode and renewing a protected share link. New databases appear on the next deployment; no data is copied and ordinary usage rates apply. The returned plan ETag and confirmation token bind this exact change for ten minutes.",
+      "inputSchema": {
+        "type": "object",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "change": {
+            "type": "string",
+            "enum": [
+              "isolate_prod_keeps_data",
+              "isolate_dev_keeps_data",
+              "share_prod_keeps_data",
+              "reset_dev"
+            ]
+          },
+          "profile_name": {
+            "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$"
+          }
+        },
+        "required": [
+          "project_id",
+          "change"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
         "destructiveHint": false,
+        "idempotentHint": false
+      }
+    },
+    {
+      "name": "project_data_change",
+      "description": "Owner only: execute the exact reviewed project_data_plan after explicit customer confirmation. Pass its change, resource_etag as if_match and confirmation_token with one idempotency_key; confirmed must be true. The operation never copies data. Read operation_get until terminal; after uncertainty reuse the same key, and never start another reset or data change with a new key just to retry. reset_dev requires isolated data, and sharing requires an existing Prod database. Deleted Dev data/files cannot be restored by reversing the mode.",
+      "inputSchema": {
+        "type": "object",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "change": {
+            "type": "string",
+            "enum": [
+              "isolate_prod_keeps_data",
+              "isolate_dev_keeps_data",
+              "share_prod_keeps_data",
+              "reset_dev"
+            ]
+          },
+          "if_match": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "confirmation_token": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "confirmed": {
+            "type": "boolean",
+            "const": true
+          },
+          "profile_name": {
+            "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$"
+          }
+        },
+        "required": [
+          "project_id",
+          "change",
+          "if_match",
+          "confirmation_token",
+          "idempotency_key",
+          "confirmed"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
         "idempotentHint": true
       }
     },
@@ -1604,7 +1703,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -1663,7 +1762,7 @@
     },
     {
       "name": "project_create",
-      "description": "Create an ohmyho.st project. Ask whether Dev should be protected (default) or public before creation; public means anyone with the Dev URL can open it, including when Dev and Prod share data. Recommend isolated Dev/Prod data, but respect the customer's choice and added database consumption. shared is the default and uses one database/file namespace; isolated separates database/Auth records and files. Choose before provisioning; changing the established mode requires a data migration. region defaults to us; eu places the project's database, files and builds in the EU at the same prices. The region cannot be changed later, and ohmyhost.yaml storage.jurisdiction must equal it.",
+      "description": "Create an ohmyho.st project. Ask whether Dev should be protected (default) or public before creation; public means anyone with the Dev URL can open it, including when Dev and Prod share data. Recommend isolated Dev/Prod data, but respect the customer's choice and added database consumption. data_mode is optional and defaults to shared, using one database/file namespace; isolated separates database/Auth records and files. Later changes use project_data_plan and project_data_change; ohmyho.st never copies data and ordinary usage prices apply. region defaults to us; eu places the project's database, files and builds in the EU at the same prices. The region cannot be changed later, and ohmyhost.yaml storage.jurisdiction must equal it.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -1702,7 +1801,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -1828,7 +1927,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -1878,7 +1977,7 @@
     },
     {
       "name": "powered_by_flag_set",
-      "description": "Owner only, ask the human first: show or hide a small \"Powered by ohmyho.st\" flag on the right edge of the production site. While it is on, a Free workspace may connect its own domain to this project free of the domain fee, and each Paid period adds 250 credits. Hiding it is refused while a Free workspace's domain depends on it. Replay the same key and value after uncertainty to get the first answer without switching again; every new switch needs a new key.",
+      "description": "Owner only, ask the human first: show or hide a small \"Powered by ohmyho.st\" flag on the right edge of the production site. While it is on, this project's custom domain uses no domain credits on any plan and also works on a Free workspace, and each Paid period bought through Stripe adds 250 credits to the workspace, however many of its projects show the flag. Hiding it is refused while a Free workspace's domain depends on it. Replay the same key and value after uncertainty to get the first answer without switching again; every new switch needs a new key.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -1894,7 +1993,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -1929,7 +2028,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -1950,7 +2049,7 @@
     },
     {
       "name": "project_dev_share_link_revoke",
-      "description": "Owner only: revoke the persistent Dev link and active sessions immediately; Dev stays protected until a new link is obtained.",
+      "description": "Owner only: revoke the persistent Dev link and active sessions immediately without changing the Dev access mode. Public Dev stays public; protected Dev needs a new link. Replay the same key after uncertainty to receive the first result without revoking a replacement link.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -1963,7 +2062,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -2025,7 +2124,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -2097,7 +2196,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -2148,7 +2247,7 @@
     },
     {
       "name": "deployment_plan",
-      "description": "Plan an immutable deployment. Preserve the customer's existing authentication integration, such as Better Auth or WorkOS, and use the same generic Next.js/Vite/TanStack runtime contract. ohmyho.st login is separate. Read the app Skill's auth guidance and report actual plan blockers, required secret names/callback configuration and unverified runtime compatibility. Hosting, including Better Auth, needs no mail domain unless the app declares mail.enabled. Never assume a working platform login proves application login or silently replace its auth provider. The plan builds into Dev unless environment is prod; prod builds straight into Prod without a Dev deployment (a project with shared data and a database must deploy to Dev and promote instead). The plan stays valid for 24 hours.",
+      "description": "Plan an immutable deployment. Preserve the customer's existing authentication integration, such as Better Auth or WorkOS, and use the same generic Next.js/Vite/TanStack runtime contract. ohmyho.st login is separate. Read the app Skill's auth guidance and report actual plan blockers, required secret names/callback configuration and unverified runtime compatibility. The explicitly selected managed Better Auth bridge requires the managed database; managed mail is optional, and its verification or password-reset send actions require a configured platform sender. Application-owned Better Auth handlers can use their own sender, including Resend, with auth.provider set to none. Never assume a working platform login proves application login or silently replace its auth provider. The plan builds into Dev unless environment is prod; prod builds straight into Prod without a Dev deployment (a project with shared data and a database must deploy to Dev and promote instead). The plan stays valid for 24 hours.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2206,7 +2305,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -2300,7 +2399,7 @@
     },
     {
       "name": "deployment_logs",
-      "description": "List the newest normalized diagnostics of one deployment (build, control, runtime and function failures with catalog codes). A failed operation_get names the deployment as deployment_id. A BUILD_FAILED item carries excerpt: the sanitized tail of the customer's own install/build output, newest lines last, with excerpt_truncated when earlier output was omitted. A HEALTH_CHECK_FAILED item carries the probed route and status_code and, only for a project owner, excerpt: the head (at most 4096 characters, control characters removed, never a header) of what the app answered. The probe is a cookieless GET that follows no redirect, 5 s per try and up to four tries, so a 3xx or an empty 503 is unhealthy too. Read the item before changing source; scheduled runs are in function_runs_list, not here.",
+      "description": "List the newest normalized diagnostics of one deployment (build, control, runtime and function failures with catalog codes). A failed operation_get names the deployment as deployment_id. A BUILD_FAILED item carries excerpt: the sanitized tail of the customer's own install/build output, newest lines last, with excerpt_truncated when earlier output was omitted. A HEALTH_CHECK_FAILED item carries the probed route and status_code and, only for a project owner, excerpt: the head (at most 4096 characters, control characters removed, never a header) of what the app answered. The probe is a cookieless GET that follows no redirect, 5 s per try and up to four tries, so a 3xx or an empty 503 is unhealthy too. Read the item before changing source; scheduled runs are in function_runs_list, not here. Pass next_cursor as cursor to read older items.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2320,6 +2419,11 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 100
+          },
+          "cursor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -2455,7 +2559,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "confirmed": {
             "type": "boolean",
@@ -2506,7 +2610,9 @@
             "type": "boolean"
           },
           "idempotency_key": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -2585,7 +2691,9 @@
             "format": "uri"
           },
           "idempotency_key": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -2624,7 +2732,9 @@
             "maxLength": 256
           },
           "idempotency_key": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -2662,7 +2772,9 @@
             "maxLength": 256
           },
           "idempotency_key": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -2678,7 +2790,7 @@
       },
       "annotations": {
         "readOnlyHint": false,
-        "destructiveHint": false,
+        "destructiveHint": true,
         "idempotentHint": true
       }
     },
@@ -2784,7 +2896,9 @@
             "maxLength": 256
           },
           "idempotency_key": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -2835,7 +2949,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -2894,7 +3008,7 @@
     },
     {
       "name": "mail_domain_delete",
-      "description": "Retire the project's mail domain while the project stays active; use its Prod environment ID. Sending and receiving stop at once, then its provider domain and key are removed. DNS is not changed: remove the returned dns_records from the domain's DNS. Only when the customer no longer wants mail. Requires explicit confirmation; repeat the same key after uncertainty.",
+      "description": "Retire the project's mail domain while the project stays active; use its Prod environment ID. Sending and receiving stop at once, then its provider domain and key are removed. DNS is not changed: remove the returned dns_records from the domain's DNS. Only when the customer no longer wants mail or wants a different mail domain. Requires explicit confirmation; repeat the same key after uncertainty.",
       "inputSchema": {
         "type": "object",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2912,7 +3026,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "confirm": {
             "type": "boolean",
@@ -2995,7 +3109,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -3040,7 +3154,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -3125,7 +3239,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",
@@ -3200,7 +3314,7 @@
           "idempotency_key": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 256
+            "maxLength": 128
           },
           "profile_name": {
             "description": "Saved login to act as (profile_list shows them). Needed only when several logins could run this call; OHMYHOST_PROFILE of this server must match it.",

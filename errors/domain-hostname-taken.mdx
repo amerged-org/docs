@@ -1,0 +1,12 @@
+---
+title: "Domain hostname taken"
+description: "What the `domain_hostname_taken` error means and what to do next."
+---
+
+The API, CLI and MCP return `domain_hostname_taken` with HTTP 409. Repeating the same request unchanged does not help.
+
+## What to do
+
+A live project connection already holds this hostname. Remove it from the project you manage with 'ohmyhost domain paid delete --project ULID --hostname HOST --yes --json', then apply it to the new project. Repeating while that connection remains cannot work; report the request_id if you cannot manage its owning project.
+
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

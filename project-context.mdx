@@ -7,7 +7,7 @@ description: "Let another agent session resume with the current state and projec
 ohmyhost project context --project "$PROJECT_ID" --json
 ```
 
-MCP `project_context_get` and the dynamic project-context resource return the same summary. Read it when resuming a project and after a relevant change, not in a tight loop.
+MCP `project_context_get` and the dynamic project-context resource return the same summary. The resource `ohmyho://projects/{project_id}/context?profile_name=NAME` uses a named saved login; named-login tool calls link that form. Read it when resuming a project and after a relevant change, not in a tight loop.
 
 ## What it includes
 

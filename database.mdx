@@ -1,6 +1,6 @@
 ---
 title: "Postgres queries, writes and compute"
-description: "Use your account token to query or update Dev and Prod data, then inspect actual compute settings."
+description: "Call Postgres from your app, query or update Dev/Prod data, open time-bound psql access and inspect compute."
 ---
 
 Read provider metadata without executing SQL:
@@ -10,9 +10,9 @@ ohmyhost database compute get --project "$PROJECT_ID" --environment dev --json
 ohmyhost database compute get --project "$PROJECT_ID" --environment prod --json
 ```
 
-Use the runtime version `ohmyhost init` reports. For nested JSON results, depth is measured from each row, while the response envelope and all rows still share the same total budgets.
+Install the exact npm alias from `runtime.packages.customerRuntime` in `ohmyhost init --dry-run --json`, under the import name `@ohmyhost/customer-runtime`: `npm:@amerged/ohmyhost-runtime@<version>`. This applies to every framework; update/commit the lockfile. Use the current CLI/runtime release together. For nested JSON results, depth is measured from each row, while the response envelope and all rows still share the same total budgets.
 
-Application requests use `createPrivateDatabaseClient` from `@ohmyhost/customer-runtime/database`. Use `withConnection` for a read-decide-write transaction; one scope permits 100 statements, 30 seconds total and five seconds idle, with two active database transactions per project environment. Standalone statements commit before their response; use explicit `BEGIN` and `COMMIT` for an atomic sequence. Closing rolls back an unfinished transaction, and transaction-local server timeouts release its slot if the caller disappears.
+Application requests use `createPrivateDatabaseClient(env.OHMYHOST_DATABASE)` from `@ohmyhost/customer-runtime/database`. `query()` executes one statement, `transaction()` atomically runs up to 25 statements chosen in advance, and `withConnection()` holds a real connection for read-decide-write; one scope permits 100 statements, 30 seconds total and five seconds idle, with two active transaction/auth connections per physical data area. Shared Dev/Prod use the same lanes. Standalone statements commit before their response; use explicit `BEGIN` and `COMMIT` for an atomic sequence. Closing rolls back an unfinished transaction, and transaction-local server timeouts release its slot if the caller disappears.
 
 Inside a `withConnection` callback that performs an atomic transaction, pass its current connection and SQL executor to every participating repository and identity lookup. Do not open another database connection for those reads. Complete the short transaction and close the connection before a file transfer, email or AI call, then open a new short transaction to store the result.
 
@@ -25,13 +25,53 @@ const { rows } = await database.query({
 });
 ```
 
-The client creates validated plain objects for Workers RPC. An older runtime (0.1.6) created null-prototype objects that RPC rejected; install the runtime alias that `ohmyhost init` reports and update the lockfile to correct this. For an application that stores JSON, verify a JSON write/read through the hosted application, since a scalar-only health query does not exercise that path.
+The client creates validated plain objects for Workers RPC. JSON keys may include dates, ULIDs, dots, @ and non-ASCII characters, at most 128 UTF-8 bytes without control characters; `__proto__`, `constructor` and `prototype` are refused. Upgrade the alias/lockfile together if an older client rejects valid JSON. For an application that stores JSON, verify a JSON write/read through the hosted application, since a scalar-only health query does not exercise that path.
 
-SQL `DATE` values are `YYYY-MM-DD` strings. Keep calendar days free of timezone conversion; timestamp values retain their existing decoding. [Application database examples](https://ohmyho.st/skills/ohmyhost-build-portable-app/references/database-runtime.md).
+SQL `DATE` values and `date[]` elements are `YYYY-MM-DD` strings. Keep calendar days free of timezone conversion; timestamp values retain their existing decoding. [Application database examples](https://ohmyho.st/skills/ohmyhost-build-portable-app/references/database-runtime.md).
 
-Verified statement failures expose their five-character PostgreSQL SQLSTATE on `error.code`, so applications can distinguish duplicate (`23505`) and exclusion (`23P01`) conflicts. SQL, row values and provider messages stay private. Only serialization failures (`40001`) and deadlocks (`40P01`) are marked retryable; retry the whole transaction within a bound. Transport failures remain `database_unavailable` and do not prove that a write was rejected.
+Verified statement failures expose their five-character PostgreSQL `SQLSTATE` on `error.code`, so applications can distinguish duplicate (`23505`) and exclusion (`23P01`) conflicts. SQL, row values and provider messages stay private. Only serialization failures (`40001`) and deadlocks (`40P01`) are marked retryable; retry the whole transaction within a bound. Transport failures remain `database_unavailable` and do not prove that a write was rejected.
 
-The offline `init` scan can also report socket drivers or database URLs in tests and bootstrap tools. Inspect each reported file and the actual hosted entrypoint before changing it: offline tools may use temporary direct credentials, while hosted requests must use the private binding. A local development adapter needs an explicit local-only mode and validated loopback configuration. An RPC import alone does not establish that another driver is unreachable; verify the built artifact and the real hosted request. Do not remove required bootstrap or tests merely to silence the source scan.
+The offline init scans all source: `database_binding_private` marks `DATABASE_URL`, `HYPERDRIVE`, connectionString or postgres URLs; `database_driver_unsupported` marks pg, postgres, pg-native or `mysql2`. Tests/bootstrap can also be reported. Source planning rejects these in reachable hosted routes, middleware, Worker/companion modules as `framework_conversion_required` naming the file. Inspect each reported file and the actual hosted entrypoint before changing it: offline tools may use temporary direct credentials, while hosted requests must use the private binding. A local development adapter needs an explicit local-only mode and validated loopback configuration. An RPC import alone does not establish that another driver is unreachable; verify the built artifact and the real hosted request. Do not remove required bootstrap or tests merely to silence the scan. An unreachable offline script can remain, but init still reports it and cannot write a new config while blocked; document that exception without claiming clean init.
+
+## Application connection and result limits
+
+Standalone queries have one connection per physical data identity; transaction() and held scopes share two further connections. Shared Dev/Prod consume the same capacity. Each lane admits 32 waiting acquisitions with a ten-second connection/wait bound. PostgreSQL statements time out after ten seconds (`SQLSTATE` 57014); a cold database may need about five seconds to wake.
+
+A call has one SQL statement up to 64 KiB, 100 parameters and 1 MiB aggregate parameter data; a JSON parameter is at most 64 KiB. JSON depth is at most eight; a result is at most 1,000 rows, 10,000 values/nodes and 1 MiB. Multiple statements, SET/RESET/DISCARD and oversized input fail before RPC as `database_query_invalid` (not retryable). PREPARE is refused outside `withConnection`, and chained COMMIT/ROLLBACK ... [NO] CHAIN inside it. Use BEGIN/COMMIT/ROLLBACK/savepoints only through a held scope; for transaction-local state use `SELECT set_config('app.user_id', $1, true)`.
+
+Oversized results and the 101st held statement throw `CustomerDatabaseError` (root package export), `error.code === "54000"`, `retryable: false`. Page reads/split writes or open a new held scope. An idle 5-second or expired 30-second scope closes and rolls back uncommitted work as `database_unavailable`; open a new scope. A write with RETURNING, or a WITH statement, rolls back on an oversized result through query(), transaction() or a held autocommit statement. Inside your own BEGIN, those effects remain until you ROLLBACK or end the callback without COMMIT; do not catch 54000 and commit or retry that write inside the same transaction.
+
+A missing database binding is `database_binding_missing`, not a retryable query failure. Read it from Worker env or Next.js `getCloudflareContext({ async: true }).env`, only in source declaring `database.enabled:true`; it is neither a `process.env` string nor a browser capability.
+
+## Optional Kysely dialect
+
+The optional `@ohmyhost/customer-runtime/database-kysely` adapter targets Kysely `0.29.5` over the private binding, including its leased transaction protocol:
+
+```ts
+import { Kysely } from "kysely";
+import { createPrivateDatabaseDialect } from "@ohmyhost/customer-runtime/database-kysely";
+
+const db = new Kysely<AppDatabase>({
+  dialect: createPrivateDatabaseDialect(env.OHMYHOST_DATABASE),
+});
+await db.transaction().execute(async (trx) => {
+  const row = await trx
+    .selectFrom("items")
+    .select("id")
+    .where("id", "=", itemId)
+    .executeTakeFirst();
+  if (row)
+    await trx
+      .updateTable("items")
+      .set({ title: nextTitle })
+      .where("id", "=", row.id)
+      .execute();
+});
+```
+
+`AppDatabase`, table names and values are your application's types/data. The adapter implements BEGIN/COMMIT or ROLLBACK through the held-connection API and releases that scope; the same limits apply. Library tests cover that protocol, but do not establish real hosted RPC/PostgreSQL behavior or signup/mail. Verify the application on its deployed private binding. It is not a Drizzle support claim or a pg-proxy transaction substitute. Keep network calls outside the transaction.
+
+## Compute profiles
 
 | Profile          | Compute | Memory | Idle suspension |
 | ---------------- | ------- | ------ | --------------- |
@@ -67,13 +107,13 @@ ohmyhost database query --project "$PROJECT_ID" --environment prod --statement '
 
 ## Update application data
 
-Review the intended rows and environment before an update. Put one parameterized INSERT, UPDATE or DELETE in a UTF-8 SQL file; ordinary `INSERT … ON CONFLICT …` upserts are supported. For example, `approved-update.sql`:
+Review the intended rows and environment before an update. Put one parameterized INSERT, UPDATE or DELETE in a UTF-8 file of at most 64 KiB starting with that keyword, no leading comment or WITH; ordinary `INSERT … ON CONFLICT …` upserts are supported. For example, `approved-update.sql`:
 
 ```sql
 UPDATE public.items SET title = $1 WHERE id = $2
 ```
 
-Execute only the chosen update, with one retained request key:
+A bad file fails locally as `statement_file_invalid` (exit 2, not retryable), without sending; fix it and reuse the same key. Execute only the chosen update:
 
 ```sh
 ohmyhost database write --project "$PROJECT_ID" --environment prod --statement-file approved-update.sql --parameters-json '["Updated title", "item-123"]' --idempotency-key "$WRITE_REQUEST_KEY" --yes --json
@@ -140,7 +180,7 @@ The write endpoint is `POST /v1/projects/{project_id}/database/write`; supply th
 
 Application row-level security (RLS) applies to reads and writes. Hosting Owner permission does not bypass those policies or sign you in as an application user. A filtered or empty query does not prove the database is empty. Keep the policies; use the separate authorized [SQL export](/backups) when a complete archive is required.
 
-Shared Dev/Prod data resolves to one physical database, so a selected-environment write can affect both apps. In isolated mode each environment resolves its own data. Schema and role changes remain versioned [GitHub migrations](/migrations), not this data-write endpoint.
+Shared Dev/Prod data resolves to one physical database, so a selected-environment write can affect both apps. In isolated mode each environment resolves its own data. Schema changes remain versioned [GitHub migrations](/migrations); roles/grants are unsupported. [Assignment changes/reset](/environments#change-data-assignments) keep files with their data identity and never copy records.
 
 Polling is an explicit query, not a row-change subscription. Keep returned records, SQL parameters, passwords and signed URLs out of project notes and feedback.
 

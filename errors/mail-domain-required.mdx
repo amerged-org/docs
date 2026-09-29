@@ -3,10 +3,10 @@ title: "Mail domain required"
 description: "What the `mail_domain_required` error means and what to do next."
 ---
 
-The API, CLI and MCP return `mail_domain_required` with HTTP 409. Retrying the same request unchanged does not help.
+The API, CLI and MCP return `mail_domain_required` with HTTP 409. Repeating the same request unchanged does not help.
 
 ## What to do
 
 This app declares mail.enabled. Configure the project's own sender domain with 'ohmyhost mail setup' using its Prod environment ID, or set mail.enabled to false if the app sends no mail, then plan again.
 
-Keep the `request_id` from the error when you [report the problem](/feedback).
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

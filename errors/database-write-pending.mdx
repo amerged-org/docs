@@ -3,10 +3,10 @@ title: "Database write pending"
 description: "What the `database_write_pending` error means and what to do next."
 ---
 
-The API, CLI and MCP return `database_write_pending` with HTTP 409. Retrying the same request unchanged does not help.
+The API, CLI and MCP return `database_write_pending` with HTTP 409. Repeating the same request unchanged does not help.
 
 ## What to do
 
-Poll the original database-write operation before transfer or deletion.
+A database write of this project is still running, so the project cannot be deleted yet. Read latest_operation from 'ohmyhost project status --project ULID --json' until it is no longer running; writes are short. Then repeat the deletion, planning it again if its confirmation expired.
 
-Keep the `request_id` from the error when you [report the problem](/feedback).
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

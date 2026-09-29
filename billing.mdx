@@ -3,7 +3,11 @@ title: "Purchases, invoices and auto-recharge"
 description: "See the real plan and credit buckets, then manage explicitly authorized payments."
 ---
 
-[Billing](https://app.ohmyho.st/billing) shows effective Free/Paid access, monthly credits with their expiry and top-up balances. Monthly subscription credits expire at billing-period end. Only Paid users can buy top-ups or enable auto-recharge. Top-ups never expire during uninterrupted Paid membership; remaining top-up/recharge credits expire when the workspace returns to Free and do not return on a later upgrade. A Stripe renewal counts once its invoice is paid, so top-ups stay usable for 24 hours after a Stripe period ends; without a renewal they expire then. A Granted badge means Paid features were granted; it does not represent a Stripe subscription or add another monthly Paid allowance.
+[Billing](https://app.ohmyho.st/billing) shows effective Free/Paid access, monthly credits with their expiry and top-up balances. Monthly subscription credits expire at billing-period end. Only Paid workspaces can buy top-ups or enable auto-recharge. Top-ups have no expiry during uninterrupted Paid membership; remaining top-up/recharge credits expire on the effective return to Free and do not revive after a later upgrade.
+
+A cancelled Stripe subscription ends Paid at its paid period end. An unpaid renewal keeps Paid features and top-ups for up to fourteen days after period end, with no new Paid or Free monthly allowance. Payment within that window continues coverage; otherwise Paid ends and remaining top-ups expire when the window ends. `paid_until` remains the actual paid invoice period end during renewal grace: read the effective plan/source instead of deciding by that timestamp alone.
+
+A new workspace starts Free. A **Granted** badge means Paid features were granted, for example for thirty days through a referral; it does not represent a Stripe subscription or add another monthly Paid allowance. Billing shows a finite grant's end (`paid_until` in `ohmyhost credits account --organization "$ORGANIZATION_ID" --json`). When it ends, the workspace returns to Free: managed mail stops, and a custom domain answers HTTP 402 unless its project shows the ohmyho.st flag. Credit exhaustion and Stop budgets are separate limits.
 
 ## Make a purchase
 
@@ -11,9 +15,9 @@ description: "See the real plan and credit buckets, then manage explicitly autho
 ohmyhost billing checkout --organization "$ORGANIZATION_ID" --offer paid --idempotency-key "$CHECKOUT_REQUEST_KEY" --json
 ```
 
-Use `--offer topup --packs 1` for a one-time credit purchase. Open the returned human Checkout URL, review the total and complete payment yourself. The command does not pay automatically. Every successful purchase has an invoice; applicable tax is calculated by Stripe Tax.
+Use `--offer topup --packs N` to buy one to 100 USD 10 packs in one checkout. Each dollar up to USD 100 grants 100 credits; the portion above grants 125 credits per dollar, 25% more ([Credit prices](/pricing)). Open the returned Checkout URL, review the total and complete payment yourself. The command does not pay automatically. Every successful purchase has an invoice; applicable tax is calculated by Stripe Tax.
 
-Follow the returned checkout ID with `billing status`. A top-up adds credits and does not extend a subscription. Payment availability is reported by your account; do not treat a disabled Live handoff as a completed purchase.
+Follow the returned checkout ID with `billing status`. A top-up adds credits and does not extend a subscription. A purchase is complete only when status shows `payment_confirmed: true`; a Checkout URL or browser return page is not a payment. Then read `ohmyhost credits account --organization "$ORGANIZATION_ID" --json` for the current balance and plan.
 
 ## Auto-recharge
 
@@ -23,7 +27,7 @@ When enabled, a refill adds **1,000 top-up credits for USD 9 plus tax** after th
 ohmyhost billing recharge get --organization "$ORGANIZATION_ID" --json
 ```
 
-To enable, use the returned policy revision, a new retained key, your selected limit in USD cents and the required consent:
+To enable, use the returned policy revision, a new retained key, your selected limit in USD cents (`1000` to `100000`, USD 10 to USD 1,000 including tax) and the required consent:
 
 ```sh
 ohmyhost billing recharge set --organization "$ORGANIZATION_ID" --enabled true --monthly-limit-minor "$MONTHLY_LIMIT_CENTS" --revision "$POLICY_REVISION" --idempotency-key "$RECHARGE_REQUEST_KEY" --consent off_session_v1 --json
@@ -31,7 +35,7 @@ ohmyhost billing recharge set --organization "$ORGANIZATION_ID" --enabled true -
 
 Complete the returned card-setup URL if needed, then read policy and payment readiness again. Consent must come from the organization Owner; a website pricing switch is not payment authorization.
 
-To turn it off, read the latest revision and submit `--enabled false` with that revision and a new key. Reuse the current saved monthly limit. Turning it off prevents new attempts; an already submitted payment can still settle.
+To turn it off, read the latest revision and submit `--enabled false` with that revision, the current saved monthly limit and a new key, without `--consent`. An out-of-range limit, or consent with disabled state, answers `invalid_command`. Turning it off prevents new attempts; an already submitted payment can still settle.
 
 Only one unresolved refill is allowed. A tax/address/payment issue requires the stated action; do not create a second payment to bypass it or disable tax. Credits are issued from confirmed paid events, once.
 
@@ -46,11 +50,11 @@ ohmyhost billing recharge get --organization "$ORGANIZATION_ID" --json
 
 Use the command matching the original purchase or automatic refill. A returned `billing_issue` contains `code`, `invoice_id`, `observed_at` and `required_action`:
 
-| Issue | Next action |
-| --- | --- |
-| `billing_tax_location_required` | Use `billing portal` to open a fresh Stripe link so the human can correct billing address/tax details. |
-| `billing_tax_calculation_failed` | Use the [contact form](https://ohmyho.st/contact) with the original invoice ID. |
-| `billing_tax_configuration_required` | Use the [contact form](https://ohmyho.st/contact) with the original invoice ID. |
+| Issue                                | Next action                                                                                            |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| `billing_tax_location_required`      | Use `billing portal` to open a fresh Stripe link so the human can correct billing address/tax details. |
+| `billing_tax_calculation_failed`     | Use the [contact form](https://ohmyho.st/contact) with the original invoice ID.                        |
+| `billing_tax_configuration_required` | Use the [contact form](https://ohmyho.st/contact) with the original invoice ID.                        |
 
 Follow `required_action`: `open_billing_portal` opens the supported correction flow; `contact_support` uses the contact form. Auto-recharge can show `tax_required` while this invoice needs attention. Keep the original invoice and check the same checkout/policy again after the required correction. Reading status never initiates a new charge.
 

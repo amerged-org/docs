@@ -14,7 +14,7 @@ ohmyhost github connect --organization "$ORGANIZATION_ID" --idempotency-key "$GI
 
 If status is already connected, reuse it. Otherwise an Owner or Admin opens the one `authorization_url` returned by connect. It handles the required installation/user authorization. After the browser completes, repeat the same connect request/key until its status is `connected`; do not replay callback codes or assemble separate installation and OAuth links.
 
-In CLI JSON, the browser URL is `authorization.authorization_url`; the status command returns `github.connection.settings_url`. MCP and REST return the authorization/status objects directly. If an attempt is failed or expired, resolve `last_failure` and start a fresh connect key for the same workspace.
+In CLI JSON, the browser URL is `authorization.authorization_url`; the status command returns `github.connection.settings_url`. MCP and REST return the authorization/status objects directly. The link lasts thirty minutes. While pending, `last_failure` provider_unavailable or authorization_code_rejected means open the same authorization link again and retain the same key. Failed/expired is final: account_admin_required needs the account owner or organization admin, denied means consent was declined, installation_access_required means the App lacks that account installation, and session_inactive needs fresh login. Resolve that cause and use a new connect key for the same workspace.
 
 ## Link a covered repository
 
@@ -24,7 +24,7 @@ Select the existing or newly created `PROJECT_ID`, then run:
 ohmyhost link --project "$PROJECT_ID" --repository-owner "$GITHUB_OWNER" --repository-name "$GITHUB_REPOSITORY" --idempotency-key "$SOURCE_REQUEST_KEY" --json
 ```
 
-Observe the returned source-link operation before planning a deployment. A covered repository needs no further browser consent. If access is missing, read GitHub status, open `connection.settings_url`, add the repository to that installation and repeat the original link arguments/key. Do not create another project or request a provider token.
+Observe the returned source-link operation before planning a deployment. A covered repository needs no further browser consent. If access is missing, read GitHub status, open `connection.settings_url`, add the repository to that installation and repeat the original link arguments/key. Do not create another project or request a provider token. From the repository root, link records `.ohmyhost/` and adds `/.ohmyhost/` to `.gitignore`; later commands may omit `--project`. With links for several organizations, name the project or saved profile.
 
 ## Deploy the intended revision
 
@@ -32,7 +32,7 @@ Observe the returned source-link operation before planning a deployment. A cover
 ohmyhost plan --project "$PROJECT_ID" --commit "$COMMIT_SHA" --json
 ```
 
-`COMMIT_SHA` is the full SHA of the pushed revision. The plan inspects that source and returns concrete requirements. Once ready, [execute the returned plan](/cli#connect-and-deploy).
+`COMMIT_SHA` is the full SHA of the pushed revision. The plan inspects that source, returns requirements and lasts twenty-four hours. Once ready, [execute it](/cli#connect-and-deploy), or plan/deploy in one step with `ohmyhost deploy --project "$PROJECT_ID" --commit "$COMMIT_SHA" --idempotency-key "$DEPLOY_REQUEST_KEY" --yes --json`.
 
 GitHub authorization alone does not start a build. Direct local archive uploads are not a deployment source. Private runtime secrets travel through the separate [secret workflow](/secrets), not through the source archive.
 
@@ -45,4 +45,4 @@ ohmyhost source auto-deploy set --project "$PROJECT_ID" --branch "$BRANCH" --ena
 ohmyhost source auto-deploy status --project "$PROJECT_ID" --json
 ```
 
-Read back the selected branch and status. Use the same command with `--enabled false` to turn it off. [Troubleshooting](/troubleshooting).
+Read back branch/status. Every push to that branch plans and builds its commit into Dev at ordinary rates; Prod still needs a [deployment or promotion](/environments). The status read exposes `latest_operation_id`, including a plan rejection: explicitly plan that SHA for its exact source error, then fix/push again. Automatic deployment is a CLI feature. Use the set command with `--enabled false` and a new intentional-change key to turn it off. [Troubleshooting](/troubleshooting).

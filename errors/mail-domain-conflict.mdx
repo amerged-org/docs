@@ -3,10 +3,10 @@ title: "Mail domain conflict"
 description: "What the `mail_domain_conflict` error means and what to do next."
 ---
 
-The API, CLI and MCP return `mail_domain_conflict` with HTTP 409. Retrying the same request unchanged does not help.
+The API, CLI and MCP return `mail_domain_conflict` with HTTP 409. Repeating the same request unchanged does not help.
 
 ## What to do
 
-Read and use the sender domain already configured for this project.
+Use the sender domain already configured for this project, or retire it with 'ohmyhost mail domain delete' (repeat while the removal is pending) and then set up the new domain; a domain registered to another project cannot be set up.
 
-Keep the `request_id` from the error when you [report the problem](/feedback).
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

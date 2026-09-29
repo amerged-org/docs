@@ -3,10 +3,10 @@ title: "Etag mismatch"
 description: "What the `etag_mismatch` error means and what to do next."
 ---
 
-The API, CLI and MCP return `etag_mismatch` with HTTP 409. Retrying the same request unchanged does not help.
+The API, CLI and MCP return `etag_mismatch` with HTTP 409. Repeating the same request unchanged does not help.
 
 ## What to do
 
-Refresh the resource, plan the action again, and retry.
+The project changed after you read its ETag. For a rename, read etag from 'ohmyhost project status --project ULID --json' and repeat 'ohmyhost project handle set' with it. For a rollback, promotion or deletion, create a new plan and confirm with its resource_etag and confirmation_token.
 
-Keep the `request_id` from the error when you [report the problem](/feedback).
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

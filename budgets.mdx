@@ -16,12 +16,12 @@ ohmyhost budget set --project "$PROJECT_ID" --credits 1000 --mode stop --idempot
 ohmyhost budget set --project "$PROJECT_ID" --credits none --idempotency-key "$UNLIMITED_REQUEST_KEY" --json
 ```
 
-These are alternatives; run the one matching your decision. Use `--mode continue` when the budget should remain advisory. Each intentional change gets its own retained key; repeat an uncertain request with the original arguments/key.
+These are alternatives; run the one matching your decision. Without `--mode`, a limit is advisory (`continue`); pass `--mode stop` to stop billable work at the limit. `--credits none` cannot be combined with `--mode stop`. Each intentional change gets its own retained key; repeat an uncertain request with the original arguments/key.
 
-The limit uses a UTC calendar month. **Stop** applies the service's budget admission policy; **Continue** allows work to continue after the threshold. Existing work and delayed measurements may settle later, so the setting is not a promise that all final costs stop at an exact instant.
+The limit uses a UTC calendar month. **Stop** rejects new billable work with `project_budget_exceeded` and pauses the app when measured usage plus reservations reach the limit: Dev and Prod answer HTTP 402 `Project execution paused`. Raise or remove the limit, switch to **Continue**, or wait for the next UTC month; serving resumes within about five minutes. **Continue** keeps the app and work running after the threshold. Existing work and delayed measurements may settle later, so final costs can exceed the limit.
 
 ## Use the portal
 
-Open [Usage](https://app.ohmyho.st/usage), select the project limit and behavior, save, then verify the returned value. The portal uses the same endpoint and authorization as CLI/MCP.
+Open the [portal](https://app.ohmyho.st/) and press **$** on the project card to open **Usage & limits**. Enter a monthly limit in credits, choose **Stop at limit** or **Keep running** and save; an empty limit removes it. Only the workspace Owner sees these controls. Read the result back; the portal uses the same endpoint and authorization as CLI/MCP.
 
 [Measured usage](/usage) · [Usage and budgets Skill](https://ohmyho.st/skills/ohmyhost-usage-and-budgets/SKILL.md).
