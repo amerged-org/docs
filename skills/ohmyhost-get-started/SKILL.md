@@ -70,6 +70,12 @@ with the deployment Skill without asking again for anything already decided.
   source or a command argument.
 - After they report back, verify with a command instead of trusting the report.
 
+## Prepare a domain before the first deployment
+
+A customer can authorize Cloudflare before the website is live. Follow the domains Skill: plan the requested hostname, apply it once and retain its idempotency key. `awaiting_deployment` means the name is declared, with no DNS changes, certificate or domain charges yet. Return the Cloudflare authorization URL, verify consent, then deploy and verify Prod on the platform address. Repeat the same domain apply to activate the hostname. The callback and a successful deployment never switch customer DNS by themselves. A current CLI/MCP is required to read the new state.
+
+For Next.js, run the portable-app inspection before deployment. Its supported versions match the pinned OpenNext adapter; update package.json and its lockfile when inspection reports an unsupported version. Runtime data files need Next's normal file tracing. MDX that compiles JavaScript at request time must instead compile to static ES modules during the build; the portable-app Skill describes that conversion. Verify every content route the app uses before calling a deployment complete.
+
 ## Step 1 — determine the state before doing anything
 
 If the customer's prompt names an account ("Use my ohmyho.st account user … in organization …"),

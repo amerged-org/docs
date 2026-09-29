@@ -1,6 +1,6 @@
 ---
 title: "Connect a domain"
-description: "Choose a project address, connect a custom domain through Cloudflare or manual DNS, and show the opt-in ohmyho.st flag."
+description: "Choose a project address, prepare a custom domain before deployment, and connect it through Cloudflare or manual DNS."
 ---
 
 Every project has a hosting address that the platform picks: a three-word handle served as `HANDLE.check.omh.st` for Prod and `dev-HANDLE.check.omh.st` for Dev. `ohmyhost project status` reports both. Before you name a specific address to someone, ask whether it is free:
@@ -34,15 +34,15 @@ A custom hostname requires Paid access, or a Free workspace whose project shows 
 ohmyhost domain paid plan --project "$PROJECT_ID" --hostname app.example.com --json
 ```
 
-Review the plan, then apply it through `domain_paid_apply` or its CLI command. Keep the same hostname and idempotency key when an interrupted apply needs replay.
+Review the plan, then apply it through `domain_paid_apply` or its CLI command. Save the hostname and idempotency key for the whole setup. If Prod is already active, this apply starts domain provisioning: verify the application on its hosting address first.
 
 ```sh
 ohmyhost domain paid apply --project "$PROJECT_ID" --hostname app.example.com --idempotency-key "$DOMAIN_REQUEST_KEY" --yes --json
 ```
 
-If plan or apply returns `production_deployment_required` (HTTP 409), Prod has no active deployment yet and nothing was changed. [Deploy to Prod](/environments#deploy-to-prod) or promote the current Dev deployment, then plan again and repeat the apply with the same hostname and key.
+Without an active Prod deployment, apply reserves the hostname with status `awaiting_deployment`. It creates no DNS records or certificates and starts no custom-hostname charges; the hostname is not a live application URL yet. You can authorize Cloudflare for this reserved domain before deploying.
 
-This first apply establishes the project's hostname and can return manual records while DNS authorization is missing. Asking for Cloudflare authorization before the project has a matching domain returns `cloudflare_zone_not_bound`; complete this domain step rather than retrying OAuth.
+Asking for Cloudflare authorization before the project has a matching reserved or provisioned domain returns `cloudflare_zone_not_bound`. Complete the first domain apply, then request authorization.
 
 ## Cloudflare-hosted DNS
 
@@ -53,18 +53,20 @@ ohmyhost domain cloudflare authorize --project "$PROJECT_ID" --zone example.com 
 ohmyhost domain cloudflare status --project "$PROJECT_ID" --json
 ```
 
-Open the private authorization URL in the Cloudflare account that owns the zone. Read back the authorized zone and expiry, then repeat the original apply with exactly the same hostname and key:
+Open the private authorization URL in the Cloudflare account that owns the zone. Read back the authorized zone and expiry. Consent is scoped to that project's domain setup and does not change DNS.
+
+[Deploy to Prod](/environments#deploy-to-prod) or promote a verified Dev deployment, then check the application on the Prod hosting address from project status. Neither successful deployment nor Cloudflare consent automatically activates a reserved domain. When the application works, repeat the original apply with exactly the same hostname and key:
 
 ```sh
 ohmyhost domain paid apply --project "$PROJECT_ID" --hostname app.example.com --idempotency-key "$DOMAIN_REQUEST_KEY" --yes --json
 ohmyhost domain paid status --project "$PROJECT_ID" --json
 ```
 
-The sequence is plan, apply, authorize, authorization status, the same apply, then domain status. Authorization alone does not make DNS or HTTPS ready. The access token renews automatically; authorize again only when status says expired or revoked.
+The sequence is plan, reserve, authorize, deploy and verify Prod, repeat the same apply, then check domain status. The second apply provisions the hostname and applies the required DNS records when authorization is valid. Domain charges begin with provisioning, subject to the flag exemption below. DNS and HTTPS become ready separately; read their actual status. The access token renews automatically; authorize again only when status says expired or revoked.
 
 ## Other DNS providers
 
-Your agent returns `validation_records` from paid apply/status: exact `type`, `name` and `content`. No TTL is returned; use the DNS provider's default. Add those records with your DNS provider. Preserve existing mailbox MX and unrelated records. You do not need to move your domain to Cloudflare.
+Reserve the hostname before deployment if needed. After Prod works on its hosting address, repeat the original domain apply to obtain `validation_records`: exact `type`, `name` and `content` from paid apply/status. No TTL is returned; use the DNS provider's default. Add those records with your DNS provider. Preserve existing mailbox MX and unrelated records. You do not need to move your domain to Cloudflare.
 
 ## Show the ohmyho.st flag
 

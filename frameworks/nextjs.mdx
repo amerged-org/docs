@@ -5,9 +5,15 @@ description: "Deploy ordinary Next.js routes with the capabilities your app uses
 
 Run `ohmyhost init --dry-run --json` in the Next.js project. Keep an exact package-manager version and one matching lockfile; resolve the concrete inspection output before planning a deployment.
 
+## Supported versions and build
+
+The admitted versions are Next.js `15.5.26` and newer patches in `15.5.x`, or `16.3.6–16.3.7`. The verified fixtures use `15.5.26` and `16.3.7`; other admitted versions are experimental. A `^` or `~` declaration is experimental, and its base and frozen installed version must be inside the admitted window. Pin exact `react` and `react-dom` versions and commit the matching package-manager lockfile.
+
+Keep `scripts.build` as `next build`. The service supplies OpenNext `1.20.7` and adds `--webpack` for Next.js 16; Next.js 15 uses its normal build without that flag. Next.js 16 also accepts `next build --webpack`. Use one default-exported `next.config.js`, `.mjs` or `.ts`; do not set `output: standalone`, `output: export`, `cacheComponents: true` or a non-root `basePath` or `assetPrefix`.
+
 ## Keep the app portable
 
-Use ordinary Next.js routes/configuration. `scripts.build` is exactly `next build` or `next build --webpack`; React and react-dom need exact versions. `next.config` must export default its configuration without `output: standalone`/`export`, `cacheComponents: true` or non-root `basePath`/`assetPrefix`. Current admission is Next 15.5.x or 16.0.0–16.3.4; only exact fixture versions are verified, other admitted versions remain experimental. The hosting service supplies its build adapter; do not create a customer Wrangler project merely to make deployment work. Private auth credentials and database access belong in the server runtime, not `NEXT_PUBLIC_` values.
+Use ordinary Next.js routes and configuration. The hosting service supplies its build adapter; do not create a customer Wrangler project merely to make deployment work. Private auth credentials and database access belong in the server runtime, not `NEXT_PUBLIC_` values.
 
 Keep existing authentication unless you choose to replace it. Configure exact callback and logout URLs for the environment you are testing. [Application authentication](/application-auth) · [Runtime secrets](/secrets).
 
@@ -19,8 +25,20 @@ Scheduled work is declared as `functions.crons` and runs `scheduled` from the de
 
 Next.js SSR receives a fresh nonce on every rendered script/style tag; style attributes, event handlers and later client-created unnonced tags remain blocked. External connections/resources/frames/workers need explicit [browser declarations](/browser-security); media/microphone needs the server HTML opt-in.
 
+## Files read by server code
+
+The platform includes non-executable files recorded in Next.js output-file traces (`.nft.json`) as read-only data modules in the Worker. Use ordinary Node filesystem reads for those deployed files and keep them inside the application root. When Next cannot infer a dynamic filename, declare the required files with its normal `outputFileTracingIncludes` configuration. Missing or invalid traced files fail packaging, and data modules count toward the Worker size limits.
+
+These runtime files receive no public URL from this mechanism. Files intentionally placed in `public/` still follow Next.js public-asset behavior. Do not bundle secrets as content; use [runtime secrets](/secrets). Runtime filesystem writes do not persist application data: use [files](/files) or the [database](/database).
+
+## Compile MDX during the build
+
+Workers does not support runtime code generation with `eval` or `new Function`. An MDX library that evaluates compiled strings at request time therefore needs a build-time integration, even if the same code works under local Node.js.
+
+Compile MDX with `@mdx-js/mdx` using `outputFormat: "program"`, write ordinary ES modules and import them through a static component registry. Invoke the deterministic generator from the Next configuration so the build script stays `next build`. Keep the source JSON or MDX as the canonical content and preserve the application's component mapping, GFM plugins, links and embedded markup. Routes render the generated components without a runtime evaluator. The generator must also work in a fresh checkout.
+
 ## Verify after deployment
 
-Check the landing page, a nested route on direct reload, server behavior, application login if present, and a real data operation where used. An admitted or successful build does not prove every Next.js feature. The inspection response distinguishes verified, experimental and unsupported capabilities.
+Check the landing page and every content route, including direct reloads, unknown URLs, images, feeds and sitemap where present. Check server behavior, application login and a real data operation where used, then inspect the browser for hydration or content-security errors and missing content. An admitted or successful build does not prove every Next.js feature. The inspection response distinguishes verified, experimental and unsupported capabilities.
 
 Use the [portable-app Skill](https://ohmyho.st/skills/ohmyhost-build-portable-app/SKILL.md) for required source changes, then follow [your first deployment](/quickstart).
