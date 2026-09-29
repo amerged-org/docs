@@ -37,6 +37,8 @@ Use the returned environment IDs for secrets and the returned logical environmen
 
 ## Deploy to Prod
 
+Prod first runs at the hosting address returned by `ohmyhost project status`, such as `HANDLE.check.omh.st`. Its DNS is already managed by ohmyho.st, so deploying needs no DNS changes to your own domain. You can [reserve a custom domain and authorize Cloudflare](/domains) beforehand; activate it with the original domain apply after verifying Prod.
+
 A deployment builds into Dev unless you name Prod. Unless Dev and Prod share a database, you can build one commit straight into Prod without a Dev deployment:
 
 ```sh

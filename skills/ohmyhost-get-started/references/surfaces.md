@@ -107,8 +107,8 @@ and follow the returned schema rather than guessing arguments.
 - `project_notes_set` — Save shared project to-dos, at most 250 lines / 16384 UTF-8 bytes.
 - `domain_cloudflare_authorize` — Check domain_cloudflare_status first and reuse a valid matching grant.
 - `domain_cloudflare_status` — Read the project's customer DNS authorization state, zone, scopes and expiry without credentials.
-- `domain_paid_plan` — Plan a customer-owned production hostname and return the manual CNAME/validation instructions.
-- `domain_paid_apply` — Activate the explicitly requested customer hostname.
+- `domain_paid_plan` — Plan a customer-owned production hostname before or after the first Prod deployment.
+- `domain_paid_apply` — Declare or activate the explicitly requested customer hostname.
 - `domain_paid_status` — Read DNS/TLS and effective Paid-domain access.
 - `domain_paid_delete` — Delete only the explicitly named project's stored customer hostname/route and owned DNS records.
 - `billing_checkout_create` — Owner-only: create or resume a hosted Checkout.

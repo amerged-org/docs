@@ -37,6 +37,8 @@ It then creates or selects the project and uses `source_link` for a covered repo
 
 ## 4. Review and deploy
 
+If you want a custom domain, the agent can [reserve it and obtain Cloudflare consent](/domains) now. A reservation waits in `awaiting_deployment` without DNS changes, certificates or custom-hostname charges. Prod can deploy on its existing ohmyho.st hosting address before your own DNS is changed.
+
 The agent plans the exact pushed commit and shows the required services, estimated credit effects and missing configuration. It sets needed private application secrets through the supported stdin flow, then executes that plan with one saved idempotency key. Hosting needs no mail domain; if the plan returns `mail_domain_required`, the app declares `mail.enabled`, so either set up [your own sender domain](/email) or set it to false when the app sends no mail through ohmyho.st. [Published usage rates](/pricing) explain what each measured resource costs.
 
 The response supplies an operation ID. The agent observes that operation until it succeeds or returns an actionable error. A network timeout does not cancel it and is not a reason to create another project or deployment.
@@ -46,6 +48,8 @@ The response supplies an operation ID. The agent observes that operation until i
 The agent reads `dev_access_mode` and the URL from project status. For protected Dev it obtains the persistent owner-only share link; for public Dev it opens the clean URL directly. Check navigation and, where used, application login and a real data read/write. A successful build alone is not the finished app.
 
 When you request publication, the agent creates a promotion plan and publishes the verified artifact to Prod. Isolated promotion applies migrations without copying Dev records into Prod. With isolated data, the agent can also build a commit straight into Prod; a project whose Dev and Prod share a database always deploys to Dev and promotes. [Deploy to Prod](/environments#deploy-to-prod).
+
+After Prod works on its hosting address, the agent repeats the original domain apply with the saved hostname and key, then checks DNS, HTTPS and the application on the final domain. Cloudflare consent and successful deployment do not activate a reserved domain automatically.
 
 ## If something needs time
 

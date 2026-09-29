@@ -1954,10 +1954,9 @@ paths:
     post:
       operationId: planPaidProjectDomain
       summary: Plan one Paid customer-owned hostname
-      description:
-        The hostname routes to the project's current Prod deployment. A project whose Prod
-        environment has no active deployment returns production_deployment_required (409); deploy to
-        Prod or promote the current Dev deployment, then plan again.
+      description: Plan the customer's requested hostname before or after the first Prod deployment.
+        This read-only plan explains declaration, Cloudflare consent and activation; it does not
+        claim the hostname, create provider resources or change DNS.
       parameters:
         - $ref: "#/components/parameters/RequestId"
         - $ref: "#/components/parameters/ProjectId"
@@ -1968,7 +1967,7 @@ paths:
             schema: { $ref: "#/components/schemas/PaidDomainRequest" }
       responses:
         "200":
-          description: Manual CNAME instructions and exact provider effects.
+          description: The requested hostname, routing target and staged provider effects.
           content:
             application/json:
               schema: { $ref: "#/components/schemas/PaidDomainPlan" }
@@ -1989,9 +1988,11 @@ paths:
         that currently shows the powered-by flag, and no expired credit-exhaustion grace.
         Returns paid_plan_required otherwise, or insufficient_organization_credits after seven days
         with no available credits, without provider mutation. Top-ups lift a credit-exhaustion block
-        but never start or extend Paid access. After that check, a project whose Prod environment has no active
-        deployment returns production_deployment_required (409) without claiming the hostname or any
-        provider mutation; a changed request under a used key returns idempotency_key_reused (409).
+        but never start or extend Paid access. Without an active Prod deployment, apply declares the
+        hostname as awaiting_deployment, enabling Cloudflare consent without provider resources,
+        DNS changes or domain charges. After a successful Prod deployment, replay the same hostname
+        and idempotency key to activate it. A changed request under a used key returns
+        idempotency_key_reused (409).
       parameters:
         - $ref: "#/components/parameters/RequestId"
         - $ref: "#/components/parameters/ProjectId"
@@ -2003,7 +2004,7 @@ paths:
             schema: { $ref: "#/components/schemas/PaidDomainRequest" }
       responses:
         "200":
-          description: Current Cloudflare for SaaS hostname and certificate state.
+          description: Declared hostname or current Cloudflare for SaaS hostname and certificate state.
           content:
             application/json:
               schema: { $ref: "#/components/schemas/PaidDomain" }
@@ -4326,6 +4327,10 @@ components:
           items: { type: string, minLength: 1, maxLength: 512 }
     PaidDomain:
       type: object
+      description:
+        awaiting_deployment means the requested hostname is declared but not provisioned. Its hostname
+        is present, suspension_reason, custom_hostname_status, ssl_status and url are null, and
+        validation_records is empty. Authorize Cloudflare, deploy to Prod, then repeat the same apply.
       additionalProperties: false
       required:
         - status
@@ -4340,7 +4345,16 @@ components:
       properties:
         status:
           type: string
-          enum: [not_configured, pending, active, reconciliation_required, deleted, suspended]
+          enum:
+            [
+              not_configured,
+              awaiting_deployment,
+              pending,
+              active,
+              reconciliation_required,
+              deleted,
+              suspended,
+            ]
         suspension_reason:
           type: [string, "null"]
           enum:
