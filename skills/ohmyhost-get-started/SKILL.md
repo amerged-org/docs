@@ -74,7 +74,20 @@ with the deployment Skill without asking again for anything already decided.
 
 A customer can authorize Cloudflare before the website is live. Follow the domains Skill: plan the requested hostname, apply it once and retain its idempotency key. `awaiting_deployment` means the name is declared, with no DNS changes, certificate or domain charges yet. Return the Cloudflare authorization URL, verify consent, then deploy and verify Prod on the platform address. Repeat the same domain apply to activate the hostname. The callback and a successful deployment never switch customer DNS by themselves. A current CLI/MCP is required to read the new state.
 
+## Prepare a Next.js application
+
 For Next.js, run the portable-app inspection before deployment. Its supported versions match the pinned OpenNext adapter; update package.json and its lockfile when inspection reports an unsupported version. Runtime data files need Next's normal file tracing. MDX that compiles JavaScript at request time must instead compile to static ES modules during the build; the portable-app Skill describes that conversion. Verify every content route the app uses before calling a deployment complete.
+
+Next.js pages rendered during the build use a private, immutable cache. Its capacity defaults to
+32 MiB; CLI/MCP 0.1.28 or later accept optional `build.ssg_cache_max_mib` in `ohmyhost.yaml`, an
+integer from 1 to 64. Public static assets retain their separate 25 MiB allowance. The selected
+cache, public assets, Worker modules, migrations and archive metadata together must fit the
+deployment artifact ceilings of 30 MiB compressed and 64 MiB expanded. Choose a cache capacity
+that leaves room for the other archive contents. See the
+[portable-app runtime contracts](https://ohmyho.st/skills/ohmyhost-build-portable-app/references/stack-contracts.md)
+before changing a limit. Cache storage has provider cost 0, so cost × 1.5 is still 0 credits; build and
+runtime charges continue unchanged. New deployments replace this build-time cache; time-based
+and on-demand revalidation and Cache Components are not supported.
 
 ## Step 1 — determine the state before doing anything
 
