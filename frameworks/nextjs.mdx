@@ -11,6 +11,34 @@ The admitted versions are Next.js `15.5.26` and newer patches in `15.5.x`, or `1
 
 Keep `scripts.build` as `next build`. The service supplies OpenNext `1.20.7` and adds `--webpack` for Next.js 16; Next.js 15 uses its normal build without that flag. Next.js 16 also accepts `next build --webpack`. Use one default-exported `next.config.js`, `.mjs` or `.ts`; do not set `output: standalone`, `output: export`, `cacheComponents: true` or a non-root `basePath` or `assetPrefix`.
 
+The service-owned Next.js bundle uses `keep_names: false` to prevent injected name helpers from breaking browser scripts serialized by libraries. This setting is supplied by the platform; no customer Wrangler override is needed.
+
+## Build-time static pages and cache limits
+
+Pages and route responses prerendered during the build use an immutable cache carried with that deployment. Ordinary request-time rendering and route handlers remain available. A new deployment refreshes the cache. Time-based ISR, on-demand revalidation and Cache Components are unsupported; keep existing static pages when addressing a packaging error.
+
+The private cache defaults to **32 MiB**. With CLI/MCP **0.1.28 or later**, add `build.ssg_cache_max_mib` to `ohmyhost.yaml` to select an integer from **1 to 64**. Keep your existing build settings, for example:
+
+```yaml
+build:
+  install: pnpm install --frozen-lockfile --ignore-scripts
+  command: pnpm run build
+  output: .open-next/assets
+  ssg_cache_max_mib: 48
+```
+
+Use your repository's package manager and commands. Commit and push the change, then plan and deploy that commit.
+
+- Ordinary public assets retain their separate **25 MiB** allowance.
+- Each public asset or cache file is at most **10 MiB**; the combined asset inventory has at most **1,000 files**.
+- The complete deployment archive is at most **30 MiB compressed** and **64 MiB expanded**, including cache, public files, Worker modules, migrations and archive metadata.
+
+Selecting 64 MiB of cache capacity leaves those combined limits in place. Leave space for the rest of the deployment. Increase this setting only when the error names the private cache limit; an expanded-archive or public-asset error requires reducing that output.
+
+Cache storage costs **0 credits per 100 MB-month**: its provider storage cost is zero, so cost plus 50% remains zero. Unused capacity is not charged. Normal build and Worker request/CPU charges still apply, including when a cached page executes Worker code. [Pricing](/pricing)
+
+The cache payloads are private. Direct requests to their reserved paths must return 404; the application serves the rendered pages through their normal URLs.
+
 ## Keep the app portable
 
 Use ordinary Next.js routes and configuration. The hosting service supplies its build adapter; do not create a customer Wrangler project merely to make deployment work. Private auth credentials and database access belong in the server runtime, not `NEXT_PUBLIC_` values.
@@ -24,6 +52,51 @@ For a library that uses WebAssembly, prefer a runtime-specific package export: a
 Scheduled work is declared as `functions.crons` and runs `scheduled` from the default export of `src/ohmyhost/worker.ts`, a module the platform bundles outside the Next.js build; see [Functions and cron](/functions).
 
 Next.js SSR receives a fresh nonce on every rendered script/style tag; style attributes, event handlers and later client-created unnonced tags remain blocked. External connections/resources/frames/workers need explicit [browser declarations](/browser-security); media/microphone needs the server HTML opt-in.
+
+## Images and themes under CSP
+
+A nonce permits a script or style tag; it does not permit an inline `style` attribute. If an already unoptimized `next/image` component emits blocked inline styles, use a native image with the same URL, dimensions, classes and alternative text. Keep its loading behavior and put styling in the stylesheet:
+
+```tsx
+<img
+  src="/images/portrait.png"
+  alt="Profile portrait"
+  width={800}
+  height={800}
+  className="profile-portrait"
+  loading="lazy"
+  decoding="async"
+/>
+```
+
+For an image that previously had priority loading, preserve that with `loading="eager"` and `fetchPriority="high"` instead of lazy loading.
+
+Libraries that insert styles after hydration must use the trusted response nonce from `meta[property="csp-nonce"]`. For `next-themes` 0.4.6, read it before the provider's first client effect:
+
+```tsx
+"use client";
+
+import { useState } from "react";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+import type { ThemeProviderProps } from "next-themes";
+
+export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
+  const [documentNonce] = useState<string | undefined>(() => {
+    if (typeof document === "undefined") return undefined;
+    return document.head.querySelector<HTMLMetaElement>(
+      'meta[property="csp-nonce"]',
+    )?.content || undefined;
+  });
+
+  return (
+    <NextThemesProvider {...props} nonce={props.nonce ?? documentNonce}>
+      {children}
+    </NextThemesProvider>
+  );
+}
+```
+
+Keep the app's system-theme, transition and native color-scheme settings. Waiting until an effect to supply the nonce can miss the library's first inserted style. Verify the initial theme, Light/Dark/System changes, client navigation and reloads without CSP or hydration errors. Keep the CSP strict; these adaptations require no `unsafe-inline` allowance.
 
 ## Files read by server code
 

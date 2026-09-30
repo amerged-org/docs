@@ -1,0 +1,12 @@
+---
+title: "Domain dns conflict"
+description: "What the `domain_dns_conflict` error means and what to do next."
+---
+
+The API, CLI and MCP return `domain_dns_conflict` with HTTP 409. Repeating the same request unchanged does not help.
+
+## What to do
+
+Review DNS for the requested hostname and resolve the conflicting delegation or another project's managed records. Preserve mailbox MX, TXT and CAA records. Then repeat the original domain paid apply or delete with the same hostname and idempotency key; do not create another deployment or repeatedly resubmit unchanged conflicts.
+
+If the steps above do not resolve it, [report it](/feedback) with the `request_id` from the error.

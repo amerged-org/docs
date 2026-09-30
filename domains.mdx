@@ -64,6 +64,12 @@ ohmyhost domain paid status --project "$PROJECT_ID" --json
 
 The sequence is plan, reserve, authorize, deploy and verify Prod, repeat the same apply, then check domain status. The second apply provisions the hostname and applies the required DNS records when authorization is valid. Domain charges begin with provisioning, subject to the flag exemption below. DNS and HTTPS become ready separately; read their actual status. The access token renews automatically; authorize again only when status says expired or revoked.
 
+With valid scoped Cloudflare authorization, the confirmed Paid-domain apply replaces previous web **A/AAAA or CNAME records at the requested hostname** and adds its required verification records. At the zone apex, existing **MX, TXT and CAA records are preserved**. Other hostnames keep their current routing. Review the hostname in the plan carefully: this action moves its web traffic to the project's Prod deployment.
+
+An incompatible delegation or another project's managed DNS records returns **HTTP 409 `domain_dns_conflict`**. Repeating an unchanged conflict does not help. Review the records for the requested hostname, resolve the stated conflict while preserving mail records, then repeat the original apply with the same hostname and idempotency key. Do not create another deployment to repair DNS. [DNS conflict guidance](/errors/domain-dns-conflict)
+
+This flow connects one custom hostname per project. Connecting `example.com` leaves `www.example.com` unchanged. Multiple aliases and automatic apex/`www` canonical redirects are future work.
+
 ## Other DNS providers
 
 Reserve the hostname before deployment if needed. After Prod works on its hosting address, repeat the original domain apply to obtain `validation_records`: exact `type`, `name` and `content` from paid apply/status. No TTL is returned; use the DNS provider's default. Add those records with your DNS provider. Preserve existing mailbox MX and unrelated records. You do not need to move your domain to Cloudflare.
@@ -93,3 +99,5 @@ When the final hostname is ready, configure it as the application's trusted publ
 ## Move or retire a hostname
 
 To move a domain to another project, run confirmed `ohmyhost domain paid delete --project "$OLD_PROJECT_ID" --hostname "$HOSTNAME" --idempotency-key "$DOMAIN_DELETE_KEY" --yes --json`, wait/read deletion, then plan/apply it on the new project. `domain_hostname_taken` means another project holds the hostname. An interrupted pending connection can also be deleted. This removes only the named connection and its owned DNS records, preserving unrelated mailbox MX.
+
+Deletion first reads the currently owned DNS records and removes only those records. It never creates missing records or adopts an unowned CNAME that you later recreated, even when that CNAME points to the same target. Unrelated MX, TXT and CAA records remain intact. Replay an uncertain deletion with its original key; if it returns `domain_dns_conflict`, resolve that specific conflict before retrying.

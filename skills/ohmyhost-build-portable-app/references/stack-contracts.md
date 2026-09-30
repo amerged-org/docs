@@ -7,7 +7,7 @@ Use this reference only when implementing framework or capability code. Product 
 - Pin exactly one of `npm`, `pnpm`, `yarn`, or `bun` in `packageManager` and commit exactly one matching frozen lockfile. The direct build commands are `npm run build`, `pnpm run build`, `yarn run build`, or `bun run build`. Bun is pinned to `1.2.22`. Installs are frozen and skip lifecycle scripts (`--ignore-scripts`, or Yarn `--mode=skip-build`); commit generated inputs instead of depending on postinstall.
 - Supported framework config extensions are `.js`, `.mjs`, and `.ts`.
 - Admission windows are Vite `>=5.4.0 <=8.2.2`, TanStack Start `>=1.168.26 <=1.168.49`, Next `>=15.5.26 <15.6`, and Next `>=16.3.6 <=16.3.7`. `verified` names an exact tested fixture; another admitted version is `experimental`; an out-of-window or unsupported capability is `unsupported`.
-- `package.json` scripts.build is exactly `next build` or `next build --webpack` for Next.js. Vite and TanStack Start use `vite build`, optionally with one `tsc`, `tsc --noEmit`, `tsc -b` or `tsc --build` stage before or after it joined by `&&`. Arbitrary preparation, `cd`, traversal and lifecycle hooks are outside this build contract. Builds use Node.js 24 and stop after eight minutes; runtime secrets are absent from the build. Commit intentional public build values. Gzipped Worker limits are 10 MiB for Next.js and 5 MiB for other Workers; static output needs `index.html`, at most 10 MiB per file, 25 MiB/1,000 files total and a compressed artifact at most 30 MiB.
+- `package.json` scripts.build is exactly `next build` or `next build --webpack` for Next.js. Vite and TanStack Start use `vite build`, optionally with one `tsc`, `tsc --noEmit`, `tsc -b` or `tsc --build` stage before or after it joined by `&&`. Arbitrary preparation, `cd`, traversal and lifecycle hooks are outside this build contract. Builds use Node.js 24 and stop after eight minutes; runtime secrets are absent from the build. Commit intentional public build values. Gzipped Worker limits are 10 MiB for Next.js and 5 MiB for other Workers. Ordinary public static assets are limited to 10 MiB per file and 25 MiB/1,000 files in total; a static runtime also needs `index.html`. The complete deployment archive, including public assets, private SSG cache, Worker modules, migrations and archive metadata, is at most 30 MiB compressed and 64 MiB expanded.
 - The platform overlay, not the customer repository, pins OpenNext `1.20.7` and Wrangler `4.125.0`. Do not commit those packages, generated Wrangler files, platform bindings, or `OHMYHOST_BASE_PATH` for hosting.
 
 ## The customer chooses application authentication
@@ -128,6 +128,45 @@ verify the provider's chosen callback mode instead of assuming a redirect proves
 
 - A dependency that loads WebAssembly through Node filesystem APIs needs a runtime-compatible entrypoint. Prefer its existing `workerd` conditional export, or a small package adapter that statically imports the same pinned `.wasm` modules for Workers and retains the Node entrypoint for local use. Preserve upstream licenses and validation. The shared pipeline carries validated Workers-compatible JavaScript, MJS and WASM modules for plain functions Workers, Vite edge companions, TanStack Start edge and Next.js. Auxiliary modules are at most 5 MiB each, and the Worker/artifact budgets still apply; do not turn them into arbitrary public assets or replace a failing decoder with an always-successful result.
 - Customer-owned custom domains use the normal Paid-domain flow. Native addons and non-functional Workers Node APIs remain typed blockers; the Node proxy filename alone is not a blocker.
+
+### Next.js private SSG cache
+
+Pages rendered during the Next.js build use an immutable cache carried with that deployment.
+Ordinary request-time rendering and route handlers remain available. Cache payloads are private:
+direct HTTP requests to the reserved cache paths must return 404. Verify both page rendering and
+that private cache payloads cannot be downloaded from the deployed origin.
+
+The private cache defaults to **32 MiB**. CLI/MCP **0.1.28 or later** accept optional
+`build.ssg_cache_max_mib` in `ohmyhost.yaml`: an integer from **1 to 64**, measured in MiB. Keep the
+existing build settings and add this field only when choosing a different capacity, for example:
+
+```yaml
+build:
+  install: pnpm install --frozen-lockfile --ignore-scripts
+  command: pnpm run build
+  output: .open-next/assets
+  ssg_cache_max_mib: 48
+```
+
+Use the repository's own package manager and existing commands. A larger private cache does not
+increase the separate **25 MiB** public-asset allowance. Public assets, private cache, Worker
+modules, migrations and archive metadata together must still fit **30 MiB compressed and 64 MiB
+expanded**. Leave room for the other archive contents when selecting the cache capacity: setting
+`ssg_cache_max_mib: 64` does not guarantee that 64 MiB of cache fits alongside the rest of the
+deployment. Read the named limit in a failed build: increase this setting only for the private SSG-cache limit;
+reduce output when a different limit is exceeded. Commit and push the configuration change,
+then plan and deploy that new commit.
+
+Cloudflare Static Assets have no cache storage charge: provider storage cost **0 × 1.5 = 0 credits** on
+ohmyho.st. Choosing a larger capacity does not add a storage fee. Build compute and Worker
+request/CPU charges remain unchanged; a cached page can still execute Worker code. See
+[Cloudflare Static Assets billing](https://developers.cloudflare.com/workers/static-assets/billing-and-limitations/).
+
+This cache is refreshed by a new deployment. Time-based or on-demand revalidation and Cache
+Components are unsupported. Preserve existing static pages; do not force every page to render
+dynamically to work around a platform packaging error. If the build log begins a diagnostic
+with `ohmyho.st platform:`, report its operation ID through feedback. An `ohmyho.st packaging:`
+line identifies an output limit the application can address.
 
 ## Completion
 
